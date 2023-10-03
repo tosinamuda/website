@@ -1,0 +1,25 @@
+{
+    "editor.formatOnSave": true,
+    "files.insertFinalNewline": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    },
+    "eslint.lintTask.enable": true,
+    "eslint.workingDirectories": [
+        "./src"
+    ],
+    "emmet.syntaxProfiles": {
+        "javascript": [
+            "jsx",
+            "html"
+        ]
+    },
+    "emmet.includeLanguages": {
+        "javascript": "javascriptreact"
+    },
+    "emmet.triggerExpansionOnTab": true,
+    "files.associations": {
+        "*.rsh": "javascript"
+    },
+    "javascript.suggest.completeFunctionCalls": true
+}
