@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { Post, Author, getHumanFriendlyDate } from '@/lib/api'
+import { getHumanFriendlyDate } from '@/lib/utils'
+import { Post, Author } from '@/lib/types'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faArrowLeft,

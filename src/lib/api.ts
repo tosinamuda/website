@@ -1,7 +1,7 @@
 
-import { format } from 'date-fns';
+import { PreviewData, PostData, Post, PostGraph } from './types';
 
-const API_URL = process.env.WORDPRESS_API_URL || ""
+const API_URL = process.env.WORDPRESS_API_URL ?? ""
 
 async function fetchAPI(query = '', { variables }: Record<string, any> = {}) {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' }
@@ -103,74 +103,6 @@ export async function getAllPostsForHome(preview: boolean) {
 
   return data?.posts
 }
-export interface Post {
-  // Define the properties of a Post
-  id: number;
-  title: string;
-  excerpt: string;
-  slug: string;
-  date: string;
-  status?: 'draft' | 'publish'
-  categories: {
-    edges: { node: { name: string } }[];
-  };
-  author: { node: User }
-  content: string,
-  featuredImage: {
-    node: {
-      sourceUrl: string
-      srcSet: string
-    }
-  }
-  // ... other properties
-}
-
-
-
-export interface PostGraph {
-
-  edges: { node: Post }[];
-
-}
-
-export interface PostData {
-  post: Post;
-  posts: PostGraph;
-}
-
-export interface User {
-  name: string;
-  firstName: string;
-  lastName: string;
-  avatar: { url: string }
-  description: string;
-}
-
-export type Author = User
-
-export interface PreviewData {
-  post?: Post
-}
-
-
-
-export type TagContent = {
-  readonly slug: string;
-  readonly name: string;
-};
-
-export type PostContent = {
-  readonly date: string;
-  readonly title: string;
-  readonly slug: string;
-  readonly tags?: string[];
-  readonly fullPath: string;
-};
-
-
-
-
-
 export async function getPostAndMorePosts(
   slug: string | number,
   preview: boolean,
@@ -352,9 +284,4 @@ export async function getAllPostsForBlogHome(preview: boolean, limit: number = 1
 
 }
 
-/**
- * 
- * @param inputDateString input in this string format e.g '2021-11-24T18:34:05';
- * @return output date in this format 'dd MMM, yyyy' e.g 11 Sep, 2021
- */
-export const getHumanFriendlyDate = (inputDateString: string) => format(new Date(inputDateString), 'dd MMM, yyyy');
+

@@ -1,5 +1,6 @@
 import Footer from '@/components/Footer'
-import { PostData, getAllPostsWithSlug, getPostAndMorePosts } from '@/lib/api'
+import { getAllPostsWithSlug, getPostAndMorePosts } from '@/lib/api'
+import { PostData } from '@/lib/types'
 import { GetStaticPaths, GetStaticProps } from 'next'
 import ErrorPage from 'next/error'
 import Link from 'next/link'

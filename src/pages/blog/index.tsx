@@ -1,6 +1,7 @@
 import { BlogCard, BlogCTA, FeaturedPost } from '@/components/blog'
 import Footer from '@/components/Footer'
-import { getAllPostsForBlogHome, PostGraph } from '@/lib/api'
+import { getAllPostsForBlogHome } from '@/lib/api'
+import { PostGraph } from '@/lib/types'
 import { GetStaticProps } from 'next'
 
 const Blog = ({ allPosts }: { allPosts?: PostGraph }) => {
@@ -118,7 +119,7 @@ export const getStaticProps: GetStaticProps = async ({ preview = false }) => {
       preview,
       tags: [],
       pagination: null,
-    }
+    },
   }
 }
 export default Blog

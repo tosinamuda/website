@@ -1,10 +1,4 @@
-import React from 'react'
-import { GetStaticProps } from 'next'
-import NavBar from '@/components/NavBar'
 import Footer from '@/components/Footer'
-import ScrollToTop from '@/components/ScrollToTop'
-
-import { FeaturedPost, BlogCTA, BlogCard } from '@/components/blog'
 import { HubSpotForm } from '@/components/ContactSection'
 
 const Contact = () => {

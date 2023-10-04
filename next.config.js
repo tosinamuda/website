@@ -4,10 +4,7 @@ const nextConfig = {
   reactStrictMode: true,
   images: {
     unoptimized: true,
-  },
-  assetPrefix: "https://tosinamuda.com/"
+  }
 }
 
-module.exports = {
-  ...nextConfig,
-};
+module.exports = nextConfig
