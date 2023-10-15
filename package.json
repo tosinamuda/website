@@ -6,9 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "deploy": "npm run build; firebase deploy --only hosting",
+    "deploy": "npm run clean; npm run build; firebase deploy --only hosting",
     "export": "next build && next export -o ./dist",
-    "test": "jest"
+    "test": "jest",
+    "clean": "rm -rf .next; rm -rf out"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.4.2",

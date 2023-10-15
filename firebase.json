@@ -5,6 +5,35 @@
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
+    ],
+    "cleanUrls": true,
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ],
+    "redirects": [
+      {
+        "source": "/how-to-containerize-a-react-application",
+        "destination": "/blog/how-to-containerize-a-react-application",
+        "type": 301
+      },
+      {
+        "source": "/12-factor-engineering-best-practices-you-can-learn-from",
+        "destination": "/blog/12-factor-engineering-best-practices-you-can-learn-from",
+        "type": 301
+      },
+      {
+        "source": "/andela-eliminate-stupid-mental-effort-esme",
+        "destination": "/blog/interesting-concept-i-picked-up-eliminate-stupid-mental-effort-esme",
+        "type": 301
+      },
+      {
+        "source": "/understanding-serverless-using-restaurant-server-analogy",
+        "destination": "/blog/understanding-serverless-using-restaurant-server-analogy",
+        "type": 301
+      }
     ]
   }
 }
