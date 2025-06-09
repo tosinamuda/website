@@ -1,5 +1,4 @@
-import React, { SVGAttributes } from 'react'
-import { SVGProps } from './SVGProps'
+import { SVGProps } from './SVGProps';
 
 const DesignSVG = ({ className }: SVGProps) => {
   return (
@@ -21,7 +20,7 @@ const DesignSVG = ({ className }: SVGProps) => {
         <circle id="Oval-14" fill="currentcolor" cx="12" cy="9" r="5"></circle>
       </g>
     </svg>
-  )
-}
+  );
+};
 
-export default DesignSVG
+export default DesignSVG;

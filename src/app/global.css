@@ -1,0 +1,243 @@
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu+Mono&display=swap');
+@import 'normalize.css' layer(base);
+@import 'aos/dist/aos.css' layer(base);
+@import 'tailwindcss';
+@import '@fortawesome/fontawesome-svg-core/styles.css';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@config '../../tailwind.config.ts';
+
+/* @plugin '@frostui/tailwindcss/plugin'; */
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+
+@theme inline {
+  --font-body: 'Be Vietnam Pro', sans-serif;
+  --color-primary: #9333ea;
+  --color-charcoal: #333333;
+}
+
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: theme('colors.gray.200');
+  }
+
+  html {
+    @apply relative scroll-smooth;
+  }
+
+  body {
+    font-size: 15px;
+    @apply font-body overflow-x-hidden text-gray-500;
+  }
+
+  @supports (-webkit-overflow-scrolling: touch) {
+    body {
+      cursor: pointer;
+    }
+  }
+
+  input,
+  textarea,
+  button,
+  select,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-semibold;
+  }
+
+  .vertical-rl {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+  }
+
+  :root:is([data-mode='dark']) {
+    color-scheme: dark;
+  }
+
+  @keyframes rotating {
+    0% {
+      transform: rotate(0deg);
+      top: 10%;
+      left: 5%;
+    }
+
+    100% {
+      transform: rotate(360deg);
+      top: 60%;
+      left: 15%;
+    }
+  }
+
+  @keyframes rotating2 {
+    0% {
+      transform: rotate(0deg);
+      bottom: 10%;
+      right: 10%;
+    }
+
+    100% {
+      transform: rotate(360deg);
+      bottom: 80%;
+      right: 30%;
+    }
+  }
+
+  @keyframes rotating3 {
+    0% {
+      transform: rotate(0deg);
+      bottom: 0%;
+      right: 65%;
+    }
+
+    100% {
+      transform: rotate(360deg);
+      bottom: 50%;
+      right: 35%;
+    }
+  }
+
+  .logo-light {
+    @apply hidden;
+  }
+
+  @screen lg {
+    .logo-light {
+      @apply hidden dark:block;
+    }
+
+    .logo-dark {
+      @apply block dark:hidden;
+    }
+  }
+
+  .navbar-nav .nav-item .nav-link {
+    @apply font-medium relative tracking-wide flex items-center py-1.5 px-3.5 text-gray-800 rounded-md text-sm cursor-pointer transition-all duration-300 bg-transparent;
+  }
+
+  .navbar-nav .nav-item .nav-link:is(.active, :active, :focus, :hover) {
+    @apply text-primary;
+  }
+
+  .navbar-nav .nav-item .nav-item .nav-item .nav-link {
+    @apply text-gray-800;
+  }
+
+  header.nav-sticky {
+    @apply bg-white shadow-sm;
+  }
+
+  header.dark .navbar-nav .nav-item .nav-link {
+    @apply text-gray-100;
+  }
+
+  header.dark .navbar-nav .nav-item .nav-link:is(.active, :active, :focus, :hover) {
+    @apply text-primary;
+  }
+
+  header.dark .navbar-nav .nav-item .fc-dropdown .nav-link {
+    @apply text-gray-800;
+  }
+
+  header.dark .navbar-nav .nav-item .fc-dropdown .nav-link.active {
+    @apply text-primary;
+  }
+
+  @screen lg {
+    header.dark.nav-sticky .logo-light {
+      @apply hidden;
+    }
+
+    header.dark.nav-sticky .logo-dark {
+      @apply block;
+    }
+  }
+
+  header.dark.nav-sticky .navbar-nav .nav-link {
+    @apply text-gray-800 hover:text-primary;
+  }
+
+  header.dark.nav-sticky .navbar-nav .nav-link:is(.active, :active, :focus, :hover) {
+    @apply text-primary;
+  }
+
+  .filter-options li a {
+    @apply text-gray-700 px-4 py-1.5 rounded-sm border border-gray-300 flex items-center justify-center text-sm transition-all duration-500;
+  }
+
+  .filter-options li:hover a,
+  .filter-options li.active a,
+  .filter-options li:active a,
+  .filter-options li:focus a {
+    @apply bg-primary text-white border-transparent shadow-md shadow-primary/25;
+  }
+
+  .blog-text-content p,
+  .blog-text-content div {
+    @apply text-sm/relaxed tracking-wider text-gray-600 mb-5;
+  }
+
+  .wp-block-kevinbatdorf-code-block-pro > span:first-child {
+    @apply !hidden;
+  }
+
+  #__next {
+    height: 100%;
+  }
+
+  .youtube-container {
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-bottom: 56.25%;
+    overflow: hidden;
+    margin-bottom: 50px;
+  }
+
+  .youtube-container iframe {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+}
+
+@utility container {
+  margin-inline: auto;
+
+  padding-inline: 1rem;
+
+  @variant sm {
+    padding-inline: 1rem;
+  }
+
+  @variant md {
+    padding-inline: 1rem;
+  }
+
+  @variant lg {
+    padding-inline: 1rem;
+  }
+
+  @variant xl {
+    padding-inline: 3rem;
+  }
+
+  @variant 2xl {
+    padding-inline: 13rem;
+  }
+}

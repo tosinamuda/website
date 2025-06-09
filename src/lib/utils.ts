@@ -1,4 +1,6 @@
-import { format } from 'date-fns';
+// lib/utils.ts
+
+import { parseISO, format, isValid } from 'date-fns';
 
 /**
  *
@@ -6,4 +8,20 @@ import { format } from 'date-fns';
  * @return output date in this format 'dd MMM, yyyy' e.g 11 Sep, 2021
  */
 
-export const getHumanFriendlyDate = (inputDateString: string) => format(new Date(inputDateString), 'dd MMM, yyyy');
+export const getHumanFriendlyDate = (inputDateString: string) =>
+  format(new Date(inputDateString), 'dd MMM, yyyy');
+
+export function formatDate(dateString: string): string {
+  try {
+    const date = parseISO(dateString);
+
+    if (!isValid(date)) {
+      throw new Error('Invalid date');
+    }
+
+    return format(date, 'MMMM d, yyyy');
+  } catch (error) {
+    console.error('Error formatting date:', error, dateString);
+    return dateString || 'Recent';
+  }
+}

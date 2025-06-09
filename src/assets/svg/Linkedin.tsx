@@ -14,5 +14,5 @@ export default function Linkedin({}) {
       <rect x="2" y="9" width="4" height="12"></rect>
       <circle cx="4" cy="4" r="2"></circle>
     </svg>
-  )
+  );
 }

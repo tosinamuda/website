@@ -1,28 +1,25 @@
-import Link from 'next/link'
-import { getHumanFriendlyDate } from '@/lib/utils'
-import { Post, Author } from '@/lib/types'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {
-  faArrowLeft,
-  faArrowRight,
-  faComment,
-} from '@fortawesome/free-solid-svg-icons'
+import { BlogPost } from '@/lib/blog';
+import { Author, Post } from '@/lib/types';
+import { getHumanFriendlyDate } from '@/lib/utils';
+import { faArrowLeft, faArrowRight, faComment } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Link from 'next/link';
 
-export const BlogCard = ({ post }: { post: Post }) => {
+export const BlogCard = ({ post }: { post: BlogPost }) => {
+  if (!post) return null;
+
   return (
     <div>
       <div className="relative w-full aspect-[3/2] mb-5">
         <img
-          src={post.featuredImage.node.sourceUrl}
-          alt="Your Image"
+          src={post.image || '/images/blog/hero-post.png'}
+          alt="Blog Hero Featured Image"
           className="rounded-md  absolute inset-0 object-cover w-full h-full"
         />
       </div>
 
       <span className="bg-orange-500/10 text-orange-500 font-medium rounded-md text-xs py-1 px-2">
-        <Link href={`/blog/${post.slug}`}>
-          {post.categories.edges[0].node.name}
-        </Link>
+        <Link href={`/blog/${post.slug}`}>{post.categories?.[0] || 'Blog'}</Link>
       </span>
       <h1 className="text-lg my-3 transition-all hover:text-primary line-clamp-2">
         <Link href={`/blog/${post.slug}`}>{post.title}</Link>
@@ -39,15 +36,17 @@ export const BlogCard = ({ post }: { post: Post }) => {
         </Link>
       </div>
     </div>
-  )
-}
+  );
+};
 export const FeaturedPost = ({ post }: { post: Post }) => {
+  if (!post) return null;
+
   return (
     <>
       <div className="md:col-span-2 col-span-3">
         <div className="relative w-full aspect-[1/1]">
           <img
-            src={post.featuredImage.node.sourceUrl}
+            src={post.featuredImage?.node?.sourceUrl || '/images/blog/hero-post.png'}
             alt="Your Image"
             className="rounded-md  absolute inset-0 object-cover w-full h-full"
           />
@@ -58,13 +57,11 @@ export const FeaturedPost = ({ post }: { post: Post }) => {
           <div>
             <span className="bg-orange-500/10 text-orange-500 font-medium rounded-md text-xs py-1 px-2">
               <a href="#" className="capitalize">
-                {post.categories.edges[0].node.name || `Blog`}
+                {post.categories?.edges?.[0]?.node?.name || `Blog`}
               </a>
             </span>
             <h1 className="text-lg my-3 transition-all hover:text-primary">
-              <Link href={`/blog/${post.slug}`}>
-                {post?.title || 'Tosin Amuda - Blog...'}
-              </Link>
+              <Link href={`/blog/${post.slug}`}>{post?.title || 'Tosin Amuda - Blog...'}</Link>
             </h1>
             <div className="text-sm/relaxed tracking-wider text-gray-500">
               <div
@@ -81,12 +78,13 @@ export const FeaturedPost = ({ post }: { post: Post }) => {
           <div>
             <div className="flex items-center gap-2">
               <img
-                src={post.author.node.avatar.url}
+                src={post.author?.node?.avatar?.url || '/images/avatars/default.jpg'}
                 className="h-10 w-10 rounded-md"
+                alt="Author Avatar"
               />
               <div>
                 <h6 className="text-sm transition-all hover:text-primary">
-                  <Link href="/about">{post.author.node.name}</Link>
+                  <Link href="/about">{post.author?.node?.name || 'Author'}</Link>
                 </h6>
                 <p className="text-sm text-gray-500">
                   {getHumanFriendlyDate(post.date)} · 3 min read
@@ -97,19 +95,22 @@ export const FeaturedPost = ({ post }: { post: Post }) => {
         </div>
       </div>
     </>
-  )
-}
+  );
+};
 export function BlogCTA({ post }: { post: Post }) {
+  if (!post) return null;
+
   return (
     <div className="border relative shadow-xl rounded-lg w-full">
       <div className="relative">
         <div className="absolute inset-0 bg-black/20"></div>
-        <div className="absolute top-4 right-4 text-sm bg-red-500 text-white rounded py-1 px-3">
+        <div className="absolute top-4 right-4 text-sm bg-red-500 text-white rounded-sm py-1 px-3">
           Resource
         </div>
         <img
-          src={post.featuredImage.node.sourceUrl}
+          src={post.featuredImage?.node?.sourceUrl || '/images/blog/hero-post.png'}
           className="w-full aspect-[3/2] object-cover"
+          alt="Featured Post"
         />
 
         <div className="absolute right-5 bottom-3 left-5 text-white">
@@ -117,47 +118,18 @@ export function BlogCTA({ post }: { post: Post }) {
             <Link href={`blog/${post.slug}`}>{post.title}</Link>
           </h2>
           <div className="flex mt-3">
-            <a href="" className="ms-1 -me-3 shadow-lg">
+            <a href="#" className="ms-1 -me-3 shadow-lg">
               <img
-                src={post.author.node.avatar.url}
-                alt="image"
+                src={post.author?.node?.avatar?.url || '/images/avatars/default.jpg'}
+                alt="Author Avatar"
                 className="w-8 h-8 shadow-lg border-2 border-white rounded-full"
               />
             </a>
-            {/* <a href="" className="ms-1 -me-3 shadow-lg">
-                        <img src="images/avatars/img-2.jpg" alt="image" className="w-8 h-8 shadow-lg border-2 border-white rounded-full" />
-                      </a>
-                      <a href="" className="ms-1 -me-3 shadow-lg">
-                        <img src="images/avatars/img-3.jpg" alt="image" className="w-8 h-8 shadow-lg border-2 border-white rounded-full" />
-                      </a> */}
           </div>
         </div>
       </div>
     </div>
-  )
-}
-function BlogPagination() {
-  return (
-    <div className="flex justify-center items-center gap-2">
-      <div className="flex items-center">
-        <a
-          href="#"
-          className="border border-gray-300 rounded-md text-sm tracking-wider transition-all duration-150 hover:shadow-lg focus:shadow-lg py-2 px-3"
-        >
-          <FontAwesomeIcon icon={faArrowLeft} className="me-2" /> Previous
-        </a>
-      </div>
-
-      <div className="flex items-center">
-        <a
-          href="#"
-          className="border border-gray-300 rounded-md text-sm tracking-wider transition-all duration-150 hover:shadow-lg focus:shadow-lg py-2 px-3"
-        >
-          Next <FontAwesomeIcon icon={faArrowRight} className="ms-2" />
-        </a>
-      </div>
-    </div>
-  )
+  );
 }
 
 export function BlogComment() {
@@ -170,16 +142,13 @@ export function BlogComment() {
 
       <div>
         <div className="flex gap-3 my-6">
-          <img
-            src="/images/avatars/img-4.jpg"
-            className="h-11 w-11 rounded-md"
-          />
+          <img src="/images/avatars/img-4.jpg" className="h-11 w-11 rounded-md" alt="User Avatar" />
           <div>
             <h6 className="text-sm mb-1">Sansa Stark</h6>
             <p className="text-sm text-gray-500">2 days ago</p>
             <p className="text-sm/relaxed tracking-wider text-gray-600 mt-2">
-              At vero eos et accusamus et iusto odio dignissimos ducimus qui
-              blanditiis praesentium voluptatum deleniti atque.
+              At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium
+              voluptatum deleniti atque.
             </p>
             <a href="#" className="text-primary text-sm">
               <FontAwesomeIcon icon={faComment} className="me-1" /> Reply
@@ -189,14 +158,14 @@ export function BlogComment() {
               <img
                 src="/images/avatars/img-1.jpg"
                 className="h-11 w-11 rounded-md"
+                alt="User Avatar"
               />
               <div>
                 <h6 className="text-sm mb-1">Cersei Lannister</h6>
                 <p className="text-sm text-gray-500">1 days ago</p>
                 <p className="text-sm/relaxed tracking-wider text-gray-600 mt-2">
-                  Itaque earum rerum hic tenetur sapiente delectus aut
-                  reiciendis voluptatibus maiores alias consequatur aut
-                  perferendis
+                  Itaque earum rerum hic tenetur sapiente delectus aut reiciendis voluptatibus
+                  maiores alias consequatur aut perferendis
                 </p>
                 <a href="#" className="text-primary text-sm">
                   <FontAwesomeIcon icon={faComment} className="me-1" /> Reply
@@ -209,16 +178,13 @@ export function BlogComment() {
         <div className="border-b"></div>
 
         <div className="flex gap-3 my-6">
-          <img
-            src="/images/avatars/img-2.jpg"
-            className="h-11 w-11 rounded-md"
-          />
+          <img src="/images/avatars/img-2.jpg" className="h-11 w-11 rounded-md" alt="User Avatar" />
           <div>
             <h6 className="text-sm mb-1">Sansa Stark</h6>
             <p className="text-sm text-gray-500">2 days ago</p>
             <p className="text-sm/relaxed tracking-wider text-gray-600 mt-2">
-              At vero eos et accusamus et iusto odio dignissimos ducimus qui
-              blanditiis praesentium voluptatum deleniti atque.
+              At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium
+              voluptatum deleniti atque.
             </p>
             <a href="#" className="text-primary text-sm">
               <FontAwesomeIcon icon={faComment} className="me-1" /> Reply
@@ -228,14 +194,14 @@ export function BlogComment() {
       </div>
 
       <div className="mt-14">
-        <div className="border bg-white rounded p-6">
+        <div className="border bg-white rounded-sm p-6">
           <h1>Post a comment</h1>
 
           <div className="flex flex-col gap-5 mt-5">
             <div className="grid md:grid-cols-2 grid-cols-1 gap-5">
               <div>
                 <input
-                  className="rounded border-gray-300 focus:border-gray-400 focus:ring-0 w-full text-sm"
+                  className="rounded-sm border-gray-300 focus:border-gray-400 focus:ring-0 w-full text-sm"
                   type="text"
                   id="fname"
                   name="fname"
@@ -244,7 +210,7 @@ export function BlogComment() {
               </div>
               <div>
                 <input
-                  className="rounded border-gray-300 focus:border-gray-400 focus:ring-0 w-full text-sm"
+                  className="rounded-sm border-gray-300 focus:border-gray-400 focus:ring-0 w-full text-sm"
                   type="email"
                   id="email"
                   name="email"
@@ -255,7 +221,7 @@ export function BlogComment() {
 
             <div>
               <input
-                className="rounded border-gray-300 focus:border-gray-400 focus:ring-0 w-full text-sm"
+                className="rounded-sm border-gray-300 focus:border-gray-400 focus:ring-0 w-full text-sm"
                 type="text"
                 id="Subject"
                 name="Subject"
@@ -265,7 +231,7 @@ export function BlogComment() {
 
             <div>
               <textarea
-                className="rounded border-gray-300 focus:border-gray-400 focus:ring-0 w-full text-sm"
+                className="rounded-sm border-gray-300 focus:border-gray-400 focus:ring-0 w-full text-sm"
                 id="message"
                 name="message"
                 rows={5}
@@ -276,7 +242,7 @@ export function BlogComment() {
             <button className="flex">
               <a
                 href="#"
-                className="bg-black/70 text-white rounded-md text-sm font-semibold flex-none shadow shadow-black hover:shadow-lg hover:shadow-black/30 focus:shadow-none focus:outline focus:outline-black/50 px-5 py-3"
+                className="bg-black/70 text-white rounded-md text-sm font-semibold flex-none shadow-sm shadow-black hover:shadow-lg hover:shadow-black/30 focus:shadow-none focus:outline focus:outline-black/50 px-5 py-3"
               >
                 Submit
               </a>
@@ -285,7 +251,7 @@ export function BlogComment() {
         </div>
       </div>
     </>
-  )
+  );
 }
 export function BlogTags({}) {
   return (
@@ -323,7 +289,7 @@ export function BlogTags({}) {
         </a>
       </div>
     </div>
-  )
+  );
 }
 export function BlogShare({}) {
   return (
@@ -382,7 +348,7 @@ export function BlogShare({}) {
         </span>
       </div>
     </>
-  )
+  );
 }
 
 export function PostCursor({ author }: { author: Author }) {
@@ -408,11 +374,13 @@ export function PostCursor({ author }: { author: Author }) {
                 role="tooltip"
               >
                 <div className="flex items-center gap-5">
-                  <img src="/images/blog/blog-3.png" className="w-16 rounded" />
+                  <img
+                    src="/images/blog/blog-3.png"
+                    className="w-16 rounded-sm"
+                    alt="Blog Post Thumbnail"
+                  />
                   <div>
-                    <h6 className="text-sm">
-                      Introducing new blazzing fast user interface
-                    </h6>
+                    <h6 className="text-sm">Introducing new blazzing fast user interface</h6>
                     <p className="text-sm text-gray-500">by Emily Blunt</p>
                   </div>
                 </div>
@@ -428,7 +396,7 @@ export function PostCursor({ author }: { author: Author }) {
         <div className="col-span-2">
           <div className="my-5 md:my-0">
             <div className="flex md:justify-center justify-start items-center gap-4">
-              <img src={author.avatar.url} className="h-12 w-12 rounded-full" />
+              <img src={author.avatar.url} className="h-12 w-12 rounded-full" alt="Author Avatar" />
               <div>
                 <h6 className="text-sm transition-all hover:text-primary">
                   <a href="#">{author.name}</a>
@@ -452,7 +420,11 @@ export function PostCursor({ author }: { author: Author }) {
             role="tooltip"
           >
             <div className="flex items-center gap-5">
-              <img src="/images/blog/blog-2.png" className="w-16 rounded" />
+              <img
+                src="/images/blog/blog-2.png"
+                className="w-16 rounded-sm"
+                alt="Blog Post Thumbnail"
+              />
               <div>
                 <h6 className="text-sm">What you should know before...</h6>
                 <p className="text-sm text-gray-500">by Emily Blunt</p>
@@ -468,5 +440,5 @@ export function PostCursor({ author }: { author: Author }) {
 
       <div className="border-b mt-5"></div>
     </>
-  )
+  );
 }

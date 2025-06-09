@@ -1,4 +1,4 @@
-import { SVGProps } from './SVGProps'
+import { SVGProps } from './SVGProps';
 const DevelopmentSVG = ({ className }: SVGProps) => {
   return (
     <svg
@@ -17,7 +17,7 @@ const DevelopmentSVG = ({ className }: SVGProps) => {
         ></path>
       </g>
     </svg>
-  )
-}
+  );
+};
 
 export default DevelopmentSVG;

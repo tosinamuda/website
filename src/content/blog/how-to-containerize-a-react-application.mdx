@@ -1,0 +1,137 @@
+---
+title: 'How to Containerize a React Application'
+excerpt: 'Learn how to containerize your React application using Docker with a step-by-step guide from creating a Dockerfile to running your container.'
+date: '2020-03-11'
+author: 'Tosin Amuda'
+authorImage: 'https://secure.gravatar.com/avatar/f19ea64b88a4f45cc5d07f38ba4be48c?s=96&d=mm&r=g'
+featured: false
+categories: ['Engineering', 'DevOps']
+tags: ['Docker', 'React', 'Containers', 'Kubernetes', 'Nginx']
+image: '/images/blog/react-containerize.jpg'
+---
+
+# How to Containerize a React Application
+
+Containers and Kubernetes are some of the recent [darlings of developers in 2021](https://www.redhat.com/rhdc/managed-files/pa-hpe-containers-idg-analyst-material-f23712-202005-en.pdf). This week I needed to deploy a React app I was building to a Kubernetes (k8s) environment and I had to write a Dockerfile for my react app. It then dawned on me how I could I have used docker in 2013.
+
+Before we go into the main guide, I think it is important to understand how we got to loving Containers. In one of the internships I did, I was a Pre-Sales Engineer for [EduERP](https://dev.datasphir.com/projects/eduerp) an open-source ERP for universities.
+
+EduERP was built using the LAMP stack (Linux, Apache, Mysql and PHP) and had a number of dependencies. I will usually guide a potential customer from a university on each step to successfully deploy the app on their own server. This could take a week, setting up the server, installing all the dependencies needed by the application and doing all the configuration to make the app work could take a week. This was sometimes in October 2013 I didn't know of Docker yet.
+
+## The Modern Approach
+
+Today all I needed to do are rooted in five basic steps:
+
+1. Create a **Dockerfile** containing all the instructions for installing the needed dependencies and running the application.
+2. Build the Docker Image from the Dockerfile
+3. Push the Docker image to a Container Repository
+4. Client Pulls the Docker image from the Container Repository
+5. Client Runs the Docker Container
+
+With these 5 steps, I would have saved my time and my client time and we would be able to get an EduERP up in 5 minutes depending on the internet speed while building the docker image. And each client will have the same experience so far they have docker running on their system and there is guarantee that the installation process will work.
+
+## Pre-Requisites
+
+Before we start, make sure you have:
+
+- Node.js setup on your development environment
+- Docker installed
+- Terminal of choice
+
+If you don't have an existing react app, set up a new react app by running:
+
+```bash
+npx create-react-app my-app
+```
+
+cd into your my-app folder by running:
+
+```bash
+cd my-app
+```
+
+Create an nginx configuration file that docker nginx image will use to serve the build of the website. Add a new file `nginx.conf` in your new folder by running:
+
+```bash
+touch nginx.conf
+```
+
+Add the following content to the file:
+
+```nginx
+server {
+    listen 8080;
+    server_name frontend;
+    location / {
+        root /usr/share/nginx/html;
+        try_files $uri /index.html;
+    }
+}
+```
+
+## Step 1: Create Your Dockerfile
+
+My trick for writing a Dockerfile is understanding the normal workflow for developing and building the app. Typically for React Apps, you will do the following:
+
+1. `npm install` to install all dependencies
+2. `npm run build` to build your app usually into a build folder
+3. serve the website from your build folder through a web server of your choice. For this tutorial, we will be using Nginx
+
+Now it is time to create our Dockerfile. Create a new file on your terminal by running:
+
+```bash
+touch Dockerfile
+```
+
+Or you can just add new file in your Editor to the root of your new react app folder.
+
+```dockerfile
+FROM bitnami/node:12-prod as builder
+WORKDIR /app
+COPY ./package.json /app/package.json
+COPY ./yarn.lock /app/yarn.lock
+ENV NODE_ENV=production
+RUN yarn install --production
+COPY . .
+RUN yarn build
+
+FROM nginxinc/nginx-unprivileged
+COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /app/build /usr/share/nginx/html
+EXPOSE 8080
+```
+
+A few things to note in the docker file are the keywords like FROM, WORKDIR, COPY, ENV, RUN & EXPOSE.
+
+You can read more about each of these keywords in the [Docker documentation](https://docs.docker.com/engine/reference/builder/#from).
+
+## Step 2: Build our Docker Image
+
+Run this command to build your docker image, feel free to use any appropriate name for your image instead of "my-react-app-name":
+
+```bash
+docker build -t my-react-app-name .
+```
+
+I will skip the [push and pull](https://docs.docker.com/engine/reference/commandline/push/) to a container repository for this tutorial and just go to running the container on your machine to test if everything goes right.
+
+## Step 3: Run your Docker Container
+
+To run your docker container you have to pay attention to three things:
+
+- **Container Internal Port**: typically by default this will run on PORT 8080 in our case inside the container
+- **Your Host System Port**: this is the port of your machine, for you to be able to access the react app in the browser you need to bind the container port to a port on your system
+- You will need to use this same name used in the `my-react-app-name` in Step 2
+
+```bash
+docker run -p 8080:8080 my-react-app-name
+```
+
+If everything works fine, if you go to `http://localhost:8080` you should see your newly containerized react application.
+
+## Next Steps
+
+- Push the image to a container repository (Docker Hub, etc)
+- Create a Kubernetes (k8s) Pod definition to run our react image
+
+With Docker containers, deployment becomes consistent and predictable across different environments, solving the age-old problem of "it works on my machine" syndrome.
