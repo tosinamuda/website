@@ -1,4 +1,4 @@
-import { SVGProps } from "./SVGProps"
+import { SVGProps } from './SVGProps';
 
 const ProductSVG = ({ className }: SVGProps) => {
   return (
@@ -24,7 +24,7 @@ const ProductSVG = ({ className }: SVGProps) => {
         ></path>
       </g>
     </svg>
-  )
-}
+  );
+};
 
-export default ProductSVG
+export default ProductSVG;

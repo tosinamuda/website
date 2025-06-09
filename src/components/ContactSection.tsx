@@ -1,52 +1,24 @@
-import { useEffect } from 'react'
-import Link from 'next/link'
+import * as motion from 'motion/react-client';
+import { HubSpotForm } from './HubSpotForm';
+import { SocialLinks } from './SocialLinks';
 
-export const HubSpotForm = () => {
-  useEffect(() => {
-    // Load the HubSpot form script
-    const script = document.createElement('script')
-    script.charset = 'utf-8'
-    script.type = 'text/javascript'
-    script.src = '//js-eu1.hsforms.net/forms/embed/v2.js'
-    document.body.appendChild(script)
-
-    script.addEventListener('load', () => {
-      // @TS-ignore
-      if (window.hbspt) {
-        // @TS-ignore
-        window.hbspt.forms.create({
-          region: 'eu1',
-          portalId: '143399522',
-          formId: '4414ec34-6bb9-498d-9490-af8f457b8e47',
-          target: '#hubspot-form',
-        })
-      }
-    })
-
-    // Clean up: remove the script when the component unmounts
-    return () => {
-      document.body.removeChild(script)
-    }
-  }, [])
-
-  return <div id="hubspot-form" className="w-full"></div>
-}
-
-export default function ContactSection({}) {
+export default function ContactSection() {
   return (
     <div className="grid lg:grid-cols-2 grid-cols-1 gap-6">
-      <div data-aos="fade-up" data-aos-duration="600" className="aos-init">
-        <h2 className="md:text-3xl text-xl font-semibold my-5">Let's Talk!</h2>
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        viewport={{ once: true, margin: '-50px' }}
+      >
+        <h2 className="md:text-3xl text-xl font-semibold my-5">Let&apos;s Talk!</h2>
         <p className="text-slate-700">
-          I am open to discuss your next project, improve user experience of an
-          existing one or help with your UX/UI design challenges.
+          I am open to discussing anything of interest, whether it&apos;s a new idea, a hobby, or a
+          topic you&apos;re passionate about.
         </p>
         <p className="text-slate-500 mt-12">Email me at</p>
         <h4>
-          <a
-            href="mailto:tosin@tosinamuda.com"
-            className="text-lg font-semibold text-slate-600"
-          >
+          <a href="mailto:tosin@tosinamuda.com" className="text-lg font-semibold text-slate-600">
             tosin[at]tosinamuda.com
           </a>
         </h4>
@@ -58,39 +30,16 @@ export default function ContactSection({}) {
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
-      <div data-aos="fade-up" data-aos-duration="900" className="aos-init">
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.3 }}
+        viewport={{ once: true, margin: '-50px' }}
+      >
         <HubSpotForm />
-      </div>
+      </motion.div>
     </div>
-  )
-}
-
-export function SocialLinks({}) {
-  return (
-    <>
-      {' '}
-      <div>
-        <Link href="/">
-          <img src="/images/svg/web.svg" className="w-7 h-7" />
-        </Link>
-      </div>
-      <div>
-        <Link href="https://linkedin.com/in/tosinamuda">
-          <img src="/images/svg/linkedin.svg" className="w-7 h-7" />
-        </Link>
-      </div>
-      <div>
-        <Link href="https://x.com/tosinamuda">
-          <img src="/images/svg/twitter.svg" className="w-7 h-7" />
-        </Link>
-      </div>
-      <div>
-        <Link href="https://github.com/tosinamuda">
-          <img src="/images/svg/github.svg" className="w-7 h-7" />
-        </Link>
-      </div>
-    </>
-  )
+  );
 }

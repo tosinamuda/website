@@ -18,5 +18,5 @@ export default function Github() {
         </clipPath>
       </defs>
     </svg>
-  )
+  );
 }

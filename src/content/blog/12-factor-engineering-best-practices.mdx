@@ -1,0 +1,97 @@
+---
+title: '"12-Factor" Engineering Best Practices You Can Learn From'
+excerpt: 'Learn the 12 principles introduced by Heroku engineers for developing high-quality web applications with scale, robustness, and portability in mind.'
+date: '2020-03-11'
+author: 'Tosin Amuda'
+authorImage: 'https://secure.gravatar.com/avatar/f19ea64b88a4f45cc5d07f38ba4be48c?s=96&d=mm&r=g'
+featured: false
+categories: ['Engineering']
+tags: ['Software Engineering', 'Best Practices', 'Web Development', '12-Factor']
+image: '/images/blog/12-Factor-Apps.png'
+---
+
+# "12-Factor" Engineering Best Practices You Can Learn From
+
+During my CS days in University of Lagos I have always wondered why Software Engineering was called engineering. Before then, I had always thought engineering had to be hardware.
+
+Luckily, Ian Sommerville was thinking about confused people like me when he wrote his popular book **Software Engineering**. I found the answer in this book where he described Software Engineering as "an engineering discipline which is concerned with all aspects of software production".
+
+He went further to explain that SE is an Engineering discipline because like every other engineering field, engineers make things work by applying **theories, methods and tools** where appropriate. Also, we can add that Engineers apply **best practices**, best methods and tools used by other other engineers in other to avoid already solved problems.
+
+Similarly, in this article, we will learn 12 Factors, engineers at Heroku came up with for developing a high quality web application for scale, robustness and portability.
+
+## The 12th-Factor Application Methodology
+
+The [12th Factor](https://12factor.net/) Application Methodology contains 12 principles on how to build a high quality Web Application/SaaS. These best practices were introduced by Engineers at Heroku. It stemmed out of their experience developing, deploying and scaling thousands through their works on the Heroku platform.
+
+### Factor 1: Codebase – One codebase tracked in revision control, many deploys
+
+- The source code for your application should be tracked in a version control system e.g git.
+- You should have one single repository per application from which you can build on and deploy different versions -Some people achieve the different versions by using a feature based branched called [Git Flow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow), where you have a main branch, a develop branch and feature branches.
+
+### Factor 2: Dependencies – Explicitly declare and isolate dependencies
+
+- Do not copy dependencies to your source code directly, use a package manager to declare your dependencies.
+- For example for Node.Js Application, the major package mangers used are NPM or Yarn. In Python you have pip, in PHP you have Composer.
+- You can use NPM/Yarn to declare your dependencies in a package.json
+
+### Factor 3: Config – Store config in the environment
+
+- A config is a value that varies across the different environments for example your database config for **test environment** is most likely different from **production**.
+- Therefore, all configuration especially secret keys should be separated from the code and securely stored as environment variables
+
+### Factor 4: Backing Services – Treat backing services as attached resources
+
+- A backing service is any service the app consumes over the network as part of its normal operation. For example, a database (such as MySQL or MongoDB), messaging/queueing systems (such as RabbitMQ or Beanstalkd) etc.
+- You must be able to easily swap between a local DB and a managed DB like Amazon RDS without making changes to your code. To the app, both are attached resources, accessed via a URL or other locator/credentials stored in the config.
+
+### Factor 5: Build, Run, Release – Strictly separate build and run stages
+
+- Make use of CI/CD pipeline with build, test and deploy stages to deploy a 12-factor apps
+- There must be a strict separation between Build, Release and Run stages.
+- The **build** stage is a transform which converts a code repo into an executable bundle known as a build.
+- The **release** stage takes the build produced by the build stage and combines it with the deploy's current config.
+- The **run stage** (also known as "runtime") runs the app in the execution environment, by launching some set of the app's processes against a selected release.
+- Every release should always have a unique release ID such as timestamp
+- Releases should allow rollback.
+
+### Factor 6: Stateless Processes – Execute the app as one or more stateless processes
+
+- Your app should be executed as a one or more stateless process for example your nodejs application process will typically be started as `node index.js`
+- Twelve-factor processes are stateless and share-nothing. Any data that needs to persist must be stored in a stateful backing service, typically a database.
+
+### Factor 7: Port Binding – Export services via port binding
+
+- Your service should be visible to others via port binding.
+- Note also that the port-binding approach means that one app can become the backing service for another app, by providing the URL to the backing app as a resource handle in the config for the consuming app.
+
+### Factor 8: Concurrency – Scale out via the process model
+
+- In twelve-factor app, the developer can architect their app to handle diverse workloads by assigning each type of work to a process type.
+- For example, HTTP requests may be handled by a web process, and long-running background tasks handled by a worker process.
+- The process model truly shines when it comes time to scale out.
+
+### Factor 9: Disposability – Maximize robustness with fast startup and graceful shutdown
+
+- "The twelve-factor app's processes are disposable, meaning they can be started or stopped at a moment's notice."
+- Make sure you can start and stop a process as fast as possible.
+- Short startup time provides more agility for the release process and scaling up.
+- Make sure you can handle failure gracefully.
+
+### Factor 10: Dev-Prod Parity – Keep development, staging, and production as similar as possible
+
+- Why? So anyone can understand it and release it.
+- There are several possible causes of gaps between what is in Development and production. For example: The tools gap: Developers may be using a stack like Nginx, SQLite, and OS X, while the production deploy uses Apache, MySQL, and Linux.
+- The twelve-factor app is designed for continuous deployment by keeping the gap between development and production small.
+
+### Factor 11: Logs – Treat logs as event streams
+
+- Logging is important for debugging and checking up on the general health of your application. -A twelve-factor app never concerns itself with routing or storage of its output stream. It should not attempt to write to or manage logfiles. Instead, each running process writes its event stream, unbuffered, to stdout.
+- These logs should be treated as a continuous stream that is captured and stored by a separate service.
+
+### Factor 12: Admin Processes – Run admin/management tasks as one-off processes
+
+- Developers will often wish to do one-off administrative or maintenance tasks for the app, such as: running database migrations or running a script or cron job.
+- One-off admin processes should be run in an identical environment as the regular long-running processes of the app.
+- They run against a release, using the same codebase and config as any process run against that release.
+- Admin code must ship with application code to avoid synchronization issues.

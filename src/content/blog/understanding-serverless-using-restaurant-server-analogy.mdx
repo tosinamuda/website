@@ -1,0 +1,57 @@
+---
+title: 'Understanding Serverless using Restaurant Server Analogy'
+excerpt: 'A simple explanation of the Serverless Cloud model using the analogy of two different types of restaurants - traditional busy restaurants vs. futuristic clone-based service.'
+date: '2020-03-11'
+author: 'Tosin Amuda'
+authorImage: 'https://secure.gravatar.com/avatar/f19ea64b88a4f45cc5d07f38ba4be48c?s=96&d=mm&r=g'
+featured: false
+categories: ['Engineering']
+tags: ['Serverless', 'Cloud Computing', 'AWS Lambda', 'Architecture', 'Technology']
+image: '/images/blog/serverless-function.jpeg'
+---
+
+# Understanding Serverless using Restaurant Server Analogy
+
+I will try to explain to you in few minutes, what the **Serverless Cloud model** is about using two types of restaurant.
+
+## Busy Restaurant with Typical Server
+
+Imagine you walk into a busy restaurant, what you will typically notice is that they are more orders than servers. So they have to treat every request in a first come first serve manner while some.
+
+Maybe during the holiday season and there is a spike in the number of customer then the wait time from when customer place an order to when the food comes will increase.
+
+This is what typically happens in a Server-based model in the cloud, one server will attend to several workloads, of course there are advance architecture where you can have several severs with a load balancer making sure the workload is spread across a cluster of servers.
+
+## Restaurant of the Future – Serverless
+
+But imagine you work into a restaurant where they employ a Human Clone Outsourcing company to clone a new server every time there is a new order and immediately assigned the clone to an order. When the order has been attended to, the clone is destroyed. This way there is always a clone server to attend to a new order even if there is a spike.
+
+On the cloud, what would typically happen is that a container build for a function exists that is cloned per new request or event-based triggers.
+
+Cloud services offering Serverless services allows you to write your code in your favourite programming language (NodeJS, Python, Java etc) without you worrying about where or how to host them. Or worrying about scaling because Serverless model autoscale with any amount of request you get.
+
+## What are the benefits with Serverless Model?
+
+1. It is the cheapest model in the cloud. You pay for only when your code is executed No fixed rental charges.
+
+2. You don't have to worry about scaling because for every invocation of your functions, a new build of your code is run to handle the request/event
+
+3. You don't have to worry about Server tunning, configuration or management
+
+## What kind of Use Cases will benefit from Serverless?
+
+1. Event-Based notification functions like sending emails, SMS for newly registered users, Generate PDF version of your website report.
+
+2. Time-Based Trigger: Serverless support cron job like feature where you can run certain functions at certain time or every period like every five minute, every first day of the week. You can use this to send birthday messages, generate Monthly Reports.
+
+Popular Serverless Platforms in no particular order:
+
+1. AWS Lambda
+
+2. Google Cloud Functions (Firebase functions)
+
+3. Azure Functions
+
+4. IBM Cloud Functions
+
+Do let me know if this article was helpful in understanding the serverless model.
