@@ -1,6 +1,8 @@
 import { getBlogPosts } from '@/lib/blog';
 import { MetadataRoute } from 'next';
 
+export const dynamic = 'force-static';
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Base URL - update this to your actual domain
   const baseUrl =
