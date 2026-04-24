@@ -1,0 +1,93 @@
+<blog-post
+  title="12-Factor Engineering Best Practices You Can Learn From"
+  excerpt="Learn the 12 principles introduced by Heroku engineers for developing high-quality web applications with scale, robustness, and portability in mind."
+  date="2020-03-11">
+  <script type="application/json" id="meta">
+    { "type": "essay", "categories": ["Engineering"] }
+  </script>
+
+  <p>During my Computer Science days at the University of Lagos, I used to wonder why software engineering was called engineering. Before then, I had always thought engineering had to be hardware.</p>
+
+  <p>Luckily, Ian Sommerville was thinking about confused people like me when he wrote <strong>Software Engineering</strong>. He described software engineering as an engineering discipline concerned with all aspects of software production.</p>
+
+  <p>That framing helped. Engineering is still engineering because we make things work by applying theories, methods, and tools where appropriate. We also inherit best practices from other engineers so we can avoid already solved problems.</p>
+
+  <p>Similarly, the 12-factor methodology introduced by engineers at Heroku offers practical principles for building high-quality web applications with scale, robustness, and portability in mind.</p>
+
+  <h2>The 12-factor application methodology</h2>
+
+  <p>The <a href="https://12factor.net/">12th Factor</a> application methodology contains 12 principles for building a strong web application or SaaS product. It came from Heroku engineers after developing, deploying, and scaling thousands of applications.</p>
+
+  <h3>Factor 1: Codebase</h3>
+  <ul>
+    <li>Track your source code in version control.</li>
+    <li>Keep one codebase per app and use branching strategies for different deployment paths.</li>
+  </ul>
+
+  <h3>Factor 2: Dependencies</h3>
+  <ul>
+    <li>Declare dependencies explicitly with package managers such as npm, Yarn, pip, or Composer.</li>
+    <li>Avoid copying dependencies into source code directly.</li>
+  </ul>
+
+  <h3>Factor 3: Config</h3>
+  <ul>
+    <li>Store configuration in the environment.</li>
+    <li>Separate secrets and environment-specific values from application code.</li>
+  </ul>
+
+  <h3>Factor 4: Backing Services</h3>
+  <ul>
+    <li>Treat databases, queues, and similar services as attached resources.</li>
+    <li>Be able to switch between local and managed services without rewriting the application.</li>
+  </ul>
+
+  <h3>Factor 5: Build, Release, Run</h3>
+  <ul>
+    <li>Separate build, release, and run stages strictly.</li>
+    <li>Use CI/CD pipelines with test and deploy stages.</li>
+    <li>Give each release a unique identifier and preserve rollback options.</li>
+  </ul>
+
+  <h3>Factor 6: Stateless Processes</h3>
+  <ul>
+    <li>Run the app as one or more stateless processes.</li>
+    <li>Persist state in backing services rather than application memory.</li>
+  </ul>
+
+  <h3>Factor 7: Port Binding</h3>
+  <ul>
+    <li>Export services via port binding.</li>
+    <li>Make it possible for one application to become another application's backing service.</li>
+  </ul>
+
+  <h3>Factor 8: Concurrency</h3>
+  <ul>
+    <li>Scale through the process model.</li>
+    <li>Separate HTTP work, workers, and other workloads into explicit process types.</li>
+  </ul>
+
+  <h3>Factor 9: Disposability</h3>
+  <ul>
+    <li>Optimize for fast startup and graceful shutdown.</li>
+    <li>Disposable processes make releases and scaling safer.</li>
+  </ul>
+
+  <h3>Factor 10: Dev-Prod Parity</h3>
+  <ul>
+    <li>Keep development, staging, and production environments as similar as possible.</li>
+    <li>Small gaps reduce surprises and improve continuous delivery.</li>
+  </ul>
+
+  <h3>Factor 11: Logs</h3>
+  <ul>
+    <li>Treat logs as event streams.</li>
+    <li>Emit logs to standard output and let external systems handle routing and storage.</li>
+  </ul>
+
+  <h3>Factor 12: Admin Processes</h3>
+  <ul>
+    <li>Run management tasks as one-off processes in the same environment as the main app.</li>
+    <li>Ship admin code with the application to avoid synchronization issues.</li>
+  </ul>
+</blog-post>
