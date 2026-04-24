@@ -1,0 +1,50 @@
+<blog-post
+  title="Understanding Serverless using a Restaurant Server Analogy"
+  excerpt="A simple explanation of the serverless cloud model using the analogy of two different types of restaurants: traditional busy restaurants versus futuristic clone-based service."
+  date="2020-03-11">
+  <script type="application/json" id="meta">
+    { "type": "essay", "categories": ["Engineering"] }
+  </script>
+
+  <p>I will try to explain the <strong>serverless cloud model</strong> using the analogy of two kinds of restaurants.</p>
+
+  <h2>Busy restaurant with a typical server</h2>
+
+  <p>Imagine you walk into a busy restaurant and notice that there are more orders than servers. Requests are handled first come, first served, and when demand spikes, wait times increase.</p>
+
+  <p>That is similar to a traditional server-based model in the cloud. One server attends to several workloads, and even when load balancing spreads the traffic, the system still depends on pre-provisioned servers.</p>
+
+  <h2>Restaurant of the future: serverless</h2>
+
+  <p>Now imagine a restaurant that employs a human clone outsourcing company. Every time a new order arrives, a fresh server-clone is created, assigned to that order, and destroyed as soon as the work is done.</p>
+
+  <p>That is the shape of serverless. A function or container image exists, and the cloud platform spins up a new execution environment for each request or event trigger.</p>
+
+  <p>Cloud platforms that offer serverless services let you write code in your preferred language without worrying about where to host it or how to scale it. The platform handles that operational layer for you.</p>
+
+  <h2>What are the benefits of serverless?</h2>
+
+  <ol>
+    <li>It is one of the cheapest models in the cloud because you only pay when your code executes.</li>
+    <li>You do not have to worry about scaling, because each invocation gets the compute it needs.</li>
+    <li>You do not have to manage server tuning, configuration, or maintenance.</li>
+  </ol>
+
+  <h2>What kinds of use cases benefit from serverless?</h2>
+
+  <ol>
+    <li>Event-based notification work, such as sending emails or SMS messages after user registration, or generating PDFs from reports.</li>
+    <li>Time-based triggers, such as scheduled tasks that send birthday messages or generate monthly reports.</li>
+  </ol>
+
+  <p>Popular serverless platforms include:</p>
+
+  <ol>
+    <li>AWS Lambda</li>
+    <li>Google Cloud Functions</li>
+    <li>Azure Functions</li>
+    <li>IBM Cloud Functions</li>
+  </ol>
+
+  <p>The main value of serverless is not novelty. It is the removal of infrastructure work that does not need to sit in the developer's head.</p>
+</blog-post>

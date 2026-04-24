@@ -1,39 +1,121 @@
-## About
+# Tosin Amuda — site
 
-This is my personal website built with Next.js (SSG), Tailwind and Typescript. The Blog Content is managed as markdown files using mdx.
+A writer-first static site built to stay readable and maintainable for a long time. Plain HTML, plain CSS, web components, no framework runtime.
 
-## Dependencies
+## Stack
 
-- [TypeScript](https://www.typescriptlang.org/)
-- [Next.js](https://nextjs.org/)
-- [Tailwind](https://tailwindcss.com/)
+- **Build:** small Node script (`build.js`) orchestrating focused modules in `src/builder/`. No bundler.
+- **Templates:** hand-authored HTML in `src/`, served by web components (`<site-header>`, `<site-footer>`, `<blog-archive>`, `<blog-post>`, `<code-block>`) that are server-stamped at build time.
+- **Styles:** one hand-written `src/styles/app.css`, copied as-is to `dist/assets/styles.css`. No Tailwind, no preprocessor.
+- **Typography:** Spectral (serif) and JetBrains Mono (mono), self-hosted as WOFF2 in `public/fonts/`.
+- **Dark mode:** auto via `prefers-color-scheme`. Manual override available with `[data-mode="light|paper|dark"]` on `:root`.
+- **Notes:** plain HTML in `content/blog/` wrapped in a `<blog-post>` element. See [`CONTENT.md`](./CONTENT.md) for the schema.
 
-## Getting started
+## Why this is durable
 
-If you will like to use this as your template, clone this repo and run like a nextjs app.
+- Output is static HTML, CSS, SVG, and a few small JS files for the web components.
+- No build-time framework, no client-side framework, no CDN dependencies.
+- Reading works fully without JavaScript.
+- Single CSS file is hand-authored and small enough to read top-to-bottom.
 
-
-## Component Structure
-The component directory contains the main navigation bar component and its sub-components, organized following React best practices.
-
-### Structure
+## Project layout
 
 ```
-nav-bar/
-├── index.ts                 # Main export file
-├── NavBar.tsx              # Parent component (main entry point)
-├── components/             # Sub-components directory
-│   ├── index.ts            # Sub-components exports
-│   ├── DesktopNavBar.tsx   # Desktop navigation
-│   ├── MobileNavBar.tsx    # Mobile navigation
-│   ├── NavItem.tsx         # Navigation item component
-│   ├── NavLink.tsx         # Navigation link component
-│   ├── DropdownMenu.tsx    # Desktop dropdown menu
-│   └── MobileDropdown.tsx  # Mobile dropdown menu
-└── types/                  # TypeScript definitions
-    └── navigation.ts       # Navigation-related types
+build.js                       # build orchestrator (~50 lines, reads like a recipe)
+src/
+  builder/                     # build pipeline modules
+    config.js                  # paths, site config, type taxonomy
+    utils.js                   # html escape, dates, slugify, reading time
+    fs-helpers.js              # writeFile, copyDir, resetDist
+    articles.js                # Article type + loader + parser + template vars
+    render.js                  # template engine, archives, related, components
+    seo.js                     # OG tags, JSON-LD
+    outputs/                   # one file per build target
+      pages.js                 # home, about, work, contact, /blog/ index
+      articles.js              # individual blog posts
+      categories.js            # /blog/category/{slug}.html
+      feed.js                  # atom feed
+      sitemap.js               # sitemap.xml
+      assets.js                # copy components + public + styles
+    verify.js                  # smoke check
+  components/                  # web component HTML + JS
+  layouts/article.html         # blog post page layout
+  styles/app.css               # all CSS
+  index.html, about.html, work.html, contact.html, blog.html, category.html
+content/blog/                  # source notes, one HTML file per post
+public/                        # static assets copied to dist/
+site.config.json               # site metadata used by build
+CONTENT.md                     # authoring guide for notes
 ```
 
-## License
+## Commands
 
-MIT
+```bash
+npm install        # no runtime deps; only resolves the empty devDependencies block
+npm run build      # build into dist/
+npm run preview    # serve dist/ at http://127.0.0.1:4173
+npm run dev        # rebuild on file changes
+npm run clean      # remove dist/
+```
+
+## Authoring
+
+See [`CONTENT.md`](./CONTENT.md) for the note schema (frontmatter, types, categories, drafts).
+
+## Deployment — Cloudflare Pages
+
+The site is plain static output. Cloudflare Pages handles it via the GitHub integration:
+
+1. Push the repo to GitHub.
+2. Cloudflare dashboard → Pages → connect to GitHub repo.
+3. Build settings:
+   - **Build command:** `npm run build`
+   - **Build output directory:** `dist`
+   - **Node version:** 20+ (set as env var `NODE_VERSION=20`)
+4. Connect your custom domain.
+
+Auto-deploys on every push to `main`.
+
+## Deployment — keeping `content/` in a private repo
+
+If you want the site code public but the writing private (drafts, in-progress posts), make `content/` a git submodule pointing to a private repo.
+
+**One-time setup:**
+
+```bash
+# create the private content repo
+gh repo create tosinamuda/tosinamuda-content --private
+# move existing content/ into it (do this manually with git, then push)
+
+# in this site repo: replace content/ with a submodule
+git rm -r content
+git submodule add git@github.com:tosinamuda/tosinamuda-content.git content
+git commit -m "make content a private submodule"
+git push
+```
+
+**Cloudflare Pages auth for private submodule:**
+
+Pages clones with HTTPS by default and won't have credentials for your private content repo. Two options:
+
+**Option A — deploy key (recommended).** Generate an SSH key, add the public part as a deploy key on the private content repo, and add the private part to Pages env vars. Use the SSH submodule URL.
+
+**Option B — GitHub PAT.** Create a fine-grained PAT with read access to the private content repo. In the site repo's `.gitmodules`, change the URL to:
+
+```
+[submodule "content"]
+  path = content
+  url = https://x-access-token:${CONTENT_TOKEN}@github.com/tosinamuda/tosinamuda-content.git
+```
+
+Then set `CONTENT_TOKEN` as a Cloudflare Pages environment variable.
+
+In both cases, set `GIT_SUBMODULE_STRATEGY=recursive` in Pages env vars so submodules get cloned during the build.
+
+## Comments (giscus)
+
+The blog post template renders a giscus comments box at the bottom of every post. It uses the [`tosinamuda/website`](https://github.com/tosinamuda/website) repo's `General` discussion category, with `pathname` mapping (one discussion thread per post URL).
+
+For comments to actually load, the [giscus app](https://github.com/apps/giscus) must be installed on the `tosinamuda/website` repo. If the comments box shows "giscus is not installed on this repo" after deploying, install the app and refresh.
+
+If you ever change the comments repo or category, update the `data-*` attributes in `src/components/blog-post.html`.

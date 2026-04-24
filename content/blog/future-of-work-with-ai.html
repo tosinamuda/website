@@ -1,0 +1,199 @@
+<blog-post
+  title="Will AI Eat Software Engineering?"
+  excerpt="Exploring possible futures of software engineering in an AI-driven world—lessons from history, risks to consider, and the metrics worth watching."
+  date="2025-06-09"
+  draft>
+  <script type="application/json" id="meta">
+    {"type":"essay","categories":["Technology","Career"]}
+  </script>
+
+<h2>Introduction</h2>
+<p>I’ve been thinking a lot lately about how AI might reshape software engineering, and I bet you have too. There are more questions on my mind than certainties. It is certain that the role will not remain the same. And I suspect every engineer is grappling with similar concerns:</p>
+<ul>
+<li>Will coding become something everyone can do, like a “vibe coder” with the right tools?</li>
+<li>Or will AI take over so much that the future is all about writing specs and designing systems instead of coding them? Maybe product managers or even lawyers end up winning in this new world.</li>
+<li>Will we even still have jobs in five years? </li>
+<li>Will Software Engineering become a minimum wage job?</li>
+<li>Are the underlying models already good enough for the different aspect of software engineering like design and architecture  and it is just a matter of products that are built around the lifecycle end to end experience from design to development.</li>
+</ul>
+<p>I don’t have any answer myself. Rather than predict the future,  I hope to with this article create a framework to explore potential scenarios and prepare for whatever comes. </p>
+<p>This framework is built on the foundation of understanding what AI can and cannot do today, learning from historical patterns of automation, and identifying the signals that will tell us which direction we&#39;re heading.</p>
+<h2>Current State of AI in Software Engineering</h2>
+<p>One thing is clear, if you think about a Software Lifecycle from planning, requirement specification, design to actual coding and testing, AI is already eating coding and testing. A May 2025 survey of 645 engineers shows 90 percent of teams have adopted at least one of the coding tool, up from 61 percent a year earlier. Nearly half juggle two or more tools. 
+<a href="https://www.businessinsider.com/ai-coding-tools-popular-github-gemini-code-assist-cursor-q-2025-7">Business Insider</a>. While people already use AI in various rules to turn like draft of their write-up which includes a requirement spec or design doc into something concrete, a lot of focus is still on coding. In fact, the term vibe coding is now popularized as the act of allowing AI to generate code for you and accepting all AI generated code as is. So all you have to do is prompt and AI comes up with the Code. In fact PMs, and roles adjacent to coding already see benefit with vibe coding. Therefore the emphasis of the article is on the AI coding tools. </p>
+<ul>
+<li><p><strong>Native-IDE Coding Agents</strong>. In this category, the popular tools are Cursor, Windsurf and Github CoPilot. Some of these tools are built on top of VSCode either as a fork or an extension. These tools usually have a chat interface with the coding agent within VSCode or VSCode-like application which a lot of developers are already familiar with. They also provide tab completions within the editors. Recently, Microsoft open sourced the Vscode Copilot extension, which means we wil see more fork of Copilot.</p>
+</li>
+<li><p>**CLI Coding Agent **. These tools are command line tools that can generate a functioning application without the so much input from the user using terminal which is developers are also very familar with. In this category, the popular tools are Claude Code and Codex CLI. These tools spin up scaffolds or full apps from a terminal prompt.
+<a href="https://www.anthropic.com/news/claude-code">Claude Code</a>
+<a href="https://www.anthropic.com/news/codex-cli">Codex CLI</a></p>
+</li>
+<li><p><strong>Background Coding agents</strong>. Tools like Devin and Cursor Background Agents plug into GitHub or Slack, take an issue ticket, plan, code and tests, uses CICD pipeline output to improve its accuracy and open the pull request when done all on their own.
+<a href="https://devin.ai/">Devin</a>. More open to non-developers who have adjacent roles to developer to draft a spec for the AI.</p>
+</li>
+</ul>
+<p>The adoption is accelerating rapidly. Google&#39;s CEO recently shared that 25% of the company&#39;s internal code is now written by AI, showing how quickly these tools are being adopted. Almost every programmer has tried generative copilots and in general everyone&#39;s excited about the results. Therefore, in 2025, generative tools are set to play a far more prominent role across the entire software development lifecycle.</p>
+<p>Given the current tools, one thing you can start doing today is to start using them and understand all its features and learn how to work with them. Gartner predicts that 75% of enterprise software engineers will utilize AI coding assistants by 2028, a dramatic increase from less than 10% in early 2023. The transformation is happening faster than many anticipated.</p>
+<p>These tools are impressive, but they’re not flawless. Lets understand its current strengths and weakeness and see if it gets us closer to the question about the future.</p>
+<h3>What AI Does Well Today</h3>
+<p>Current AI coding tools excel in several areas:</p>
+<ul>
+<li><strong>Code Generation and Completion</strong>: Rapid generation of boilerplate code, function implementations, and common patterns. There is also opporuntity to become full stack dev more than ever. If you are a backend developer, you can rely on AI to generate the frontend boilerplate code and help you with styling code if you are not great with CSS.</li>
+<li><strong>Bug Fixing and Refactoring</strong>: Identifying and fixing common errors, especially in well-documented codebases</li>
+<li><strong>Testing and Documentation</strong>: Generating unit tests and documentation for existing code</li>
+</ul>
+<h3>Current Limitations and Weaknesses</h3>
+<p>Despite impressive capabilities, AI coding tools face significant challenges:</p>
+<ul>
+<li><strong>Limited Context Window</strong>: AI models have a limited context window, which means they can&#39;t see the entire codebase at once. Sometimes the Context windows fill before multi-file refactors finish.</li>
+<li><strong>Context Management</strong>: AI can get stuck in loops, generating and editing code that doesn&#39;t work rather than stepping back to reconsider the approach</li>
+<li><strong>Optimization Blind Spots</strong>: AI often optimizes around incorrect assumptions instead of exploring alternative solutions</li>
+<li><strong>Minimum Viable Solutions</strong>: Like a lazy engineer, AI tends to provide the bare minimum to complete a task rather than optimal solutions</li>
+<li><strong>Lifecycle Integration</strong>: Current tools aren&#39;t optimized for the entire software development lifecycle, forcing developers to switch between planning tools and coding environments. For example, you might have to iterate on your requirement specs in ChatGPT and export it as an markdown file but spinning off a new project in Cursor or Claude Code.  </li>
+<li><strong>Multi-modal Gaps</strong>: Existing tools don&#39;t leverage AI&#39;s multi-modal capabilities to link architectural diagrams with code implementation</li>
+<li><strong>Communication Barriers</strong>: We may not yet know how to communicate effectively with AI for complex coding tasks</li>
+<li><strong>Version Currency</strong>: AI models sometimes lag behind the latest versions of libraries and frameworks and choose outdated APIs.</li>
+</ul>
+<p>An obvious question to ask is what if AI consolidate on its strengths, and newer product are design around the entire lifecycle making it seamless to develop and deploy software and AI gets better in other part of the lifecycle. Visual Architecture design improves and it is understood by the model as well and can server as a basis for coding. and AI eats the entire software development lifecycle. Or AI just eats coding alone.</p>
+<h2>Learning from History: Patterns of Automation</h2>
+<p>The history of automation is a mixed bag. It has created new opportunities and displaced jobs, but it has also led to increased productivity and innovation. </p>
+<p>History offers three distinct patterns when machines meet human tasks. Each provides a lens for understanding AI&#39;s potential impact on software development.</p>
+<p>Lets see if we can learn from history and explore possible the scenairos and have a better framework to prepare for the future.</p>
+<h2>Lessons from past automation waves</h2>
+<p>Labor-Saver, Demand Expander: Cheap pocket calculators in the 1970s eliminated routine arithmetic yet increased demand for higher-level mathematics, finance, and data science. Industrial robots welded cars faster, pushing factories to release more models and hire more designers and systems engineers. Smartphone cameras democratized photography, creating billions more photos and fresh markets for editing, storage, and curation.</p>
+<p>Job Transformer: Water-driven mills moved brute force from human backs to mechanical gears but created new roles for millwrights and logistics coordinators. Electrification replaced line shafts yet spawned electricians and control-room crews. Modern photography tools shift effort from clicking shutters to client management and automated editing workflows.</p>
+<p>Task Eliminator: Some roles disappear entirely when tasks become fully automated and demand remains capped. Consider elevator operators, telephone switchboard staff, or film-developing clerks after digital photography arrived. The market didn&#39;t require a ten-fold increase in elevator rides or phone calls.</p>
+<table>
+<thead>
+<tr>
+<th>Wave</th>
+<th>What happened</th>
+<th>Take-away for software</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Labor-Saver, Demand Expander</td>
+<td>Cheap pocket calculators in the 1970s eliminated routine arithmetic yet increased demand for higher-level mathematics, finance, and data science. Industrial robots welded cars faster, pushing factories to release more models and hire more designers and systems engineers. Smartphone cameras democratized photography, creating billions more photos and fresh markets for editing, storage, and curation.</td>
+<td>Cheaper code may expand demand and spawn new niches.</td>
+</tr>
+<tr>
+<td>Job Transformer</td>
+<td>Water-driven mills moved brute force from human backs to mechanical gears but created new roles for millwrights and logistics coordinators. Electrification replaced line shafts yet spawned electricians and control-room crews. Modern photography tools shift effort from clicking shutters to client management and automated editing workflows.</td>
+<td>Displacement risk depends on demand elasticity.</td>
+</tr>
+<tr>
+<td>Task Eliminator (Smartphone cameras)</td>
+<td>Some roles disappear entirely when tasks become fully automated and demand remains capped. Consider elevator operators, telephone switchboard staff, or film-developing clerks after digital photography arrived. The market didn&#39;t require a ten-fold increase in elevator rides or phone calls.</td>
+<td>Entry-level coding could shrink even as software volume rises.</td>
+</tr>
+</tbody></table>
+<h2>Four plausible futures</h2>
+<ol>
+<li><p>Amplification – AI makes everyone faster, demand for software balloons, devs move up to architecture and product.</p>
+</li>
+<li><p>Segmentation – non-devs create simple apps, while pros tackle gnarly system design.</p>
+</li>
+</ol>
+<p>3.Displacement – autonomous agents cover most of the lifecycle; entry-level coding roles dry up. Cheap AI subscriptions (≈ $200 per month) already undercut junior salaries. 
+<a href="https://www.wired.com/story/pricing-ai-agents-increasing-costs?utm_source=chatgpt.com">WIRED</a></p>
+<p>Whether one path dominates hinges on two dials: 
+Demand Elasticity: Does cheaper software creation generate more demand for software products than we can currently imagine? If building applications becomes significantly cheaper, will businesses create exponentially more software solutions?
+Upstream Bottlenecks: Do activities like requirements analysis, ethical considerations, system integration, and user experience design remain fundamentally human-intensive? These upstream tasks could become the new bottlenecks where human expertise concentrates.</p>
+<ol start="4">
+<li><p>Doom: This is a scenario nobody wants to see or even think about.</p>
+</li>
+<li><p>Skills &amp; strategies to prepare</p>
+</li>
+</ol>
+<p>What skills can you bet on to be safer in the future? Here are suggestion based on the current trends and possible outcomes.</p>
+<p>Level 1: AI as Amplification Tool (AI doesn&#39;t eat coding but help engineer become faster at coding)
+In this scenario, AI primarily amplifies human capabilities rather than replacing them: </p>
+<ul>
+<li>Increased Software Demand: Cheaper development costs drive exponential growth in software applications</li>
+<li>Developer Evolution: Expert developers focus on complex problems, system architecture, and cross-functional collaboration</li>
+<li>Net Job Creation: More opportunities emerge as the software market expands</li>
+<li>Skill Premiums: Deep technical expertise becomes more valuable, not less</li>
+</ul>
+<p>Skills/Strategies to bet on:</p>
+<ul>
+<li>Learn how to use AI coding tools effectively to become more productive at coding, generating test cases &amp; documentations.</li>
+<li>Learn how to use MCP to integrate additional tools to your coding agent worklow. For example using browser tool to allow coding agent test what they are building in the browser.</li>
+<li>Context/Spec Engineering - Know what and how to communicate with AI to get the best results.</li>
+</ul>
+<p>Level 2: Market Segmentation (AI eats coding but not other parts of coding like pre-coding and post-coding activities like requirement specification, design, architecture, observability.)
+This scenario sees the development market splitting into distinct tiers:</p>
+<ul>
+<li>Democratized Basic Development: Non-developers (PMs, Business Analysts, etc.) can build simple applications using AI tools</li>
+<li>Professional Specialization: Expert developers evolve toward higher-level problem-solving and system design</li>
+<li>Hybrid Role Emergence: New positions emerge combining technical skills with product, business, or domain expertise</li>
+<li>Two-Tier Market: Clear separation between amateur and professional development, similar to photography</li>
+</ul>
+<p>Skills/Strategies to bet on:</p>
+<ol>
+<li>System design and architecture – If we assume that AI doesn&#39;t get so good at designing scalable software architecture  and that engineer will spend more time on pre-coding activities like requirement specification, design, and architecture.</li>
+<li>Specification craftsmanship – translating fuzzy business need into crisp requirements. Learning how to write User Stories. Gherkin Behavioural Test, Acceptance Criteraia, definition of done.</li>
+<li>Context Engineering or Spec Engineering - The first two are going to be context provided to the agent - so more than ever been able to communicate exactly what the AI needs to be be able to build what you want. In fact, knowing what to build - having a Product sense will be more important.</li>
+<li>Test-Driven Development - Writing test or knowing how to use AI to first generate test to ground the AI on the expected result so they can use the test to improve their solution.
+<a href="https://www.mckinsey.com/featured-insights/future-of-work/ai-automation-and-the-future-of-work-ten-things-to-solve-for?utm_source=chatgpt.com">McKinsey</a> reminds us automation eats tasks, not entire careers, so doubling down on meta-skills is a safer bet.</li>
+</ol>
+<p>Level 3: Significant Displacement (AI eats every aspect of software engineering.)
+In this more disruptive scenario, AI capabilities advance rapidly enough to automate substantial portions of software development and Software Engineering becomes a minimum wage job:</p>
+<ul>
+<li>Autonomous Development Cycles: AI handles full development lifecycles from specification to deployment</li>
+<li>Automated Specification: AI becomes sophisticated enough to extract and clarify requirements independently</li>
+<li>Skill Commoditization: Traditional programming skills become less valuable as AI handles routine development tasks</li>
+<li>Concentration of Expertise: Value concentrates in roles that can effectively orchestrate AI systems</li>
+</ul>
+<p>Skills/Strategies to bet on:</p>
+<ol>
+<li>Spec Engineering - Even if AI gets better at coding - writing of code might shift to writing of specs and spec might become what engineer write. If you don&#39;t already do writing of Issue, breaking down of task, writing acceptance criteria you should learn how to do this know.</li>
+<li>Domain Expertise  - A domain expert will be able to ask AI better question than a generalist. Beyond coding, pick a domain to learn about - it could be finance, healthcare, education, etc.</li>
+<li>Deep Tech or AI Protected Skills - There will still be need for AI expert to build new model. Fine tine existing models with techniques like RL, or SFT. Build Agents, Develop Evals. Hardware Engineers.</li>
+<li>Evals Creation - AI are not good enough to create evals for their own model. QA task will move deeper to creating evals for task for the coding agents.</li>
+</ol>
+<p>Level 4: AI Doom: AI eats every thing.</p>
+<ol>
+<li>Get government and industry leaders to think about this.</li>
+<li>Learn traditional skills - farming, fishing, hardware engineering, etc.</li>
+</ol>
+<p>Some signals to watch for:</p>
+<table>
+<thead>
+<tr>
+<th>Signal</th>
+<th>Why it matters</th>
+<th>How to watch</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Coding Benchmarks</td>
+<td>Direct proxy for agentic coding</td>
+<td><strong>Leaderboards</strong> and model cards like SWE-bench and SWE-Lancer  If you are interested in keeping up with the performance of LLM with coding task - you can follow the <a href="https://github.com/SWE-bench/SWE-bench">SWE-bench</a> and <a href="https://github.com/SWE-bench/SWE-Lancer">SWE-Lancer</a> benchmarks and Codeforces Competitive Programming ELO rating.</td>
+</tr>
+<tr>
+<td>Hiring mix</td>
+<td>Junior vs. senior ratios show displacement pressure</td>
+<td>LinkedIn, company job pages</td>
+</tr>
+<tr>
+<td>AI tool cost curve</td>
+<td>If API prices fall faster than wages, substitution accelerates</td>
+<td>Quarterly pricing updates</td>
+</tr>
+<tr>
+<td>Productivity J-curve</td>
+<td>Early AI rollouts may hurt measured output before payoff arrives. (<a href="https://mitsloan.mit.edu/ideas-made-to-matter/a-calm-ai-productivity-storm?utm_source=chatgpt.com" title="A calm before the AI productivity storm - MIT Sloan">MIT Sloan</a>)</td>
+<td>Track cycle time and rework rates</td>
+</tr>
+</tbody></table>
+<p>In general, there are common skills that you can bet on whatever outcomes. </p>
+<ol>
+<li>Become more AI-Savvy. Pick a coding tool to start exploring and get familiar with it.</li>
+<li>Today commit to improve your context or spec engineering. Write more specs before coding. Design Architecture and improve on your architecture design skills. Use existing tools to help you with your spec and architecture design.</li>
+<li>Pick up product management skills. It will become more important understanding what to build rather than how to build it. Shadow a product manager for one sprint; learn requirement framing.</li>
+<li>Go beyond just one stack. Go Deeper on your domain if you can.</li>
+<li>Learn how to use AI to create evals for the coding agents.</li>
+</ol>
+<p>I don&#39;t know if AI will augment software engineering or transform it entirely. History says tech shifts often create more than they destroy, and I’m betting on that. Stay curious, keep learning, and pay attention to the signals. You’ve got this. What do you think—any signals you’re tracking? Any historical lessons that resonate? Let’s figure this out together.</p>
+
+</blog-post>

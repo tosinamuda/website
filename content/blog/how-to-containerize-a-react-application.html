@@ -1,0 +1,119 @@
+<blog-post
+  title="How to Containerize a React Application"
+  excerpt="Learn how to containerize your React application using Docker with a step-by-step guide from creating a Dockerfile to running your container."
+  date="2020-03-11">
+  <script type="application/json" id="meta">
+    { "type": "essay", "categories": ["Engineering", "DevOps"] }
+  </script>
+
+  <p>Containers and Kubernetes have become some of the enduring darlings of developers. A recent React deployment I needed to push into a Kubernetes environment made me revisit how much easier the job becomes once a Dockerfile is part of the workflow.</p>
+
+  <p>Before getting into the main guide, it helps to remember how much pain containers replace. In one of my internships, I worked as a pre-sales engineer for EduERP, an open-source ERP for universities.</p>
+
+  <p>EduERP ran on the LAMP stack and had a number of dependencies. Guiding a university through setup on its own server could take a full week because installation, configuration, and troubleshooting all had to be repeated manually. Docker would have changed that entire experience.</p>
+
+  <h2>The modern approach</h2>
+
+  <p>Today the workflow can be reduced to five steps:</p>
+
+  <ol>
+    <li>Create a Dockerfile containing all instructions for installing dependencies and running the application.</li>
+    <li>Build the Docker image from that Dockerfile.</li>
+    <li>Push the Docker image to a container repository.</li>
+    <li>Have the client pull the Docker image from the repository.</li>
+    <li>Run the Docker container.</li>
+  </ol>
+
+  <p>That shift means a setup that once took days can become a repeatable process measured in minutes.</p>
+
+  <h2>Pre-requisites</h2>
+
+  <p>Before starting, make sure you have:</p>
+
+  <ul>
+    <li>Node.js installed in your development environment</li>
+    <li>Docker installed</li>
+    <li>A terminal of choice</li>
+  </ul>
+
+  <p>If you do not have an existing React app, create one:</p>
+
+  <code-block language="bash">
+    <pre><code>npx create-react-app my-app
+cd my-app</code></pre>
+  </code-block>
+
+  <p>Create an Nginx configuration file that the Docker image can use to serve the application:</p>
+
+  <code-block language="nginx">
+    <pre><code>server {
+    listen 8080;
+    server_name frontend;
+    location / {
+        root /usr/share/nginx/html;
+        try_files $uri /index.html;
+    }
+}</code></pre>
+  </code-block>
+
+  <h2>Step 1: Create your Dockerfile</h2>
+
+  <p>For React apps, the development workflow is usually:</p>
+
+  <ol>
+    <li><code>npm install</code> to install dependencies</li>
+    <li><code>npm run build</code> to produce the optimized build output</li>
+    <li>Serve the built site through a web server such as Nginx</li>
+  </ol>
+
+  <p>That sequence leads directly to a multi-stage Dockerfile:</p>
+
+  <code-block language="dockerfile">
+    <pre><code>FROM bitnami/node:12-prod as builder
+WORKDIR /app
+COPY ./package.json /app/package.json
+COPY ./yarn.lock /app/yarn.lock
+ENV NODE_ENV=production
+RUN yarn install --production
+COPY . .
+RUN yarn build
+
+FROM nginxinc/nginx-unprivileged
+COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /app/build /usr/share/nginx/html
+EXPOSE 8080</code></pre>
+  </code-block>
+
+  <h2>Step 2: Build the image</h2>
+
+  <p>Build the image with a tag of your choice:</p>
+
+  <code-block language="bash">
+    <pre><code>docker build -t my-react-app-name .</code></pre>
+  </code-block>
+
+  <h2>Step 3: Run the container</h2>
+
+  <p>To run the container, keep three things in mind:</p>
+
+  <ul>
+    <li>the container's internal port</li>
+    <li>the port on your own machine</li>
+    <li>the image name you used while building</li>
+  </ul>
+
+  <code-block language="bash">
+    <pre><code>docker run -p 8080:8080 my-react-app-name</code></pre>
+  </code-block>
+
+  <p>If everything works, <code>http://localhost:8080</code> should serve the newly containerized React application.</p>
+
+  <h2>Next steps</h2>
+
+  <ul>
+    <li>Push the image to a registry such as Docker Hub</li>
+    <li>Create a Kubernetes pod definition to run the image</li>
+  </ul>
+
+  <p>With Docker containers, deployment becomes consistent and predictable across environments. That is the real payoff.</p>
+</blog-post>
