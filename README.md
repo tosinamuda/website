@@ -62,56 +62,6 @@ npm run clean      # remove dist/
 
 See [`CONTENT.md`](./CONTENT.md) for the note schema (frontmatter, types, categories, drafts).
 
-## Deployment — Cloudflare Pages
-
-The site is plain static output. Cloudflare Pages handles it via the GitHub integration:
-
-1. Push the repo to GitHub.
-2. Cloudflare dashboard → Pages → connect to GitHub repo.
-3. Build settings:
-   - **Build command:** `npm run build`
-   - **Build output directory:** `dist`
-   - **Node version:** 20+ (set as env var `NODE_VERSION=20`)
-4. Connect your custom domain.
-
-Auto-deploys on every push to `main`.
-
-## Deployment — keeping `content/` in a private repo
-
-If you want the site code public but the writing private (drafts, in-progress posts), make `content/` a git submodule pointing to a private repo.
-
-**One-time setup:**
-
-```bash
-# create the private content repo
-gh repo create tosinamuda/tosinamuda-content --private
-# move existing content/ into it (do this manually with git, then push)
-
-# in this site repo: replace content/ with a submodule
-git rm -r content
-git submodule add git@github.com:tosinamuda/tosinamuda-content.git content
-git commit -m "make content a private submodule"
-git push
-```
-
-**Cloudflare Pages auth for private submodule:**
-
-Pages clones with HTTPS by default and won't have credentials for your private content repo. Two options:
-
-**Option A — deploy key (recommended).** Generate an SSH key, add the public part as a deploy key on the private content repo, and add the private part to Pages env vars. Use the SSH submodule URL.
-
-**Option B — GitHub PAT.** Create a fine-grained PAT with read access to the private content repo. In the site repo's `.gitmodules`, change the URL to:
-
-```
-[submodule "content"]
-  path = content
-  url = https://x-access-token:${CONTENT_TOKEN}@github.com/tosinamuda/tosinamuda-content.git
-```
-
-Then set `CONTENT_TOKEN` as a Cloudflare Pages environment variable.
-
-In both cases, set `GIT_SUBMODULE_STRATEGY=recursive` in Pages env vars so submodules get cloned during the build.
-
 ## Comments (giscus)
 
 The blog post template renders a giscus comments box at the bottom of every post. It uses the [`tosinamuda/website`](https://github.com/tosinamuda/website) repo's `General` discussion category, with `pathname` mapping (one discussion thread per post URL).
