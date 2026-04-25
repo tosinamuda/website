@@ -26,7 +26,8 @@ export function renderOgTags({ title, description, url, image, type = "website" 
   const safeTitle = escapeHtml(title);
   const safeDesc = escapeHtml(description);
   const absoluteUrl = absolute(url);
-  const absoluteImage = image ? absolute(image) : "";
+  const imagePath = image || site.defaultOgImage || "";
+  const absoluteImage = imagePath ? absolute(imagePath) : "";
 
   const imgTags = absoluteImage
     ? `<meta property="og:image" content="${escapeHtml(absoluteImage)}" />

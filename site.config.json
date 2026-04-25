@@ -4,6 +4,7 @@
   "author": "Tosin Amuda",
   "url": "https://www.tosinamuda.com",
   "locale": "en",
+  "defaultOgImage": "/og/default.png",
   "feedTitle": "Tosin Amuda — Blog",
   "twitterHandle": "@tosinamuda"
 }
