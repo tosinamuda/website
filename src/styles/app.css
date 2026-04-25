@@ -515,6 +515,9 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 }
 .prose ul { padding-left: 18px; }
 .prose li { margin-bottom: 4px; }
+.prose figure {
+  margin: 32px 0;
+}
 .prose img,
 .prose video,
 .prose iframe {
@@ -526,6 +529,13 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 }
 .prose img {
   display: block;
+}
+.prose figcaption {
+  font-family: var(--ui);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink-3);
+  margin-top: 8px;
 }
 .prose code { font-family: var(--mono); font-size: 0.9em; background: var(--rule-2); padding: 1px 5px; border-radius: 3px; }
 .prose pre {

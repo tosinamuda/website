@@ -18,6 +18,11 @@
     <p>An LLM agent is a language model inside a loop, connected to tools, memory, and an environment.</p>
   </blockquote>
 
+  <figure>
+    <img src="/images/blog/llm-agents/single-call-vs-agent.png" alt="Diagram comparing a single LLM call with an agent loop that remembers context, calls tools, observes results, and decides what to do next.">
+    <figcaption>A single LLM call is input to output. An agent wraps the model in a loop that can act, observe, and continue.</figcaption>
+  </figure>
+
   <p>At every step, the model still only sees input. That input may contain system instructions, user messages, tool definitions, memory snippets, prior tool results, and retrieved documents. In that practical sense, everything the model sees is a prompt. The engineering work is deciding what should be assembled into that prompt at each step.</p>
 
   <h2>What is an AI agent?</h2>
@@ -38,6 +43,11 @@
 
   <p>So "agent" does not name one specific technology. It names a pattern: observe, decide, act, observe again.</p>
 
+  <figure>
+    <img src="/images/blog/llm-agents/agent-loop.png" alt="Diagram showing thermostats, chess engines, robots, and LLM agents as the same observe-decide-act pattern with different decision makers.">
+    <figcaption>The agent pattern predates LLMs. The shape stays the same; the decision-maker changes.</figcaption>
+  </figure>
+
   <h2>LLMs as the brain of the agent</h2>
 
   <p>For a long time, the hard part was the policy: the logic that maps an observation to the next action. Hand-written rules were brittle. Search systems could explode in complexity. Learned policies often needed task-specific data and training.</p>
@@ -57,6 +67,11 @@
   <h2>The capabilities of an agent</h2>
 
   <p>Three capabilities sit at the core of most useful agents: reasoning, tools, and memory.</p>
+
+  <figure>
+    <img src="/images/blog/llm-agents/agent-capabilities.png" alt="Diagram showing reasoning as choosing the next step, tools as reaching outside the model, and memory as carrying state forward.">
+    <figcaption>Useful agents need reasoning to choose, tools to act, and memory to carry context forward.</figcaption>
+  </figure>
 
   <h3>Reasoning</h3>
 
@@ -148,6 +163,11 @@ send_email(to: string, subject: string, body: string)
   <h2>The anatomy of a running agent</h2>
 
   <p>The capabilities explain what an agent can do. The anatomy explains how it runs.</p>
+
+  <figure>
+    <img src="/images/blog/llm-agents/running-agent-anatomy.png" alt="Diagram showing how the scaffold feeds the agent harness, the harness runs the loop, and tools act on an environment such as a filesystem, browser, database, shell, or APIs.">
+    <figcaption>The model is only one part. The harness, scaffold, and environment make the agent usable.</figcaption>
+  </figure>
 
   <h3>The loop</h3>
 
