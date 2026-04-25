@@ -1,0 +1,1440 @@
+<style>
+  /* ============================================
+     INEC Collation Process — editorial poster
+     Scroll-driven civic infographic in Nigerian green.
+     All rules scoped under <inec-collation>.
+     ============================================ */
+
+  inec-collation {
+    /* Tokens — scoped to this element, do not leak to the rest of the site */
+    --paper: #F5F1E8;
+    --paper-2: #EFEADD;
+    --ink: #14160F;
+    --ink-2: #2B2E26;
+    --ink-3: #5C5F54;
+    --ink-4: #8A8C82;
+    --rule: #C9C2AE;
+    --rule-2: #DDD6C2;
+    --green: #008751;
+    --green-dk: #00603A;
+    --green-lt: #C8DCCC;
+    --green-pale: #E4ECDF;
+    --risk: #B85C1E;
+    --risk-pale: #F0DCC4;
+    --opp: #4A6B5C;
+    --opp-pale: #DDE5DA;
+    --highlight: #E8C547;
+    --inec-serif: "Spectral", Georgia, "Times New Roman", serif;
+    --inec-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --inec-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+    /* Break out of the article column to a full-viewport dark frame */
+    display: block;
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    background: var(--ink-2);
+    color: var(--ink);
+    font-family: var(--inec-sans);
+    -webkit-font-smoothing: antialiased;
+    padding: 40px 20px;
+    overflow-x: auto;
+  }
+  inec-collation *,
+  inec-collation *::before,
+  inec-collation *::after { box-sizing: border-box; }
+
+  inec-collation .poster {
+    width: 1400px;
+    margin: 0 auto;
+    background: var(--paper);
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(20,22,15,0.04) 1px, transparent 0);
+    background-size: 4px 4px;
+    color: var(--ink);
+    padding: 64px 72px 72px;
+    position: relative;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,0,0,0.1);
+  }
+  inec-collation .poster::before {
+    content: '';
+    position: absolute; inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(180deg, rgba(0,0,0,0.02) 0%, transparent 8%, transparent 92%, rgba(0,0,0,0.02) 100%);
+    mix-blend-mode: multiply;
+  }
+
+  /* Editorial type */
+  inec-collation .eyebrow {
+    font-family: var(--inec-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--green-dk);
+    font-weight: 600;
+  }
+  inec-collation .kicker {
+    font-family: var(--inec-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    font-weight: 500;
+  }
+  inec-collation h1.title {
+    font-family: var(--inec-serif);
+    font-weight: 600;
+    font-size: 5rem;
+    line-height: 0.95;
+    letter-spacing: -0.025em;
+    margin: 14px 0 0;
+    color: var(--ink);
+    max-width: 1100px;
+    text-wrap: balance;
+  }
+  inec-collation h1.title em {
+    font-style: italic;
+    color: var(--green-dk);
+    font-weight: 500;
+  }
+  inec-collation .deck {
+    font-family: var(--inec-serif);
+    font-size: 1.375rem;
+    line-height: 1.45;
+    color: var(--ink-2);
+    max-width: 880px;
+    font-weight: 400;
+    margin: 22px 0 0;
+    text-wrap: pretty;
+  }
+  inec-collation .byline {
+    font-family: var(--inec-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-top: 22px;
+  }
+
+  /* Header */
+  inec-collation .header {
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 36px;
+    margin-bottom: 36px;
+    position: relative;
+  }
+  inec-collation .flag-strip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    height: 14px;
+    border: 1px solid var(--ink);
+    margin-bottom: 6px;
+  }
+  inec-collation .flag-strip span { width: 22px; height: 100%; }
+  inec-collation .flag-strip span:nth-child(1),
+  inec-collation .flag-strip span:nth-child(3) { background: var(--green); }
+  inec-collation .flag-strip span:nth-child(2) { background: #FFFFFF; }
+
+  inec-collation .top-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: 28px;
+  }
+  inec-collation .legend {
+    display: flex;
+    gap: 22px;
+    align-items: center;
+  }
+  inec-collation .legend-item {
+    display: flex; align-items: center; gap: 8px;
+    font-family: var(--inec-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  inec-collation .swatch { width: 14px; height: 14px; border: 1px solid var(--ink); }
+  inec-collation .swatch.risk { background: var(--risk); }
+  inec-collation .swatch.opp { background: var(--opp); }
+  inec-collation .swatch.green { background: var(--green); }
+
+  /* Section divider */
+  inec-collation .section-head {
+    display: grid;
+    grid-template-columns: 60px 1fr auto;
+    align-items: end;
+    gap: 24px;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 14px;
+    margin: 56px 0 32px;
+  }
+  inec-collation .section-num {
+    font-family: var(--inec-serif);
+    font-style: italic;
+    font-weight: 500;
+    font-size: 3.5rem;
+    line-height: 1;
+    color: var(--green-dk);
+  }
+  inec-collation .section-title {
+    font-family: var(--inec-serif);
+    font-weight: 600;
+    font-size: 2.75rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+  inec-collation .section-meta {
+    font-family: var(--inec-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    text-align: right;
+    line-height: 1.6;
+  }
+
+  /* Two-column compare */
+  inec-collation .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border: 1px solid var(--ink);
+    background: var(--paper);
+  }
+  inec-collation .col {
+    padding: 28px 32px 36px;
+    position: relative;
+  }
+  inec-collation .col + .col { border-left: 1px solid var(--ink); }
+  inec-collation .col.proposed { background: var(--green-pale); }
+  inec-collation .col-tag {
+    display: inline-block;
+    font-family: var(--inec-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    padding: 5px 10px;
+    border: 1px solid var(--ink);
+    background: var(--paper);
+    margin-bottom: 14px;
+  }
+  inec-collation .col.proposed .col-tag {
+    background: var(--green); color: #fff; border-color: var(--green);
+  }
+  inec-collation .col-title {
+    font-family: var(--inec-serif);
+    font-weight: 600;
+    font-size: 1.875rem;
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    margin: 0 0 6px;
+  }
+  inec-collation .col-sub {
+    font-family: var(--inec-serif);
+    font-style: italic;
+    font-size: 1.0625rem;
+    line-height: 1.4;
+    color: var(--ink-2);
+    margin-bottom: 28px;
+    max-width: 480px;
+    text-wrap: pretty;
+  }
+
+  /* Step list */
+  inec-collation .steps { display: flex; flex-direction: column; gap: 0; }
+  inec-collation .step {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 18px;
+    padding: 20px 0;
+    border-top: 1px solid var(--rule);
+    position: relative;
+  }
+  inec-collation .step:first-child { border-top: 1px solid var(--ink); }
+  inec-collation .step:last-child { border-bottom: 1px solid var(--ink); }
+  inec-collation .step-icon-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  inec-collation .step-icon {
+    width: 56px; height: 56px;
+    border: 1.5px solid var(--ink);
+    background: var(--paper);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  inec-collation .col.proposed .step-icon { background: #fff; border-color: var(--green-dk); }
+  inec-collation .step-icon svg { width: 32px; height: 32px; }
+
+  inec-collation .step-num {
+    font-family: var(--inec-mono);
+    font-size: 0.5625rem;
+    color: var(--ink-3);
+    letter-spacing: 0.1em;
+  }
+
+  inec-collation .step-body { padding-top: 2px; }
+  inec-collation .step-name {
+    font-family: var(--inec-sans);
+    font-weight: 600;
+    font-size: 1.0625rem;
+    line-height: 1.2;
+    margin: 0;
+    color: var(--ink);
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  inec-collation .step-form {
+    font-family: var(--inec-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.08em;
+    color: var(--green-dk);
+    background: var(--green-pale);
+    padding: 2px 7px;
+    border: 1px solid var(--green-lt);
+    font-weight: 500;
+  }
+  inec-collation .col.proposed .step-form { background: #fff; border-color: var(--green); }
+  inec-collation .step-actor {
+    font-family: var(--inec-mono);
+    font-size: 0.625rem;
+    color: var(--ink-3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+  inec-collation .step-desc {
+    font-family: var(--inec-serif);
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    color: var(--ink-2);
+    margin: 8px 0 0;
+    max-width: 520px;
+    text-wrap: pretty;
+  }
+
+  /* Risk callout (current side) */
+  inec-collation .risk-flag {
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: 18px 1fr;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--risk-pale);
+    border-left: 3px solid var(--risk);
+    align-items: start;
+  }
+  inec-collation .risk-flag .marker {
+    width: 16px; height: 16px;
+    background: var(--risk);
+    color: #fff;
+    font-family: var(--inec-mono);
+    font-weight: 700;
+    font-size: 0.625rem;
+    display: flex; align-items: center; justify-content: center;
+    margin-top: 1px;
+  }
+  inec-collation .risk-flag .body {
+    font-family: var(--inec-sans);
+    font-size: 0.7812rem;
+    line-height: 1.45;
+    color: var(--ink-2);
+  }
+  inec-collation .risk-flag .body strong {
+    color: var(--risk);
+    font-family: var(--inec-mono);
+    font-weight: 600;
+    font-size: 0.625rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  /* Opportunity callout (proposed side) */
+  inec-collation .opp-flag {
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.6);
+    border-left: 3px solid var(--opp);
+    font-family: var(--inec-sans);
+    font-size: 0.7812rem;
+    line-height: 1.45;
+    color: var(--ink-2);
+  }
+  inec-collation .opp-flag strong {
+    color: var(--opp);
+    font-family: var(--inec-mono);
+    font-weight: 600;
+    font-size: 0.625rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 3px;
+  }
+
+  /* Group bracket */
+  inec-collation .group-bracket {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 0 4px;
+    margin-top: 4px;
+    border-top: 1px dashed var(--ink-3);
+    font-family: var(--inec-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  inec-collation .group-bracket::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--ink-3);
+    opacity: 0.4;
+  }
+
+  /* Connector line between sequential step icons */
+  inec-collation .step-icon-wrap::after {
+    content: '';
+    width: 1px;
+    flex: 1;
+    background: var(--rule);
+    min-height: 8px;
+  }
+  inec-collation .step:last-of-type .step-icon-wrap::after { display: none; }
+
+  /* Stats strip */
+  inec-collation .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    border: 1px solid var(--ink);
+    margin: 56px 0 0;
+    background: var(--paper);
+  }
+  inec-collation .stat {
+    padding: 24px 26px;
+    border-right: 1px solid var(--ink);
+  }
+  inec-collation .stat:last-child { border-right: 0; }
+  inec-collation .stat-num {
+    font-family: var(--inec-serif);
+    font-weight: 500;
+    font-size: 3.5rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--green-dk);
+  }
+  inec-collation .stat-num .unit {
+    font-size: 1.375rem;
+    color: var(--ink-3);
+    font-style: italic;
+    margin-left: 4px;
+  }
+  inec-collation .stat-label {
+    font-family: var(--inec-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-top: 12px;
+    margin-bottom: 6px;
+  }
+  inec-collation .stat-desc {
+    font-family: var(--inec-serif);
+    font-size: 0.875rem;
+    line-height: 1.4;
+    color: var(--ink-2);
+    text-wrap: pretty;
+  }
+
+  /* Comparison matrix */
+  inec-collation .matrix {
+    margin-top: 36px;
+    border: 1px solid var(--ink);
+    background: var(--paper);
+  }
+  inec-collation .matrix table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  inec-collation .matrix th,
+  inec-collation .matrix td {
+    padding: 14px 20px;
+    text-align: left;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+  inec-collation .matrix th {
+    font-family: var(--inec-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    font-weight: 600;
+    border-bottom: 1px solid var(--ink);
+    background: var(--paper-2);
+  }
+  inec-collation .matrix th:first-child { width: 22%; }
+  inec-collation .matrix th.now { color: var(--risk); }
+  inec-collation .matrix th.next { color: var(--green-dk); }
+  inec-collation .matrix td {
+    font-family: var(--inec-serif);
+    font-size: 0.9375rem;
+    line-height: 1.45;
+    color: var(--ink-2);
+  }
+  inec-collation .matrix td:first-child {
+    font-family: var(--inec-sans);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--ink);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  inec-collation .matrix tr:last-child td { border-bottom: 0; }
+
+  /* Footer */
+  inec-collation .footer {
+    margin-top: 56px;
+    padding-top: 24px;
+    border-top: 2px solid var(--ink);
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 48px;
+  }
+  inec-collation .footer .lede {
+    font-family: var(--inec-serif);
+    font-size: 1.25rem;
+    line-height: 1.45;
+    color: var(--ink);
+    text-wrap: pretty;
+  }
+  inec-collation .footer .meta {
+    font-family: var(--inec-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    line-height: 1.8;
+  }
+  inec-collation .footer .meta strong { color: var(--ink); display: block; margin-bottom: 4px; }
+
+  /* Pull quote */
+  inec-collation .pullquote {
+    grid-column: 1 / -1;
+    margin: 36px 0;
+    padding: 28px 0;
+    border-top: 1px solid var(--ink);
+    border-bottom: 1px solid var(--ink);
+    font-family: var(--inec-serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 2rem;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    max-width: 1100px;
+    text-wrap: balance;
+  }
+  inec-collation .pullquote::before {
+    content: '\201C'; color: var(--green); font-size: 3.5rem; line-height: 0;
+    vertical-align: -18px; margin-right: 4px;
+  }
+  inec-collation .pullquote::after {
+    content: '\201D'; color: var(--green); font-size: 3.5rem; line-height: 0;
+    vertical-align: -32px; margin-left: 2px;
+  }
+
+  /* Print */
+  @media print {
+    inec-collation { background: #fff; padding: 0; }
+    inec-collation .poster { box-shadow: none; }
+  }
+
+  /* ============================================
+     Animation layer — scroll-driven, editorial
+     ============================================ */
+
+  inec-collation .reveal {
+    opacity: 0;
+    transform: translateY(14px);
+    transition:
+      opacity 900ms cubic-bezier(.2,.7,.2,1),
+      transform 900ms cubic-bezier(.2,.7,.2,1);
+    transition-delay: var(--rd, 0ms);
+  }
+  inec-collation .reveal.in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Header rule draws in as a sweep */
+  inec-collation .header { border-bottom-color: transparent; }
+  inec-collation .header::after {
+    content: '';
+    position: absolute;
+    left: 0; bottom: -1px;
+    height: 1px;
+    width: 0;
+    background: var(--ink);
+    transition: width 1400ms cubic-bezier(.2,.7,.2,1) 200ms;
+  }
+  inec-collation .header.in::after { width: 100%; }
+
+  /* Flag strip — paint cells in sequence */
+  inec-collation .flag-strip span {
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform 500ms cubic-bezier(.2,.7,.2,1);
+  }
+  inec-collation .flag-strip.in span:nth-child(1) { transition-delay: 100ms; }
+  inec-collation .flag-strip.in span:nth-child(2) { transition-delay: 220ms; }
+  inec-collation .flag-strip.in span:nth-child(3) { transition-delay: 340ms; }
+  inec-collation .flag-strip.in span { transform: scaleY(1); }
+
+  /* Step rail connectors draw in */
+  inec-collation .step-icon-wrap::after {
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform 600ms cubic-bezier(.2,.7,.2,1);
+  }
+  inec-collation .step.in .step-icon-wrap::after { transform: scaleY(1); }
+
+  /* Step icon pop */
+  inec-collation .step .step-icon {
+    transform: scale(0.85);
+    opacity: 0;
+    transition: transform 700ms cubic-bezier(.2,.7,.2,1), opacity 500ms ease;
+  }
+  inec-collation .step.in .step-icon {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  /* Risk + opp callouts slide in */
+  inec-collation .risk-flag,
+  inec-collation .opp-flag {
+    opacity: 0;
+    transform: translateX(-10px);
+    transition:
+      opacity 700ms ease 250ms,
+      transform 700ms cubic-bezier(.2,.7,.2,1) 250ms;
+  }
+  inec-collation .step.in .risk-flag,
+  inec-collation .step.in .opp-flag {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  /* Pull quote */
+  inec-collation .pullquote {
+    opacity: 0;
+    transform: translateY(8px) scale(0.99);
+    transition:
+      opacity 1100ms ease,
+      transform 1100ms cubic-bezier(.2,.7,.2,1);
+  }
+  inec-collation .pullquote.in {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  /* Stat numbers fade in (count handled by JS) */
+  inec-collation .stat-num {
+    opacity: 0;
+    transition: opacity 600ms ease;
+  }
+  inec-collation .stat.in .stat-num { opacity: 1; }
+
+  /* Matrix rows reveal staggered */
+  inec-collation .matrix tbody tr {
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 600ms ease, transform 600ms cubic-bezier(.2,.7,.2,1);
+  }
+  inec-collation .matrix.in tbody tr { opacity: 1; transform: translateY(0); }
+  inec-collation .matrix.in tbody tr:nth-child(1) { transition-delay: 50ms; }
+  inec-collation .matrix.in tbody tr:nth-child(2) { transition-delay: 150ms; }
+  inec-collation .matrix.in tbody tr:nth-child(3) { transition-delay: 250ms; }
+  inec-collation .matrix.in tbody tr:nth-child(4) { transition-delay: 350ms; }
+  inec-collation .matrix.in tbody tr:nth-child(5) { transition-delay: 450ms; }
+  inec-collation .matrix.in tbody tr:nth-child(6) { transition-delay: 550ms; }
+
+  /* Hero ballot journey — scroll-scrubbed */
+  inec-collation .hero-journey {
+    margin: 48px 0 8px;
+    border: 1px solid var(--ink);
+    background: linear-gradient(180deg, var(--paper) 0%, var(--paper-2) 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  inec-collation .hero-journey-inner {
+    position: relative;
+    height: 360px;
+  }
+  inec-collation .hero-journey svg.hero-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  inec-collation .hero-meta {
+    position: absolute;
+    top: 16px; left: 20px;
+    font-family: var(--inec-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  inec-collation .hero-headline {
+    position: absolute;
+    top: 38px; left: 20px;
+    font-family: var(--inec-serif);
+    font-size: 1.375rem;
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+    max-width: 520px;
+  }
+  inec-collation .hero-headline em { font-style: italic; color: var(--green-dk); }
+
+  inec-collation .hero-progress {
+    position: absolute;
+    bottom: 16px; left: 20px; right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--inec-mono);
+    font-size: 0.5625rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  inec-collation .hero-progress-bar {
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+    position: relative;
+  }
+  inec-collation .hero-progress-bar::after {
+    content: '';
+    position: absolute;
+    left: 0; top: -1px;
+    height: 3px;
+    width: var(--p, 0%);
+    background: var(--green);
+    transition: width 120ms linear;
+  }
+
+  inec-collation .ballot-dot { transition: opacity 300ms ease; }
+  inec-collation .ballot-swarm circle {
+    opacity: 0;
+    transition: opacity 60ms linear;
+  }
+
+  /* Live dashboard pulse + bar rise */
+  inec-collation .live-dot {
+    animation: inecLivePulse 1.6s ease-in-out infinite;
+  }
+  @keyframes inecLivePulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  inec-collation .step.in svg .anim-bar {
+    animation: inecBarRise 900ms cubic-bezier(.2,.7,.2,1) both;
+    transform-origin: bottom;
+  }
+  inec-collation .step.in svg .anim-bar:nth-of-type(1) { animation-delay: 200ms; }
+  inec-collation .step.in svg .anim-bar:nth-of-type(2) { animation-delay: 320ms; }
+  inec-collation .step.in svg .anim-bar:nth-of-type(3) { animation-delay: 440ms; }
+  inec-collation .step.in svg .anim-bar:nth-of-type(4) { animation-delay: 560ms; }
+  @keyframes inecBarRise {
+    from { transform: scaleY(0); }
+    to   { transform: scaleY(1); }
+  }
+
+  /* ============================================
+     Responsive — fluid below 1500px, single-column
+     compare below 900px, compact type below 600px
+     ============================================ */
+
+  @media (max-width: 1500px) {
+    inec-collation { padding: 32px 16px; }
+    inec-collation .poster {
+      width: 100%;
+      max-width: 1400px;
+      padding: 56px 56px 64px;
+    }
+  }
+
+  @media (max-width: 900px) {
+    /* Below tablet, the dark frame becomes redundant — the paper is the page.
+       Zero padding on the host so the poster goes truly edge-to-edge. */
+    inec-collation { padding: 0; }
+    inec-collation .poster { padding: 40px 32px 48px; }
+
+    inec-collation h1.title { font-size: 3.5rem; }
+    inec-collation .deck { font-size: 1.1875rem; }
+
+    inec-collation .top-meta {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    inec-collation .legend { flex-wrap: wrap; gap: 14px; }
+
+    /* Stack the two compare columns */
+    inec-collation .compare { grid-template-columns: 1fr; }
+    inec-collation .col + .col {
+      border-left: 0;
+      border-top: 1px solid var(--ink);
+    }
+
+    inec-collation .section-head {
+      grid-template-columns: 48px 1fr;
+      gap: 16px;
+    }
+    inec-collation .section-num { font-size: 2.75rem; }
+    inec-collation .section-title { font-size: 2rem; }
+    inec-collation .section-meta { display: none; }
+
+    /* Stats: 2x2 */
+    inec-collation .stats { grid-template-columns: 1fr 1fr; }
+    inec-collation .stat:nth-child(1),
+    inec-collation .stat:nth-child(2) { border-bottom: 1px solid var(--ink); }
+    inec-collation .stat:nth-child(2) { border-right: 0; }
+
+    inec-collation .pullquote { font-size: 1.5rem; }
+    inec-collation .footer { grid-template-columns: 1fr; gap: 28px; }
+    inec-collation .footer .lede { font-size: 1.0625rem; }
+  }
+
+  @media (max-width: 600px) {
+    inec-collation .poster { padding: 28px 22px 36px; }
+
+    inec-collation h1.title { font-size: 2.5rem; line-height: 1; }
+    inec-collation .deck { font-size: 1rem; }
+    inec-collation .section-num { font-size: 2.25rem; }
+    inec-collation .section-title { font-size: 1.5rem; }
+
+    inec-collation .col { padding: 24px 22px 30px; }
+    inec-collation .col-title { font-size: 1.5rem; }
+    inec-collation .col-sub { font-size: 0.9375rem; margin-bottom: 22px; }
+
+    inec-collation .step { grid-template-columns: 44px 1fr; gap: 14px; }
+    inec-collation .step-icon { width: 44px; height: 44px; }
+    inec-collation .step-icon svg { width: 26px; height: 26px; }
+    inec-collation .step-name { font-size: 1rem; }
+    inec-collation .step-desc { font-size: 0.875rem; }
+
+    /* Stats: single column */
+    inec-collation .stats { grid-template-columns: 1fr; }
+    inec-collation .stat {
+      border-right: 0;
+      border-bottom: 1px solid var(--ink);
+    }
+    inec-collation .stat:last-child { border-bottom: 0; }
+    inec-collation .stat-num { font-size: 2.75rem; }
+
+    /* Matrix: tighter padding so the 3 columns still read */
+    inec-collation .matrix th,
+    inec-collation .matrix td { padding: 10px 12px; font-size: 0.8125rem; }
+    inec-collation .matrix td:first-child { font-size: 0.75rem; }
+
+    inec-collation .pullquote { font-size: 1.25rem; padding: 22px 0; }
+    inec-collation .pullquote::before,
+    inec-collation .pullquote::after { font-size: 2.5rem; }
+
+    /* Hero: shorter, hide SVG station labels (the headline above
+       narrates the same info at a readable size) */
+    inec-collation .hero-journey-inner { height: 280px; }
+    inec-collation .hero-headline {
+      font-size: 1.0625rem;
+      max-width: calc(100% - 40px);
+    }
+    inec-collation .hero-svg > g:first-of-type text,
+    inec-collation .hero-svg > g:nth-of-type(2) text { display: none; }
+  }
+
+  /* Reduced-motion: collapse all transitions/animations to a static poster */
+  @media (prefers-reduced-motion: reduce) {
+    inec-collation .reveal,
+    inec-collation .step .step-icon,
+    inec-collation .risk-flag,
+    inec-collation .opp-flag,
+    inec-collation .pullquote,
+    inec-collation .stat-num,
+    inec-collation .matrix tbody tr,
+    inec-collation .step-icon-wrap::after,
+    inec-collation .flag-strip span,
+    inec-collation .header::after {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none !important;
+      width: 100% !important;
+    }
+    inec-collation .live-dot,
+    inec-collation .anim-bar { animation: none !important; }
+    inec-collation .header { border-bottom-color: var(--ink); }
+  }
+</style>
+
+<div class="poster">
+
+  <header class="header">
+    <div class="flag-strip"><span></span><span></span><span></span></div>
+    <div class="eyebrow">A Civic Explainer &middot; Election Integrity Series</div>
+    <h1 class="title">How Nigeria<br/>counts its vote &mdash; <em>and how it could</em>.</h1>
+    <p class="deck">From the polling unit to the national declaration, every presidential ballot in Nigeria passes through six layers of human handling. This is what the journey looks like today, where it breaks, and what a fully electronic register could change.</p>
+    <div class="top-meta">
+      <div class="byline">Issue &#8470;01 &middot; Published 2026 &middot; Independent Civic Brief</div>
+      <div class="legend">
+        <span class="legend-item"><span class="swatch green"></span>Step</span>
+        <span class="legend-item"><span class="swatch risk"></span>Risk point</span>
+        <span class="legend-item"><span class="swatch opp"></span>Opportunity</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="hero-journey reveal" data-hero>
+    <div class="hero-meta">Watch &middot; 1 ballot &middot; 6 stops</div>
+    <div class="hero-headline" data-hero-headline>A single ballot's journey, <em>today</em>.</div>
+    <div class="hero-journey-inner">
+      <svg class="hero-svg" viewBox="0 0 1256 360" preserveAspectRatio="xMidYMid meet">
+        <g font-family="JetBrains Mono" font-size="10" letter-spacing="1" fill="#5C5F54">
+          <text x="110" y="260" text-anchor="middle">POLLING UNIT</text>
+          <text x="300" y="260" text-anchor="middle">BVAS</text>
+          <text x="490" y="260" text-anchor="middle">WARD</text>
+          <text x="680" y="260" text-anchor="middle">LGA</text>
+          <text x="870" y="260" text-anchor="middle">STATE</text>
+          <text x="1080" y="260" text-anchor="middle">NATIONAL</text>
+        </g>
+        <g font-family="Spectral" font-style="italic" font-size="11" fill="#14160F">
+          <text x="110" y="278" text-anchor="middle">EC8A</text>
+          <text x="300" y="278" text-anchor="middle">image only</text>
+          <text x="490" y="278" text-anchor="middle">EC8B</text>
+          <text x="680" y="278" text-anchor="middle">EC8C</text>
+          <text x="870" y="278" text-anchor="middle">EC8D</text>
+          <text x="1080" y="278" text-anchor="middle">EC8E declared</text>
+        </g>
+
+        <path d="M 110 200 L 300 200 L 490 200 L 680 200 L 870 200 L 1080 200"
+              stroke="#C9C2AE" stroke-width="1" fill="none" stroke-dasharray="3 4"/>
+
+        <g>
+          <circle cx="110" cy="200" r="6" fill="#F5F1E8" stroke="#14160F" stroke-width="1.2"/>
+          <circle cx="300" cy="200" r="6" fill="#F5F1E8" stroke="#14160F" stroke-width="1.2"/>
+          <circle cx="490" cy="200" r="6" fill="#F5F1E8" stroke="#14160F" stroke-width="1.2"/>
+          <circle cx="680" cy="200" r="6" fill="#F5F1E8" stroke="#14160F" stroke-width="1.2"/>
+          <circle cx="870" cy="200" r="6" fill="#F5F1E8" stroke="#14160F" stroke-width="1.2"/>
+          <circle cx="1080" cy="200" r="6" fill="#F5F1E8" stroke="#14160F" stroke-width="1.2"/>
+        </g>
+
+        <g data-risk-markers>
+          <g transform="translate(395 165)" opacity="0" class="risk-marker">
+            <rect x="-50" y="-13" width="100" height="22" fill="#B85C1E"/>
+            <text x="0" y="2" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#fff" letter-spacing="0.5">PRE-UPLOAD</text>
+          </g>
+          <g transform="translate(585 165)" opacity="0" class="risk-marker">
+            <rect x="-50" y="-13" width="100" height="22" fill="#B85C1E"/>
+            <text x="0" y="2" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#fff" letter-spacing="0.5">IN TRANSIT</text>
+          </g>
+          <g transform="translate(775 165)" opacity="0" class="risk-marker">
+            <rect x="-50" y="-13" width="100" height="22" fill="#B85C1E"/>
+            <text x="0" y="2" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#fff" letter-spacing="0.5">RE-ENTRY</text>
+          </g>
+          <g transform="translate(975 165)" opacity="0" class="risk-marker">
+            <rect x="-50" y="-13" width="100" height="22" fill="#B85C1E"/>
+            <text x="0" y="2" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#fff" letter-spacing="0.5">RE-ENTRY</text>
+          </g>
+        </g>
+
+        <g class="ballot-dot" data-ballot-dot transform="translate(110 200)">
+          <circle r="9" fill="#008751"/>
+          <circle r="4" fill="#F5F1E8"/>
+        </g>
+
+        <g class="ballot-swarm" data-ballot-swarm></g>
+
+        <g font-family="JetBrains Mono" font-size="10" letter-spacing="1" fill="#14160F">
+          <text x="1236" y="36" text-anchor="end">RE-ENTRIES <tspan data-reentry-count font-weight="700" fill="#B85C1E">0</tspan>/4</text>
+        </g>
+      </svg>
+    </div>
+    <div class="hero-progress">
+      <span>Scroll to advance</span>
+      <div class="hero-progress-bar" data-hero-progress></div>
+      <span data-hero-stage>Stage 0 / 6</span>
+    </div>
+  </div>
+
+  <div class="section-head reveal">
+    <div class="section-num">01</div>
+    <h2 class="section-title">The Journey of a Single Ballot</h2>
+    <div class="section-meta">From polling unit<br/>to national declaration</div>
+  </div>
+
+  <div class="compare">
+
+    <div class="col current">
+      <span class="col-tag">As it works today</span>
+      <h3 class="col-title">The Paper Trail</h3>
+      <p class="col-sub">A ballot paper passes through at least six pairs of hands &mdash; and four manual collation stages &mdash; before a winner is declared.</p>
+
+      <div class="steps">
+
+        <div class="step">
+          <div class="step-icon-wrap">
+            <div class="step-icon">
+              <svg viewBox="0 0 32 32" fill="none" stroke="#14160F" stroke-width="1.5">
+                <rect x="5" y="11" width="22" height="16" />
+                <line x1="11" y1="11" x2="11" y2="27" />
+                <line x1="21" y1="11" x2="21" y2="27" />
+                <rect x="13" y="8" width="6" height="3" fill="#14160F" />
+                <line x1="13.5" y1="9.5" x2="18.5" y2="9.5" stroke="#F5F1E8" />
+                <path d="M9 4 L13 7 L19 3 L23 6" stroke="#008751" stroke-width="1.2" fill="none" />
+              </svg>
+            </div>
+            <div class="step-num">01</div>
+          </div>
+          <div class="step-body">
+            <h4 class="step-name">Polling Unit Vote <span class="step-form">EC8A</span></h4>
+            <div class="step-actor">Voter &middot; Presiding Officer &middot; Party Agents</div>
+            <p class="step-desc">A ballot is cast and counted by hand at one of ~177,000 polling units. Results are written onto the EC8A form in front of agents.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-icon-wrap">
+            <div class="step-icon">
+              <svg viewBox="0 0 32 32" fill="none" stroke="#14160F" stroke-width="1.5">
+                <rect x="7" y="4" width="18" height="24" rx="1.5" />
+                <rect x="9" y="7" width="14" height="9" fill="#008751" stroke="none" />
+                <line x1="11" y1="10" x2="20" y2="10" stroke="#F5F1E8" />
+                <line x1="11" y1="13" x2="17" y2="13" stroke="#F5F1E8" />
+                <circle cx="13" cy="20" r="1" fill="#14160F" />
+                <circle cx="16" cy="20" r="1" fill="#14160F" />
+                <circle cx="19" cy="20" r="1" fill="#14160F" />
+                <line x1="11" y1="24" x2="21" y2="24" />
+              </svg>
+            </div>
+            <div class="step-num">02</div>
+          </div>
+          <div class="step-body">
+            <h4 class="step-name">BVAS Capture <span class="step-form">Image only</span></h4>
+            <div class="step-actor">Bimodal Voter Accreditation System</div>
+            <p class="step-desc">The presiding officer photographs the completed EC8A and uploads it to iReV. Only the image is captured &mdash; not the figures.</p>
+            <div class="risk-flag">
+              <div class="marker">!</div>
+              <div class="body">
+                <strong>Risk &middot; Pre-upload tampering</strong>
+                Results may be altered at the polling unit before the photo is taken. Once captured, the image is fixed &mdash; but no machine reads the numbers.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-icon-wrap">
+            <div class="step-icon">
+              <svg viewBox="0 0 32 32" fill="none" stroke="#14160F" stroke-width="1.5">
+                <rect x="4" y="6" width="24" height="17" rx="1" />
+                <line x1="4" y1="10" x2="28" y2="10" />
+                <circle cx="6.5" cy="8" r="0.7" fill="#14160F" stroke="none" />
+                <circle cx="9" cy="8" r="0.7" fill="#14160F" stroke="none" />
+                <rect x="8" y="13" width="6" height="7" fill="#C9C2AE" stroke="none" />
+                <rect x="16" y="13" width="6" height="7" fill="none" stroke-dasharray="2 1.5" />
+                <line x1="11" y1="26" x2="21" y2="26" />
+                <line x1="16" y1="23" x2="16" y2="26" />
+              </svg>
+            </div>
+            <div class="step-num">03</div>
+          </div>
+          <div class="step-body">
+            <h4 class="step-name">iReV Public View <span class="step-form">Viewing portal</span></h4>
+            <div class="step-actor">INEC Result Viewing Portal</div>
+            <p class="step-desc">Citizens can see scanned EC8A images. iReV is a viewer only &mdash; it is not consulted in collation.</p>
+            <div class="risk-flag">
+              <div class="marker">!</div>
+              <div class="body">
+                <strong>Risk &middot; Detached from collation</strong>
+                The numbers the public sees on iReV are never the numbers used to declare a winner. There is no automatic enforcement.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="group-bracket">Manual Collation &amp; Entry of Results</div>
+
+        <div class="step">
+          <div class="step-icon-wrap">
+            <div class="step-icon">
+              <svg viewBox="0 0 32 32" fill="none" stroke="#14160F" stroke-width="1.5">
+                <rect x="6" y="6" width="16" height="20" />
+                <rect x="9" y="9" width="16" height="20" fill="#F5F1E8" />
+                <line x1="12" y1="14" x2="22" y2="14" />
+                <line x1="12" y1="17" x2="22" y2="17" />
+                <line x1="12" y1="20" x2="20" y2="20" />
+                <line x1="12" y1="23" x2="22" y2="23" />
+              </svg>
+            </div>
+            <div class="step-num">04</div>
+          </div>
+          <div class="step-body">
+            <h4 class="step-name">Ward Collation <span class="step-form">EC8B</span></h4>
+            <div class="step-actor">Ward Collation Officer &middot; 8,809 wards</div>
+            <p class="step-desc">All EC8A forms in a ward are summed by hand into a single EC8B. Paper forms travel physically to the ward centre.</p>
+            <div class="risk-flag">
+              <div class="marker">!</div>
+              <div class="body">
+                <strong>Risk &middot; In-transit substitution</strong>
+                Figures can be tampered with &mdash; added to one party, taken from another, or rewritten en route to the next stage.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-icon-wrap">
+            <div class="step-icon">
+              <svg viewBox="0 0 32 32" fill="none" stroke="#14160F" stroke-width="1.5">
+                <path d="M4 26 L28 26" />
+                <path d="M6 26 L6 14 L16 8 L26 14 L26 26" />
+                <rect x="9" y="17" width="3" height="9" />
+                <rect x="14.5" y="17" width="3" height="9" />
+                <rect x="20" y="17" width="3" height="9" />
+                <line x1="9" y1="14" x2="23" y2="14" />
+              </svg>
+            </div>
+            <div class="step-num">05</div>
+          </div>
+          <div class="step-body">
+            <h4 class="step-name">LGA Collation <span class="step-form">EC8C</span></h4>
+            <div class="step-actor">Local Government Collation Officer &middot; 774 LGAs</div>
+            <p class="step-desc">EC8B forms from every ward are again added by hand into an EC8C at the local government area.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-icon-wrap">
+            <div class="step-icon">
+              <svg viewBox="0 0 32 32" fill="none" stroke="#14160F" stroke-width="1.5">
+                <path d="M3 27 L29 27" />
+                <path d="M5 27 L5 12 L16 5 L27 12 L27 27" />
+                <rect x="13.5" y="16" width="5" height="11" />
+                <rect x="8" y="16" width="3.5" height="6" />
+                <rect x="20.5" y="16" width="3.5" height="6" />
+                <circle cx="16" cy="9" r="1" fill="#008751" stroke="none" />
+              </svg>
+            </div>
+            <div class="step-num">06</div>
+          </div>
+          <div class="step-body">
+            <h4 class="step-name">State Collation <span class="step-form">EC8D</span></h4>
+            <div class="step-actor">State Collation Officer &middot; 36 states + FCT</div>
+            <p class="step-desc">A third manual sum produces the EC8D &mdash; one per state. By now the figures have been re-entered three times.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-icon-wrap">
+            <div class="step-icon">
+              <svg viewBox="0 0 32 32" fill="none" stroke="#14160F" stroke-width="1.5">
+                <path d="M2 28 L30 28" />
+                <path d="M5 28 L5 18 Q5 8 16 8 Q27 8 27 18 L27 28" />
+                <line x1="16" y1="4" x2="16" y2="8" />
+                <circle cx="16" cy="3.5" r="1" fill="#008751" stroke="none" />
+                <rect x="14" y="20" width="4" height="8" fill="#14160F" stroke="none" />
+                <line x1="9" y1="14" x2="9" y2="28" />
+                <line x1="23" y1="14" x2="23" y2="28" />
+              </svg>
+            </div>
+            <div class="step-num">07</div>
+          </div>
+          <div class="step-body">
+            <h4 class="step-name">National Collation <span class="step-form">EC8DA</span></h4>
+            <div class="step-actor">Chief Returning Officer &middot; Abuja</div>
+            <p class="step-desc">The 37 EC8Ds are added once more, and the final EC8E is published. A winner is declared.</p>
+            <div class="risk-flag">
+              <div class="marker">!</div>
+              <div class="body">
+                <strong>Risk &middot; Compounded error</strong>
+                Each manual addition introduces room for arithmetic error or political pressure. The final number cannot be re-derived from the BVAS images alone.
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="col proposed">
+      <span class="col-tag">A possible future</span>
+      <h3 class="col-title">The Electronic Register</h3>
+      <p class="col-sub">If BVAS captured the figures &mdash; not just the image &mdash; every result could flow straight into a public, real-time National Electronic Register.</p>
+
+      <div class="steps">
+
+        <div class="step">
+          <div class="step-icon-wrap">
+            <div class="step-icon">
+              <svg viewBox="0 0 32 32" fill="none" stroke="#00603A" stroke-width="1.5">
+                <rect x="5" y="11" width="22" height="16" />
+                <line x1="11" y1="11" x2="11" y2="27" />
+                <line x1="21" y1="11" x2="21" y2="27" />
+                <rect x="13" y="8" width="6" height="3" fill="#00603A" />
+                <path d="M9 4 L13 7 L19 3 L23 6" stroke="#008751" stroke-width="1.2" fill="none" />
+              </svg>
+            </div>
+            <div class="step-num">01</div>
+          </div>
+          <div class="step-body">
+            <h4 class="step-name">Polling Unit Vote <span class="step-form">EC8A</span></h4>
+            <div class="step-actor">Voter &middot; Presiding Officer &middot; Party Agents</div>
+            <p class="step-desc">No change here &mdash; the ballot is cast and counted at the polling unit, with party agents present and the EC8A signed.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-icon-wrap">
+            <div class="step-icon">
+              <svg viewBox="0 0 32 32" fill="none" stroke="#00603A" stroke-width="1.5">
+                <rect x="7" y="4" width="18" height="24" rx="1.5" />
+                <rect x="9" y="7" width="14" height="9" fill="#008751" stroke="none" />
+                <text x="16" y="13.5" text-anchor="middle" font-family="JetBrains Mono" font-size="5" fill="#fff" font-weight="700">A:1428</text>
+                <line x1="11" y1="20" x2="20" y2="20" />
+                <line x1="11" y1="23" x2="17" y2="23" />
+                <path d="M22 6 Q24 4 26 6" stroke="#008751" />
+                <path d="M23 7.5 Q24 6.5 25 7.5" stroke="#008751" />
+                <circle cx="24" cy="9" r="0.6" fill="#008751" stroke="none" />
+              </svg>
+            </div>
+            <div class="step-num">02</div>
+          </div>
+          <div class="step-body">
+            <h4 class="step-name">BVAS Captures Figures <span class="step-form">Image + Data</span></h4>
+            <div class="step-actor">Presiding Officer &middot; Party agents witness</div>
+            <p class="step-desc">In addition to the EC8A photograph, party-vote totals are typed into BVAS at the polling unit, in front of agents, and signed digitally.</p>
+            <div class="opp-flag">
+              <strong>Opportunity</strong>
+              Numbers are recorded at source &mdash; before any movement, transit, or rewriting can occur.
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-icon-wrap">
+            <div class="step-icon">
+              <svg viewBox="0 0 32 32" fill="none" stroke="#00603A" stroke-width="1.5">
+                <path d="M9 20 Q4 20 4 15 Q4 10 9 10 Q10 5 16 5 Q22 5 23 11 Q28 11 28 16 Q28 21 22 21" />
+                <line x1="16" y1="14" x2="16" y2="26" />
+                <path d="M12 18 L16 14 L20 18" />
+              </svg>
+            </div>
+            <div class="step-num">03</div>
+          </div>
+          <div class="step-body">
+            <h4 class="step-name">Auto-Transmit to NERER <span class="step-form">Real-time</span></h4>
+            <div class="step-actor">Encrypted upload &middot; BVAS &rarr; NERER</div>
+            <p class="step-desc">Both image and figures stream directly into the National Electronic Register of Election Results. No paper, no transit, no re-entry.</p>
+            <div class="opp-flag">
+              <strong>Opportunity</strong>
+              The four manual collation stages &mdash; Ward, LGA, State, National &mdash; collapse into one cryptographically signed event per polling unit.
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-icon-wrap">
+            <div class="step-icon">
+              <svg viewBox="0 0 32 32" fill="none" stroke="#00603A" stroke-width="1.5">
+                <ellipse cx="16" cy="7" rx="11" ry="3.2" />
+                <path d="M5 7 L5 16 Q5 19 16 19 Q27 19 27 16 L27 7" />
+                <path d="M5 16 L5 25 Q5 28 16 28 Q27 28 27 25 L27 16" />
+                <ellipse cx="16" cy="16" rx="11" ry="3.2" fill="none" stroke-dasharray="1.5 1.2" />
+                <circle cx="22.5" cy="22.5" r="0.9" fill="#008751" stroke="none" />
+              </svg>
+            </div>
+            <div class="step-num">04</div>
+          </div>
+          <div class="step-body">
+            <h4 class="step-name">National Electronic Register <span class="step-form">NERER</span></h4>
+            <div class="step-actor">Public, queryable, time-stamped</div>
+            <p class="step-desc">A single source of truth. Reports are auto-generated for ward, LGA, state, and national levels &mdash; all reconciled against BVAS images.</p>
+            <div class="opp-flag">
+              <strong>Opportunity</strong>
+              Open to every Nigerian. Anyone can verify a polling unit's result against its own EC8A image, in real time.
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-icon-wrap">
+            <div class="step-icon">
+              <svg viewBox="0 0 32 32" fill="none" stroke="#00603A" stroke-width="1.5">
+                <line x1="4" y1="28" x2="28" y2="28" />
+                <line x1="4" y1="28" x2="4" y2="4" />
+                <rect class="anim-bar" x="7" y="20" width="3.5" height="8" fill="#008751" stroke="none" />
+                <rect class="anim-bar" x="12" y="14" width="3.5" height="14" fill="#00603A" stroke="none" />
+                <rect class="anim-bar" x="17" y="9" width="3.5" height="19" fill="#008751" stroke="none" />
+                <rect class="anim-bar" x="22" y="17" width="3.5" height="11" fill="#7A9B7E" stroke="none" />
+                <circle class="live-dot" cx="26" cy="6" r="1.5" fill="#B85C1E" stroke="none" />
+                <text x="22.5" y="7" font-family="JetBrains Mono" font-size="3.5" fill="#00603A">LIVE</text>
+              </svg>
+            </div>
+            <div class="step-num">05</div>
+          </div>
+          <div class="step-body">
+            <h4 class="step-name">Live Public Dashboard <span class="step-form">Open access</span></h4>
+            <div class="step-actor">Citizens &middot; Press &middot; Observers &middot; Parties</div>
+            <p class="step-desc">Results visible as they arrive, with anomalies flagged automatically (mismatches between BVAS figures and EC8A image).</p>
+            <div class="opp-flag">
+              <strong>Opportunity</strong>
+              Disputes can be raised against specific polling units within minutes &mdash; not weeks of paper recounts.
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-icon-wrap">
+            <div class="step-icon">
+              <svg viewBox="0 0 32 32" fill="none" stroke="#00603A" stroke-width="1.5">
+                <path d="M16 4 L26 8 L26 17 Q26 25 16 28 Q6 25 6 17 L6 8 Z" />
+                <path d="M11 16 L15 20 L22 12" stroke="#008751" stroke-width="2" />
+              </svg>
+            </div>
+            <div class="step-num">06</div>
+          </div>
+          <div class="step-body">
+            <h4 class="step-name">Declaration <span class="step-form">EC8E</span></h4>
+            <div class="step-actor">Chief Returning Officer &middot; Abuja</div>
+            <p class="step-desc">The final declaration is the same number every Nigerian has been watching add up &mdash; not a new figure produced behind closed doors.</p>
+            <div class="opp-flag">
+              <strong>Opportunity</strong>
+              Trust is earned in real time, by every citizen, not granted at the end by a single announcement.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <p class="pullquote reveal">The picture INEC takes of a result, and the number INEC announces from that result, are not yet the same thing. They could be.</p>
+
+  <div class="section-head reveal">
+    <div class="section-num">02</div>
+    <h2 class="section-title">The Scale of the Hand-Off</h2>
+    <div class="section-meta">2023 presidential cycle<br/>publicly reported figures</div>
+  </div>
+
+  <div class="stats reveal" data-stats>
+    <div class="stat">
+      <div class="stat-num" data-target="177" data-suffix="k">0<span class="unit">k</span></div>
+      <div class="stat-label">Polling units</div>
+      <div class="stat-desc">Each one produces a single EC8A form that begins the journey.</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" data-target="8809" data-format="comma">0</div>
+      <div class="stat-label">Wards</div>
+      <div class="stat-desc">First manual aggregation. Where physical paper begins to travel.</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" data-target="774">0</div>
+      <div class="stat-label">LGAs</div>
+      <div class="stat-desc">Second manual sum. Forms from every ward are added by hand.</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" data-target="4" data-suffix="&times;">0<span class="unit">&times;</span></div>
+      <div class="stat-label">Manual re-entries</div>
+      <div class="stat-desc">A ballot is summed into a new form four times before declaration.</div>
+    </div>
+  </div>
+
+  <div class="section-head reveal">
+    <div class="section-num">03</div>
+    <h2 class="section-title">What Changes, At a Glance</h2>
+    <div class="section-meta">Side-by-side comparison<br/>of the two models</div>
+  </div>
+
+  <div class="matrix reveal">
+    <table>
+      <thead>
+        <tr>
+          <th>Dimension</th>
+          <th class="now">Today &middot; Paper Trail</th>
+          <th class="next">Tomorrow &middot; Electronic Register</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Source of truth</td>
+          <td>Hand-written EC8A; images on iReV are advisory only.</td>
+          <td>Typed BVAS figures + EC8A image, cryptographically paired.</td>
+        </tr>
+        <tr>
+          <td>Manual collation stages</td>
+          <td>Four (Ward &rarr; LGA &rarr; State &rarr; National).</td>
+          <td>Zero. Reports are generated from the register on demand.</td>
+        </tr>
+        <tr>
+          <td>Time to first national figure</td>
+          <td>Days &mdash; sometimes weeks of paper transit.</td>
+          <td>Minutes after polls close, growing in real time.</td>
+        </tr>
+        <tr>
+          <td>Public visibility</td>
+          <td>Scanned images on iReV; no totals published.</td>
+          <td>Open dashboard; anyone can audit any polling unit.</td>
+        </tr>
+        <tr>
+          <td>Disputes</td>
+          <td>Filed after declaration; resolved through tribunal recounts.</td>
+          <td>Flagged at the polling-unit level within hours of upload.</td>
+        </tr>
+        <tr>
+          <td>Failure mode</td>
+          <td>Tampering during transit, arithmetic error at four levels.</td>
+          <td>Connectivity gaps &mdash; mitigated by offline queue and signed sync.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer class="footer reveal">
+    <div class="lede">
+      The technology to do this exists. BVAS already takes the picture; the question is whether it should also take the number. A National Electronic Register would not replace the people, party agents, or paper that legitimise an election &mdash; it would simply make it impossible for the number announced to differ from the number observed.
+    </div>
+    <div class="meta">
+      <strong>Sources</strong>
+      INEC.gov.ng &middot; Electoral Act 2022<br/>
+      Yiaga Africa &middot; Watching The Vote<br/>
+      Centre for Democracy &amp; Development<br/>
+      <br/>
+      <strong>Note</strong>
+      EC8 form codes follow INEC convention.<br/>
+      Polling-unit count from INEC<br/>2023 register.<br/>
+      <br/>
+      <strong>License</strong>
+      CC BY-SA 4.0
+    </div>
+  </footer>
+
+</div>
