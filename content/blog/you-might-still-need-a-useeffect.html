@@ -1,0 +1,456 @@
+<blog-post
+  title="You might still need a useEffect"
+  excerpt="A gentle introduction to useEffect, synchronization, cleanup, dependencies, referential stability, and related React hooks."
+  date="2026-04-25">
+  <script type="application/json" id="meta">
+    { "type": "learning", "categories": ["Engineering", "React"] }
+  </script>
+
+  <p><em>A gentle introduction to synchronization in React</em></p>
+
+  <p><code>useEffect</code> is one of the first React hooks that starts to feel confusing. The name sounds simple, but the behavior gets strange when an effect runs too many times, doesn't run when you expect, or keeps doing work after a component has left the screen.</p>
+
+  <p>The clearest way to think about it is this:</p>
+
+  <blockquote>
+    <p><code>useEffect</code> is how your component talks to things that live outside React.</p>
+  </blockquote>
+
+  <p>That "outside" includes the DOM, network requests, timers, subscriptions, browser APIs like <code>window.innerWidth</code>, and third-party libraries that want to attach to a real DOM node. Anything that isn't already managed by props and state. The effect's job is to set up a connection to that outside thing on the way in, and tear it down on the way out.</p>
+
+  <p>If you want to go deeper on when to use effects and when to avoid them, the React docs have a guide called <a href="https://react.dev/learn/you-might-not-need-an-effect"><em>You Might Not Need an Effect</em></a>, and Alvin Sng has written about <a href="https://x.com/alvinsng/status/2033969062834045089">banning direct <code>useEffect</code></a> in production codebases. Both are worth reading once you've got the basics down. This article is the basics.</p>
+
+  <h2>How useEffect works</h2>
+
+  <p><code>useEffect</code> takes two arguments: a callback function and a dependency array.</p>
+
+  <code-block language="jsx">
+    <pre><code>useEffect(() =&gt; {
+  // ...your code
+}, [dep1, dep2]);</code></pre>
+  </code-block>
+
+  <p>Three things determine when and how the callback runs.</p>
+
+  <h3>The callback runs after the component renders</h3>
+
+  <p>When React renders your component and updates the DOM, it then runs the callback. Anything inside the callback happens after the user can already see the result of the render. That's why effects are a safe place for side effects: they don't block the screen from updating.</p>
+
+  <h3>The dependency array decides when to re-run the callback</h3>
+
+  <p>When you provide a dependency array, React compares the values inside it against the previous render's values. If any of them changed, React runs the callback again. If none of them changed, React skips it.</p>
+
+  <p>There are three shapes the array can take, and each one means something different:</p>
+
+  <code-block language="jsx">
+    <pre><code>// 1. Specific dependencies: re-run when any of these change
+useEffect(() =&gt; {
+  const connection = openChatRoom(roomId);
+}, [roomId]);
+
+// 2. Empty array: run once after the first render, never again
+useEffect(() =&gt; {
+  console.log("mounted");
+}, []);
+
+// 3. No array at all: run after every render
+useEffect(() =&gt; {
+  console.log("rendered");
+});</code></pre>
+  </code-block>
+
+  <p>Most of the time you want the first shape. The empty array is useful when the work doesn't depend on any changing value, like a one-time setup. The no-array form is rarely what you want, and the dependency linter will usually warn you against it.</p>
+
+  <h3>The callback returns a cleanup function</h3>
+
+  <p>The work an effect starts often needs to be stopped. A <code>setInterval</code> should be cleared. An event listener should be removed. A subscription should be cancelled. To handle that, the callback can return a function, and React will run that function before the next time the effect runs or when the component unmounts.</p>
+
+  <code-block language="jsx">
+    <pre><code>useEffect(() =&gt; {
+  const connection = openChatRoom(roomId); // setup
+
+  return () =&gt; {
+    connection.close(); // teardown
+  };
+}, [roomId]);</code></pre>
+  </code-block>
+
+  <p>When <code>roomId</code> changes, React closes the old connection before opening the new one. When the component leaves the screen, React closes the connection one last time. This is what most beginner tutorials describe as "mounting and unmounting," but the more useful framing is "open and close a connection."</p>
+
+  <p>That's the entire model. Setup runs after render. Teardown runs before the next setup or before unmount. The dependency array decides when to do another setup-teardown cycle.</p>
+
+  <h2>When not to write an effect</h2>
+
+  <p>Now that you know what an effect does, it's easier to spot the cases where one shouldn't be there at all. Two patterns come up constantly.</p>
+
+  <h3>Deriving a value from props or state</h3>
+
+  <p>If a value can be calculated from existing props or state, calculate it during render. Don't reach for an effect:</p>
+
+  <code-block language="jsx">
+    <pre><code>// Don't do this
+function Greeting({ firstName, lastName }) {
+  const [fullName, setFullName] = useState("");
+
+  useEffect(() =&gt; {
+    setFullName(`${firstName} ${lastName}`);
+  }, [firstName, lastName]);
+
+  return &lt;h1&gt;Hello, {fullName}&lt;/h1&gt;;
+}
+
+// Do this
+function Greeting({ firstName, lastName }) {
+  const fullName = `${firstName} ${lastName}`;
+  return &lt;h1&gt;Hello, {fullName}&lt;/h1&gt;;
+}</code></pre>
+  </code-block>
+
+  <p>The effect version forces React to render once with an empty <code>fullName</code>, run the effect, then render again with the real value. Two renders to do the work of one. There's also nothing outside React being synchronized here, so the effect doesn't earn its place.</p>
+
+  <h3>Reacting to a user event</h3>
+
+  <p>If something should happen because a user clicked a button, that logic belongs in the click handler. It doesn't belong in an effect that fires after the resulting state change:</p>
+
+  <code-block language="jsx">
+    <pre><code>// Don't do this
+useEffect(() =&gt; {
+  if (product.isInCart) {
+    showNotification(`Added ${product.name} to cart`);
+  }
+}, [product]);
+
+// Do this
+function handleAddToCart() {
+  addToCart(product);
+  showNotification(`Added ${product.name} to cart`);
+}</code></pre>
+  </code-block>
+
+  <p>The effect version fires the notification any time <code>product</code> changes, including on initial render if the product was already in the cart from a previous session. The handler version only fires when the user actually clicks. That's almost always what you want.</p>
+
+  <p>The general test is: "is this code talking to something outside React?" If no, it probably shouldn't be an effect.</p>
+
+  <h2>Three things to pay attention to when writing effects</h2>
+
+  <p>Once you're writing real effects, three things determine whether they behave correctly. The first is positive: getting cleanup right. The other two are traps that catch most beginners.</p>
+
+  <h3>1. Clean up what you start</h3>
+
+  <p>Most subtle effect bugs come from missing cleanup. Whatever your setup starts, your teardown should stop. The shape is the same across every external system, just applied to different APIs.</p>
+
+  <p><strong>Window event listeners.</strong> The teardown removes the same function the setup added:</p>
+
+  <code-block language="jsx">
+    <pre><code>useEffect(() =&gt; {
+  function handleResize() {
+    setWidth(window.innerWidth);
+  }
+  window.addEventListener("resize", handleResize);
+  return () =&gt; window.removeEventListener("resize", handleResize);
+}, []);</code></pre>
+  </code-block>
+
+  <p><code>removeEventListener</code> requires the same function reference that <code>addEventListener</code> got, which is why <code>handleResize</code> is named and reused.</p>
+
+  <p><strong>Intervals.</strong> The teardown clears the interval:</p>
+
+  <code-block language="jsx">
+    <pre><code>useEffect(() =&gt; {
+  const id = setInterval(() =&gt; {
+    setSeconds((s) =&gt; s + 1);
+  }, 1000);
+  return () =&gt; clearInterval(id);
+}, []);</code></pre>
+  </code-block>
+
+  <p>Using the functional form <code>setSeconds((s) =&gt; s + 1)</code> makes sure the callback always sees the current value, not a stale one captured when the interval was created.</p>
+
+  <p><strong>Subscriptions.</strong> Many APIs return an unsubscribe function, which you can return directly from the effect:</p>
+
+  <code-block language="jsx">
+    <pre><code>useEffect(() =&gt; {
+  return chatRoom.subscribe((message) =&gt; {
+    setMessages((messages) =&gt; [...messages, message]);
+  });
+}, [chatRoom]);</code></pre>
+  </code-block>
+
+  <p><strong>Network requests.</strong> The teardown either marks the response as ignored or aborts the request:</p>
+
+  <code-block language="jsx">
+    <pre><code>useEffect(() =&gt; {
+  let ignore = false;
+  fetch(`/api/users/${userId}`)
+    .then((res) =&gt; res.json())
+    .then((data) =&gt; {
+      if (!ignore) setUser(data);
+    });
+  return () =&gt; {
+    ignore = true;
+  };
+}, [userId]);</code></pre>
+  </code-block>
+
+  <p>The <code>ignore</code> flag prevents a stale response from overwriting newer data when <code>userId</code> changes mid-request. One practical caveat: in production apps, libraries like TanStack Query and SWR, or framework data layers in Next.js and Remix, handle race conditions, caching, and loading states for you. Writing your own fetch effects is fine for learning and small projects, but it stops being the right call at scale.</p>
+
+  <h3>2. Effects run twice in development</h3>
+
+  <p>If you've used React 18 or later, you've probably seen an effect fire twice in development and wondered if something was broken. Nothing is broken. React's Strict Mode runs setup, then teardown, then setup again, on purpose.</p>
+
+  <p>The reason is that Strict Mode is testing whether your teardown actually works. If running setup-teardown-setup leaves your component in a broken state, the synchronization isn't symmetric, and it'll eventually break in production too when a dependency change legitimately causes React to teardown and reopen the connection.</p>
+
+  <p>A buggy effect makes this visible:</p>
+
+  <code-block language="jsx">
+    <pre><code>// Logs two visits in development
+useEffect(() =&gt; {
+  fetch("/api/visit", { method: "POST" });
+}, []);</code></pre>
+  </code-block>
+
+  <p>The fix is to add a teardown that cancels the in-flight request, or to move the analytics call somewhere that running it twice doesn't matter. Don't disable Strict Mode. It's catching a real bug for you while it's still cheap to fix.</p>
+
+  <h3>3. Referential stability</h3>
+
+  <p>Once you start writing dependency arrays carefully, you'll run into a frustrating-feeling case. The effect keeps firing on every render even though nothing seems to have changed. The cause is almost always referential stability.</p>
+
+  <p>React compares dependencies with <code>Object.is</code>. For primitives like strings and numbers, that compares values. For objects, arrays, and functions, it compares references. Since the component function reruns on every render, anything you build inside the function body gets a fresh reference each time, even if the contents are identical:</p>
+
+  <code-block language="jsx">
+    <pre><code>function SearchResults({ query }) {
+  const options = { limit: 20, query };
+
+  useEffect(() =&gt; {
+    search(options);
+  }, [options]);
+}</code></pre>
+  </code-block>
+
+  <p><code>options</code> is a new object on every render, so the effect runs on every render too. There are four reasonable ways out, and the right one depends on what the value is for.</p>
+
+  <p><strong>Option 1: depend on the primitive.</strong> If the object is only used inside the effect, build it inside the effect and depend on the primitive that actually changes:</p>
+
+  <code-block language="jsx">
+    <pre><code>useEffect(() =&gt; {
+  search({ limit: 20, query });
+}, [query]);</code></pre>
+  </code-block>
+
+  <p>This is the answer most of the time. Reach for it first.</p>
+
+  <p><strong>Option 2: memoize the object.</strong> If something else also needs the object, such as a child component or another hook, wrap it in <code>useMemo</code> so its identity stays stable until its real inputs change:</p>
+
+  <code-block language="jsx">
+    <pre><code>const options = useMemo(() =&gt; ({ limit: 20, query }), [query]);</code></pre>
+  </code-block>
+
+  <p><strong>Option 3: memoize a function passed across components.</strong> <code>useCallback</code> matters when a function's identity is observed by something else, typically a memoized child:</p>
+
+  <code-block language="jsx">
+    <pre><code>const runSearch = useCallback(() =&gt; {
+  search({ limit: 20, query });
+}, [query]);
+
+return &lt;SearchButton onSearch={runSearch} /&gt;;</code></pre>
+  </code-block>
+
+  <p>If the function only lives inside one effect in one component, you don't need <code>useCallback</code> at all; depend on <code>query</code> directly.</p>
+
+  <p><strong>Option 4: a ref for a value that should not retrigger the effect.</strong> Sometimes the effect genuinely should not restart when a value changes, but the effect still needs to read the latest version. A ref gives you a stable container whose <code>.current</code> you can update without triggering re-renders:</p>
+
+  <code-block language="jsx">
+    <pre><code>const latestQueryRef = useRef(query);
+
+useEffect(() =&gt; {
+  latestQueryRef.current = query;
+}, [query]);
+
+useEffect(() =&gt; {
+  const id = setInterval(() =&gt; {
+    search({ limit: 20, query: latestQueryRef.current });
+  }, 5000);
+  return () =&gt; clearInterval(id);
+}, []);</code></pre>
+  </code-block>
+
+  <p>This works, but it's the option to reach for last. Refs hide which values actually drive the effect's behavior, and they make the dependency lint rule unable to help you. As of React 19.2, there's a cleaner tool for this exact case, which is in the next section.</p>
+
+  <h2>Related hooks that extend the model</h2>
+
+  <p>Plain <code>useEffect</code> covers most synchronization needs, but four situations have their own purpose-built tools. Each one solves a specific gap, and each one fits the same connection metaphor we've been building on.</p>
+
+  <h3><code>useEffectEvent</code>: read a value without restarting the effect</h3>
+
+  <p>A common pain point with the dependency array is that it forces a bad trade. Either you list everything the effect reads, which is correct but may restart the connection more than you want, or you omit some values, which is wrong and makes the linter complain. The classic example is a chat room that wants to show a notification with the current theme:</p>
+
+  <code-block language="jsx">
+    <pre><code>function ChatRoom({ roomId, theme }) {
+  useEffect(() =&gt; {
+    const connection = openChatRoom(roomId);
+    connection.on("connected", () =&gt; {
+      showNotification("Connected!", theme);
+    });
+    return () =&gt; connection.close();
+  }, [roomId, theme]); // Reconnects when theme changes
+}</code></pre>
+  </code-block>
+
+  <p>The connection only cares about <code>roomId</code>. The notification call cares about <code>theme</code>. Listing both as dependencies means changing the theme tears down the chat connection and opens a new one, which is wasteful and visibly wrong.</p>
+
+  <p><code>useEffectEvent</code>, stable since React 19.2 in October 2025, lets you split the "event-like" piece out of the effect. The effect still reads the latest <code>theme</code> when the notification fires, but <code>theme</code> no longer defines the connection's identity:</p>
+
+  <code-block language="jsx">
+    <pre><code>import { useEffect, useEffectEvent } from "react";
+
+function ChatRoom({ roomId, theme }) {
+  const onConnected = useEffectEvent(() =&gt; {
+    showNotification("Connected!", theme);
+  });
+
+  useEffect(() =&gt; {
+    const connection = openChatRoom(roomId);
+    connection.on("connected", onConnected);
+    return () =&gt; connection.close();
+  }, [roomId]); // Only reconnects when roomId changes
+}</code></pre>
+  </code-block>
+
+  <p>This replaces the "ref to read the latest value" trick from Option 4 in the previous section. The hook signals intent, this is an event-like callback fired from inside an effect, and the linter understands not to flag it as a missing dependency.</p>
+
+  <h3>Ref callbacks with cleanup: when the connection is to a DOM node</h3>
+
+  <p>Sometimes the thing being synchronized isn't your component, it's a specific DOM node. Imagine attaching a <code>ResizeObserver</code> to a <code>&lt;div&gt;</code> so you can react to its dimensions changing. The conventional approach used a <code>useRef</code> plus a <code>useEffect</code>:</p>
+
+  <code-block language="jsx">
+    <pre><code>function MeasuredBox() {
+  const ref = useRef(null);
+
+  useEffect(() =&gt; {
+    if (!ref.current) return;
+    const observer = new ResizeObserver(() =&gt; {
+      console.log(ref.current.getBoundingClientRect());
+    });
+    observer.observe(ref.current);
+    return () =&gt; observer.disconnect();
+  }, []);
+
+  return &lt;div ref={ref}&gt;...&lt;/div&gt;;
+}</code></pre>
+  </code-block>
+
+  <p>This works, but the <code>ResizeObserver</code> is conceptually tied to the <code>&lt;div&gt;</code>, not to the component's lifetime. React 19 in December 2024 made ref callbacks, functions you pass directly to <code>ref</code>, able to return cleanup functions, which lets you express that relationship directly:</p>
+
+  <code-block language="jsx">
+    <pre><code>function MeasuredBox() {
+  return (
+    &lt;div
+      ref={(node) =&gt; {
+        const observer = new ResizeObserver(() =&gt; {
+          console.log(node.getBoundingClientRect());
+        });
+        observer.observe(node);
+        return () =&gt; observer.disconnect();
+      }}
+    &gt;
+      ...
+    &lt;/div&gt;
+  );
+}</code></pre>
+  </code-block>
+
+  <p>The setup runs when React attaches the ref, and the cleanup runs when the node is detached or replaced. There's no <code>useRef</code>, no <code>useEffect</code>, and no null check. The synchronization is colocated with the node it depends on.</p>
+
+  <p>The rule of thumb: if the thing being synchronized is "this DOM node," prefer a ref callback with cleanup. If it's "this component's lifetime in general," use <code>useEffect</code>.</p>
+
+  <h3><code>useSyncExternalStore</code>: subscribing to data that drives rendering</h3>
+
+  <p>You can subscribe to an external data source with <code>useEffect</code>, and the cleanup pattern from earlier works fine:</p>
+
+  <code-block language="jsx">
+    <pre><code>function useOnlineStatus() {
+  const [isOnline, setIsOnline] = useState(true);
+
+  useEffect(() =&gt; {
+    function update() {
+      setIsOnline(navigator.onLine);
+    }
+    update();
+    window.addEventListener("online", update);
+    window.addEventListener("offline", update);
+    return () =&gt; {
+      window.removeEventListener("online", update);
+      window.removeEventListener("offline", update);
+    };
+  }, []);
+
+  return isOnline;
+}</code></pre>
+  </code-block>
+
+  <p>This is fine for most cases. But when the external data drives what you actually render, such as a Redux store, a Zustand store, <code>navigator.onLine</code>, or anything where the value affects the UI, React provides <code>useSyncExternalStore</code>, which handles concurrent rendering edge cases that <code>useEffect</code> cannot:</p>
+
+  <code-block language="jsx">
+    <pre><code>function subscribe(callback) {
+  window.addEventListener("online", callback);
+  window.addEventListener("offline", callback);
+  return () =&gt; {
+    window.removeEventListener("online", callback);
+    window.removeEventListener("offline", callback);
+  };
+}
+
+function useOnlineStatus() {
+  return useSyncExternalStore(
+    subscribe,
+    () =&gt; navigator.onLine,    // current value on the client
+    () =&gt; true                  // current value on the server
+  );
+}</code></pre>
+  </code-block>
+
+  <p>The hook takes a subscribe function, same shape as your effect's setup, a function that returns the current value, and an optional function that returns the value during server rendering. You'll most often see this through libraries, since Zustand and React Redux both use it under the hood, but it's worth knowing about when you're writing your own subscription logic.</p>
+
+  <h3><code>useLayoutEffect</code>: when synchronization has to happen before paint</h3>
+
+  <p><code>useEffect</code> runs after the browser paints, which keeps the screen feeling responsive. Once in a while, you need synchronization that has to happen <em>before</em> paint so the user doesn't see a flicker. Positioning a tooltip based on its measured width is the canonical case: if you measure and adjust in <code>useEffect</code>, the user briefly sees the tooltip in the wrong place before it snaps into position.</p>
+
+  <p><code>useLayoutEffect</code> has the same API as <code>useEffect</code> but runs synchronously before paint:</p>
+
+  <code-block language="jsx">
+    <pre><code>useLayoutEffect(() =&gt; {
+  const { width } = tooltipRef.current.getBoundingClientRect();
+  setLeft(triggerLeft - width / 2);
+}, [triggerLeft]);</code></pre>
+  </code-block>
+
+  <p>Use it only when you actually need it. It blocks the screen from updating until your effect finishes, so the responsiveness benefit of plain <code>useEffect</code> is gone. If you ever notice a one-frame flash between an effect's setup and what the user sees, that's the signal that the effect should probably be a <code>useLayoutEffect</code>.</p>
+
+  <h2>A checklist before writing an effect</h2>
+
+  <p>Before reaching for <code>useEffect</code>, ask:</p>
+
+  <ol>
+    <li>Am I synchronizing with something outside React, or am I deriving a value from props and state? If it's the latter, calculate during render instead.</li>
+    <li>What is the external system, and what defines the identity of the connection to it?</li>
+    <li>What values does that identity depend on? Are they all in the dependency array?</li>
+    <li>Does my teardown actually undo what my setup did?</li>
+    <li>Will this still behave correctly under Strict Mode's setup-teardown-setup pattern in development?</li>
+    <li>Is the connection tied to a specific DOM node? A ref callback with cleanup might be a better fit.</li>
+    <li>Is the effect reading a value that shouldn't restart it? <code>useEffectEvent</code> is built for that.</li>
+  </ol>
+
+  <p>The rules underneath these questions are simple. If your effect starts something, stop it. If it reads a value that can change, list that value as a dependency unless you have a deliberate reason not to. If you're only moving React values around inside React, you don't need an effect at all.</p>
+
+  <p><code>useEffect</code> isn't an arbitrary hook with a weird name and surprising behavior. It's React's interface to the world outside it. Once you start treating it that way, the rest of the rules write themselves.</p>
+
+  <h2>Further reading</h2>
+
+  <ul>
+    <li><a href="https://react.dev/learn/synchronizing-with-effects"><em>Synchronizing with Effects</em></a>, official React documentation</li>
+    <li><a href="https://react.dev/learn/you-might-not-need-an-effect"><em>You Might Not Need an Effect</em></a>, the canonical "don't reach for <code>useEffect</code> first" guide</li>
+    <li><a href="https://react.dev/reference/react/useEffectEvent"><em>useEffectEvent</em> reference</a>, for the new hook stabilized in React 19.2</li>
+    <li><a href="https://react.dev/reference/react/useSyncExternalStore"><em>useSyncExternalStore</em> reference</a>, for store subscriptions</li>
+    <li><a href="https://x.com/alvinsng/status/2033969062834045089">Alvin Sng on banning direct <code>useEffect</code></a>, an opinionated take from a production codebase</li>
+  </ul>
+</blog-post>

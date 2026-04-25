@@ -1,0 +1,146 @@
+<blog-post
+  title="Six React antipatterns worth fixing"
+  excerpt="Six bugs I keep finding in React code: referential stability, listener cleanup, timer choice, timeout clearing, derived state, and chained callbacks."
+  date="2026-04-25"
+  draft>
+  <script type="application/json" id="meta">
+    { "type": "learning", "categories": ["Engineering"] }
+  </script>
+
+  <p>Six bugs and antipatterns I keep finding in React code — mine and other people's. Each one has a clear failure mode and a clear fix.</p>
+
+  <h2>1. Referential stability</h2>
+  <p>Every render creates fresh object and function literals. Anything that compares by reference — <code>useEffect</code> dependencies, <code>memo</code> equality, prop diffing in child components — sees a "change" on every render even when the data is identical.</p>
+
+  <p><strong>Antipattern:</strong></p>
+  <pre><code>function Parent() {
+  const config = { limit: 10 };           // new object every render
+  const onSelect = (id) =&gt; load(id);     // new function every render
+  return &lt;Child config={config} onSelect={onSelect} /&gt;;
+}
+
+function Child({ config, onSelect }) {
+  useEffect(() =&gt; {
+    fetchData(config);                    // re-runs every render
+  }, [config]);
+}</code></pre>
+
+  <p><strong>Fix:</strong> hoist stable values out of the component, memoize, or pass primitive deps instead of containers.</p>
+
+  <pre><code>const CONFIG = { limit: 10 };           // module scope, stable
+
+function Parent() {
+  const onSelect = useCallback((id) =&gt; load(id), []);
+  return &lt;Child config={CONFIG} onSelect={onSelect} /&gt;;
+}
+
+function Child({ config, onSelect }) {
+  useEffect(() =&gt; {
+    fetchData(config);
+  }, [config.limit]);                   // depend on the primitive
+}</code></pre>
+
+  <p>Rule of thumb: if a value goes into a dependency array, it has to be either a primitive or referentially stable.</p>
+
+  <h2>2. Event listeners that never unmount</h2>
+  <p>Adding a <code>window</code> or <code>document</code> listener in <code>useEffect</code> without returning a cleanup. Every re-run stacks another listener, and the component can update state after unmount.</p>
+
+  <p><strong>Antipattern:</strong></p>
+  <pre><code>useEffect(() =&gt; {
+  window.addEventListener('resize', onResize);
+}, []);</code></pre>
+
+  <p><strong>Fix:</strong> always return the cleanup. Pass the same function reference to <code>remove</code> that you passed to <code>add</code>.</p>
+
+  <pre><code>useEffect(() =&gt; {
+  window.addEventListener('resize', onResize);
+  return () =&gt; window.removeEventListener('resize', onResize);
+}, [onResize]);</code></pre>
+
+  <p>If <code>onResize</code> is not stable, wrap it in <code>useCallback</code> or store the latest version in a ref so the listener identity is stable across renders.</p>
+
+  <h2>3. setTimeout vs requestAnimationFrame</h2>
+  <p><code>setTimeout</code> fires on the macrotask queue. It is not aligned with the paint cycle, so visual updates driven by it can run twice before a paint or skip a frame entirely. The result is jank.</p>
+
+  <p>For anything visual — animations, scroll-driven UI, layout-dependent measurement — use <code>requestAnimationFrame</code>. The browser calls it once per paint, right before the next frame, with the right timing.</p>
+
+  <p><strong>Antipattern:</strong></p>
+  <pre><code>setTimeout(() =&gt; setX(x + 1), 16);     // hopes for 60fps</code></pre>
+
+  <p><strong>Fix:</strong></p>
+  <pre><code>useEffect(() =&gt; {
+  let raf;
+  const tick = () =&gt; {
+    setX((x) =&gt; x + 1);
+    raf = requestAnimationFrame(tick);
+  };
+  raf = requestAnimationFrame(tick);
+  return () =&gt; cancelAnimationFrame(raf);
+}, []);</code></pre>
+
+  <p><code>setTimeout</code> is the right tool for non-visual delays: debouncing input, retry backoff, polling. Not animation.</p>
+
+  <h2>4. Timeouts that never clear</h2>
+  <p>The same shape as the listener bug. A <code>setTimeout</code> in <code>useEffect</code> without a cleanup keeps firing after the component unmounts. The callback closes over stale state and may call <code>setState</code> on a dead component.</p>
+
+  <p><strong>Antipattern:</strong></p>
+  <pre><code>useEffect(() =&gt; {
+  setTimeout(() =&gt; setReady(true), 1000);
+}, []);</code></pre>
+
+  <p><strong>Fix:</strong></p>
+  <pre><code>useEffect(() =&gt; {
+  const id = setTimeout(() =&gt; setReady(true), 1000);
+  return () =&gt; clearTimeout(id);
+}, []);</code></pre>
+
+  <p>Same goes for <code>setInterval</code> (<code>clearInterval</code>), <code>requestAnimationFrame</code> (<code>cancelAnimationFrame</code>), <code>fetch</code> (<code>AbortController</code>), and any subscription you create.</p>
+
+  <h2>5. Derived state in useEffect</h2>
+  <p>Using <code>useEffect</code> to copy or transform props into state. The component renders once with stale state, the effect runs, <code>setState</code> queues another render. Two renders, possible flicker, two sources of truth.</p>
+
+  <p><strong>Antipattern:</strong></p>
+  <pre><code>function FullName({ first, last }) {
+  const [full, setFull] = useState('');
+  useEffect(() =&gt; {
+    setFull(`${first} ${last}`);
+  }, [first, last]);
+  return &lt;span&gt;{full}&lt;/span&gt;;
+}</code></pre>
+
+  <p><strong>Fix:</strong> compute it during render. Use <code>useMemo</code> only if the computation is genuinely expensive.</p>
+
+  <pre><code>function FullName({ first, last }) {
+  const full = `${first} ${last}`;
+  return &lt;span&gt;{full}&lt;/span&gt;;
+}</code></pre>
+
+  <p>If the value depends on props <em>and</em> something the user changes, lift the user's input into state and derive the rest. Reach for <code>useEffect</code> only when you actually need to synchronize with something outside React (network, DOM, subscription).</p>
+
+  <h2>6. Callbacks that depend on other callbacks</h2>
+  <p>A <code>useCallback</code> whose dependency array includes another <code>useCallback</code>. Any input change to the inner callback invalidates the outer one, which invalidates anything that depends on it. Memoization unravels and you get the same re-renders you were trying to prevent.</p>
+
+  <p><strong>Antipattern:</strong></p>
+  <pre><code>const formatItem = useCallback((item) =&gt; `${item.name} (${currency})`, [currency]);
+
+const handleSelect = useCallback((item) =&gt; {
+  log('selected', formatItem(item));
+}, [formatItem]);                       // chained dep</code></pre>
+
+  <p><strong>Fix:</strong> store the latest function in a ref so the outer callback can call it without depending on it.</p>
+
+  <pre><code>const formatItemRef = useRef(formatItem);
+useEffect(() =&gt; { formatItemRef.current = formatItem; });
+
+const handleSelect = useCallback((item) =&gt; {
+  log('selected', formatItemRef.current(item));
+}, []);                                 // stable</code></pre>
+
+  <p>If you find yourself building long chains of <code>useCallback</code>, that is usually the signal to merge them into a single callback or to move the work into a reducer or external store.</p>
+
+  <h2>The pattern behind the patterns</h2>
+  <p>Five of these six bugs come from the same root: React re-runs your function on every render, and anything you create inside that function is fresh each time. The fixes are all variations of the same move — make the value stable (module scope, ref, memo) or make the dependency a primitive instead of a container.</p>
+
+  <p>The sixth, <code>setTimeout</code> vs <code>requestAnimationFrame</code>, is not a React bug at all. It just shows up in React code most often because that is where most UI work lives now.</p>
+
+</blog-post>

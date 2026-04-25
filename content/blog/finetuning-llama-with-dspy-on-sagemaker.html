@@ -1,0 +1,90 @@
+<blog-post
+  title="Fine-tuning Llama 3.2 with DSPy and SageMaker"
+  excerpt="Notes from ranking 47/198 in the AWS AI League: a two-stage DSPy GEPA pipeline for synthetic data, LoRA on SageMaker, and why JSONL is the right shape."
+  date="2026-04-25"
+  draft>
+  <script type="application/json" id="meta">
+    { "type": "learning", "categories": ["AI", "Engineering"] }
+  </script>
+
+  <p>I ranked 47 of 198 in the AWS AI League fine-tuning track, training Llama 3.2 3B with LoRA on SageMaker. The training data was fully synthetic, generated through a two-stage <a href="https://dspy.ai/">DSPy</a> GEPA pipeline. Code is in <a href="https://github.com/tosinamuda/llama-finetuning-dspy">tosinamuda/llama-finetuning-dspy</a>.</p>
+
+  <p>Three things from this build are worth writing down: the pipeline shape, the JSONL choice, and the abstraction I wish I had named upfront.</p>
+
+  <h2>The task</h2>
+  <p>Generate one-page executive slides and consulting summaries on demand. The fine-tune target was a small open model that could run cheaply and respond in a consistent format. The training set had to be diverse enough to cover realistic business scenarios without me hand-writing thousands of examples.</p>
+
+  <h2>The pipeline</h2>
+  <p>Two GEPA-optimized prompts chained together, fed by a structured input grid.</p>
+
+  <p>Inputs are six variables that describe a scenario:</p>
+  <ul>
+    <li><code>client_size</code></li>
+    <li><code>industry</code></li>
+    <li><code>pain_point</code></li>
+    <li><code>requirement</code></li>
+    <li><code>existing_stack</code></li>
+    <li><code>constraint</code></li>
+  </ul>
+
+  <p>Stage A turns those variables into an <code>instruction</code>. Stage B turns the instruction into a <code>response</code>. Both prompts are optimized with GEPA against small hand-authored gold datasets:</p>
+
+  <ul>
+    <li><code>instruction_dataset.jsonl</code> — variables paired with a gold expected instruction. Used to optimize Prompt A.</li>
+    <li><code>response_dataset.jsonl</code> — instruction paired with a gold expected response. Used to optimize Prompt B.</li>
+  </ul>
+
+  <p>Generation runs the two optimized prompts over <code>input_data.jsonl</code>, a Cartesian grid of 1,098 variable combinations. The output is <code>generated_output.jsonl</code>, which is the actual training set that goes to SageMaker:</p>
+
+  <pre><code>{ "instruction": "...", "context": "", "response": "...", "category": "brainstorming" }</code></pre>
+
+  <p><code>context</code> stays empty by design — every fact lives in <code>instruction</code>. Keeps the schema flat and matches what the SageMaker training job expects.</p>
+
+  <h2>Why JSONL felt weird, and why it is right</h2>
+  <p>Coming from web work, my reflex was JSON: one file, one array, parse it whole. JSONL — one JSON object per line, no outer array, no commas between records — felt wrong at first. Why throw away the structure?</p>
+
+  <p>The reasons stacked up the further I went:</p>
+
+  <ul>
+    <li><strong>Streaming.</strong> You can read, write, and append one record at a time without parsing the rest. A 1,098-row generation job that crashes at row 700 still has 700 valid records on disk.</li>
+    <li><strong>Concurrency.</strong> Multiple workers can append safely. With a JSON array, every writer has to know about every other writer.</li>
+    <li><strong>Diff-friendly.</strong> Adding a row is a one-line diff. Adding a row to a JSON array changes the closing bracket and (depending on style) the previous line's trailing comma.</li>
+    <li><strong>Tooling.</strong> SageMaker, OpenAI fine-tuning, BigQuery, Spark, and most ML data pipelines treat JSONL as the default. The format is the contract.</li>
+    <li><strong>Crash recovery.</strong> A truncated file is still parseable up to the last newline. A truncated JSON array is unparseable, full stop.</li>
+  </ul>
+
+  <p>JSONL is JSON optimized for the ways data pipelines actually fail and grow. Once that clicked, I stopped reaching for arrays.</p>
+
+  <h2>The abstraction I should have named on day one</h2>
+  <p>I shipped the pipeline before I noticed the right shape. The codebase talks about "instruction" and "response" as if they were special, but they are not. They are two instances of the same thing: a <em>Stage</em>.</p>
+
+  <p>A Stage is:</p>
+  <ul>
+    <li>an input schema</li>
+    <li>an output schema</li>
+    <li>a small set of gold training examples (input → output)</li>
+    <li>a GEPA-optimized prompt</li>
+  </ul>
+
+  <p>You chain stages by feeding stage <em>n</em>'s output into stage <em>n+1</em>'s input. Two stages today, but the same shape would extend to three or five without rewriting the orchestration.</p>
+
+  <p>Naming it would also have forced a clearer split between the two roles JSONL plays in this repo, which I currently conflate:</p>
+
+  <ul>
+    <li><strong>Training examples</strong> — gold input/output pairs that GEPA uses to optimize a prompt. Hand-authored. Irreplaceable. (<code>instruction_dataset.jsonl</code>, <code>response_dataset.jsonl</code>.)</li>
+    <li><strong>Generation grid</strong> — variable rows fed through optimized prompts at production time. Cartesian. Regenerable from a schema. (<code>input_data.jsonl</code>.)</li>
+  </ul>
+
+  <p>Only the training examples are precious. The grid is enumeration. The optimized prompts and the generated output are fully reproducible from (training examples + grid + code), so they belong in build artifacts, not source.</p>
+
+  <h2>What I would change</h2>
+  <ul>
+    <li>Refactor around <code>Stage</code> as the core type. Each stage owns its schemas, its gold set, and its optimized prompt directory.</li>
+    <li>Move <code>input_data.jsonl</code> generation behind a script that takes the variable schema and emits the grid. The committed file is just a checkpoint.</li>
+    <li>Drop the abandoned LLM-based seed expansion (<code>seed.py</code>). It was a side experiment, not part of the canonical flow.</li>
+    <li>Treat <code>optimized_*_program/</code> and <code>generated_output.jsonl</code> as build outputs. Ignore them in git.</li>
+  </ul>
+
+  <p>The competition rank was a useful forcing function. The architecture lessons came from looking at the repo a week later with no deadline pressure.</p>
+
+</blog-post>
