@@ -1,22 +1,19 @@
-# Tosin Amuda — site
+# Site Spec
 
 A writer-first static site built to stay readable and maintainable for a long time. Plain HTML, plain CSS, web components, no framework runtime.
 
+It is a challenge to use no dependency, no framework, just purely tech understood and standardized for the browsers.
+
 ## Stack
 
-- **Build:** small Node script (`build.js`) orchestrating focused modules in `src/builder/`. No bundler.
+- **Custom Nodejs Builder:** small Node script (`build.js`) orchestrating focused modules in `src/builder/`. No bundler.
 - **Templates:** hand-authored HTML in `src/`, served by web components (`<site-header>`, `<site-footer>`, `<blog-archive>`, `<blog-post>`, `<code-block>`) that are server-stamped at build time.
-- **Styles:** one hand-written `src/styles/app.css`, copied as-is to `dist/assets/styles.css`. No Tailwind, no preprocessor.
+- **Styles:** one hand-written `src/styles/app.css`, copied as-is to `dist/assets/styles.css`.
 - **Typography:** Spectral (serif) and JetBrains Mono (mono), self-hosted as WOFF2 in `public/fonts/`.
 - **Dark mode:** auto via `prefers-color-scheme`. Manual override available with `[data-mode="light|paper|dark"]` on `:root`.
 - **Notes:** plain HTML in `content/blog/` wrapped in a `<blog-post>` element. See [`CONTENT.md`](./CONTENT.md) for the schema.
 
-## Why this is durable
 
-- Output is static HTML, CSS, SVG, and a few small JS files for the web components.
-- No build-time framework, no client-side framework, no CDN dependencies.
-- Reading works fully without JavaScript.
-- Single CSS file is hand-authored and small enough to read top-to-bottom.
 
 ## Project layout
 
