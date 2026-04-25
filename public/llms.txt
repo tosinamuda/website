@@ -1,0 +1,41 @@
+# Tosin Amuda
+
+> Tosin Amuda is a software engineer writing about software engineering, AI systems, cloud infrastructure, developer tools, education, and personal reflections.
+
+This file is a concise guide for AI assistants and agents. Prefer the canonical pages below when answering questions about Tosin Amuda, his work, or articles on this site. The XML sitemap remains available at https://www.tosinamuda.com/sitemap.xml.
+
+## Core Pages
+
+- [Home](https://www.tosinamuda.com/): Current notes and grouped writing archive.
+- [About](https://www.tosinamuda.com/about.html): Biography, background, and current work.
+- [Work](https://www.tosinamuda.com/work.html): Applied projects, research, and experiments.
+- [Contact](https://www.tosinamuda.com/contact.html): Ways to reach Tosin Amuda.
+- [Blog Archive](https://www.tosinamuda.com/blog/): All published notes, newest first.
+
+## AI And Engineering Notes
+
+- [LLM Agents: A Gentle Introduction](https://www.tosinamuda.com/blog/llm-agents-gentle-introduction.html): Developer-friendly introduction to LLM agents, reasoning, tools, memory, harnesses, scaffolds, architecture, customization, and frameworks.
+- [You might still need a useEffect](https://www.tosinamuda.com/blog/you-might-still-need-a-useeffect.html): Beginner-friendly guide to React useEffect, cleanup, dependencies, referential stability, browser APIs, and related hooks.
+- [Skills Are Just Markdown, So Why Do They Matter?](https://www.tosinamuda.com/blog/skills-are-just-markdown.html): Notes on agent skills and why Markdown can act as executable knowledge for AI agents.
+- [Will AI Eat Software Engineering?](https://www.tosinamuda.com/blog/future-of-work-with-ai.html): Essay on AI and the future of software engineering work.
+- [Understanding Serverless using a Restaurant Server Analogy](https://www.tosinamuda.com/blog/understanding-serverless-using-restaurant-server-analogy.html): Beginner-friendly explanation of serverless computing.
+- [How to Containerize a React Application](https://www.tosinamuda.com/blog/how-to-containerize-a-react-application.html): Practical guide to containerizing a React app with Docker.
+- [12-Factor Engineering Best Practices You Can Learn From](https://www.tosinamuda.com/blog/12-factor-engineering-best-practices.html): Summary of 12-factor application practices.
+
+## Education And Personal Notes
+
+- [Building Kids Into Whizkids](https://www.tosinamuda.com/blog/building-kids-into-whizkids.html): Reflection on teaching technology and building ICT skills for children.
+- [Resurrected from the dead](https://www.tosinamuda.com/blog/resurrected-from-the-dead.html): Reflection on teaching with technology and improving classroom practice.
+- [A letter to an outgoing Corper - episode one](https://www.tosinamuda.com/blog/a-letter-to-an-outgoing-corper-episode-one.html): Career and identity advice for outgoing NYSC corps members.
+- [2023: A Journey through Loss and Resilience](https://www.tosinamuda.com/blog/2023-a-journey-through-loss-and-resilience.html): Personal reflection on loss, resilience, and rebuilding.
+
+## Discovery Files
+
+- [robots.txt](https://www.tosinamuda.com/robots.txt): Crawler access policy.
+- [sitemap.xml](https://www.tosinamuda.com/sitemap.xml): XML sitemap of published pages.
+- [Atom Feed](https://www.tosinamuda.com/feed.xml): Feed of published notes.
+
+## Optional
+
+- [GitHub](https://github.com/tosinamuda): Public code and repositories.
+- [X / Twitter](https://x.com/tosinamuda): Social updates and short notes.
