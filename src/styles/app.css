@@ -515,6 +515,18 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 }
 .prose ul { padding-left: 18px; }
 .prose li { margin-bottom: 4px; }
+.prose img,
+.prose video,
+.prose iframe {
+  max-width: 100%;
+}
+.prose img,
+.prose video {
+  height: auto;
+}
+.prose img {
+  display: block;
+}
 .prose code { font-family: var(--mono); font-size: 0.9em; background: var(--rule-2); padding: 1px 5px; border-radius: 3px; }
 .prose pre {
   font-family: var(--mono);
