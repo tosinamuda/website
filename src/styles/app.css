@@ -317,7 +317,6 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   line-height: 1.5;
   color: var(--ink-3);
   margin: 0 0 36px;
-  max-width: var(--measure);
   text-wrap: pretty;
 }
 .note-page-body { font-size: 18px; }
@@ -494,7 +493,6 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   font-size: 17.5px;
   line-height: 1.65;
   color: var(--ink-2);
-  max-width: var(--measure);
 }
 .prose p { margin: 0 0 1.1em; }
 .prose h2 {
@@ -695,7 +693,8 @@ code-block pre {
   .kv { grid-template-columns: 1fr; gap: 2px 0; }
   .kv dd { margin-bottom: 12px; }
   .related-row { grid-template-columns: 1fr; gap: 4px; }
-  .foot-grid { grid-template-columns: 1fr; gap: 32px; }
+  .foot-grid { grid-template-columns: 1fr 1fr; gap: 28px 32px; }
+  .foot-brand { grid-column: 1 / -1; }
   .foot-meta { flex-direction: column; gap: 6px; align-items: flex-start; }
 }
 

@@ -207,6 +207,16 @@ export async function stampComponents(html, articles) {
     html = html.replace(m[0], wrapElement("blog-archive", m[1].trim(), inner));
   }
 
+  // <inec-collation> is only used on a single post; load its template lazily
+  // so other pages don't pay the read cost.
+  if (html.includes("<inec-collation")) {
+    const inecTpl = await readComponentTemplate("inec-collation.html");
+    html = html.replace(
+      /<inec-collation([^>]*)><\/inec-collation>/g,
+      (_m, attrs) => wrapElement("inec-collation", attrs.trim(), inecTpl)
+    );
+  }
+
   return html;
 }
 
