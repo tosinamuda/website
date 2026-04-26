@@ -7,6 +7,9 @@
     <meta name="description" content="Notes from a software engineer. AI systems and engineering, with occasional personal reflections." />
     <!--%og%-->
     <link rel="icon" href="/icon.png" type="image/png" />
+    <link rel="preload" href="/fonts/spectral-400.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/spectral-500.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="/assets/styles.css" />
     <link rel="alternate" type="application/atom+xml" title="Tosin Amuda · Notes" href="/feed.xml" />
   </head>
@@ -21,8 +24,8 @@
       <site-footer></site-footer>
     </main>
 
-    <script type="module" src="/components/site-header.js" defer></script>
-    <script type="module" src="/components/site-footer.js" defer></script>
-    <script type="module" src="/components/blog-archive.js" defer></script>
+    <script type="module" src="/components/site-header.js" defer crossorigin="anonymous"></script>
+    <script type="module" src="/components/site-footer.js" defer crossorigin="anonymous"></script>
+    <script type="module" src="/components/blog-archive.js" defer crossorigin="anonymous"></script>
   </body>
 </html>
