@@ -40,7 +40,7 @@
     color: var(--ink);
     font-family: var(--inec-sans);
     -webkit-font-smoothing: antialiased;
-    padding: 40px 20px;
+    padding: var(--space-10) var(--space-5);
     overflow-x: auto;
   }
   inec-collation *,
@@ -55,7 +55,7 @@
       radial-gradient(circle at 1px 1px, rgba(20,22,15,0.04) 1px, transparent 0);
     background-size: 4px 4px;
     color: var(--ink);
-    padding: 64px 72px 72px;
+    padding: var(--space-16) var(--space-20) var(--space-20);
     position: relative;
     box-shadow: 0 30px 80px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,0,0,0.1);
   }
@@ -91,7 +91,7 @@
     font-size: 5rem;
     line-height: 0.95;
     letter-spacing: -0.025em;
-    margin: 14px 0 0;
+    margin: var(--space-4) 0 0;
     color: var(--ink);
     max-width: 1100px;
     text-wrap: balance;
@@ -108,7 +108,7 @@
     color: var(--ink-2);
     max-width: 880px;
     font-weight: 400;
-    margin: 22px 0 0;
+    margin: var(--space-6) 0 0;
     text-wrap: pretty;
   }
   inec-collation .byline {
@@ -117,14 +117,14 @@
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--ink-3);
-    margin-top: 22px;
+    margin-top: var(--space-6);
   }
 
   /* Header */
   inec-collation .header {
     border-bottom: 1px solid var(--ink);
-    padding-bottom: 36px;
-    margin-bottom: 36px;
+    padding-bottom: var(--space-9);
+    margin-bottom: var(--space-9);
     position: relative;
   }
   inec-collation .flag-strip {
@@ -133,7 +133,7 @@
     gap: 0;
     height: 14px;
     border: 1px solid var(--ink);
-    margin-bottom: 6px;
+    margin-bottom: var(--space-2);
   }
   inec-collation .flag-strip span { width: 22px; height: 100%; }
   inec-collation .flag-strip span:nth-child(1),
@@ -144,15 +144,15 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-    margin-top: 28px;
+    margin-top: var(--space-7);
   }
   inec-collation .legend {
     display: flex;
-    gap: 22px;
+    gap: var(--space-6);
     align-items: center;
   }
   inec-collation .legend-item {
-    display: flex; align-items: center; gap: 8px;
+    display: flex; align-items: center; gap: var(--space-2);
     font-family: var(--inec-mono);
     font-size: 0.625rem;
     letter-spacing: 0.1em;
@@ -169,10 +169,10 @@
     display: grid;
     grid-template-columns: 60px 1fr auto;
     align-items: end;
-    gap: 24px;
+    gap: var(--space-6);
     border-bottom: 2px solid var(--ink);
-    padding-bottom: 14px;
-    margin: 56px 0 32px;
+    padding-bottom: var(--space-4);
+    margin: var(--space-14) 0 var(--space-8);
   }
   inec-collation .section-num {
     font-family: var(--inec-serif);
@@ -209,7 +209,7 @@
     background: var(--paper);
   }
   inec-collation .col {
-    padding: 28px 32px 36px;
+    padding: var(--space-7) var(--space-8) var(--space-9);
     position: relative;
   }
   inec-collation .col + .col { border-left: 1px solid var(--ink); }
@@ -223,7 +223,7 @@
     padding: 5px 10px;
     border: 1px solid var(--ink);
     background: var(--paper);
-    margin-bottom: 14px;
+    margin-bottom: var(--space-4);
   }
   inec-collation .col.proposed .col-tag {
     background: var(--green); color: #fff; border-color: var(--green);
@@ -234,7 +234,7 @@
     font-size: 1.875rem;
     line-height: 1.05;
     letter-spacing: -0.015em;
-    margin: 0 0 6px;
+    margin: 0 0 var(--space-2);
   }
   inec-collation .col-sub {
     font-family: var(--inec-serif);
@@ -242,7 +242,7 @@
     font-size: 1.0625rem;
     line-height: 1.4;
     color: var(--ink-2);
-    margin-bottom: 28px;
+    margin-bottom: var(--space-7);
     max-width: 480px;
     text-wrap: pretty;
   }
@@ -252,8 +252,8 @@
   inec-collation .step {
     display: grid;
     grid-template-columns: 56px 1fr;
-    gap: 18px;
-    padding: 20px 0;
+    gap: var(--space-5);
+    padding: var(--space-5) 0;
     border-top: 1px solid var(--rule);
     position: relative;
   }
@@ -263,7 +263,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
+    gap: var(--space-2);
   }
   inec-collation .step-icon {
     width: 56px; height: 56px;
@@ -292,7 +292,7 @@
     color: var(--ink);
     display: flex;
     align-items: baseline;
-    gap: 10px;
+    gap: var(--space-3);
     flex-wrap: wrap;
   }
   inec-collation .step-form {
@@ -312,25 +312,25 @@
     color: var(--ink-3);
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    margin-top: 4px;
+    margin-top: var(--space-1);
   }
   inec-collation .step-desc {
     font-family: var(--inec-serif);
     font-size: 0.9375rem;
     line-height: 1.5;
     color: var(--ink-2);
-    margin: 8px 0 0;
+    margin: var(--space-2) 0 0;
     max-width: 520px;
     text-wrap: pretty;
   }
 
   /* Risk callout (current side) */
   inec-collation .risk-flag {
-    margin-top: 10px;
+    margin-top: var(--space-3);
     display: grid;
     grid-template-columns: 18px 1fr;
-    gap: 10px;
-    padding: 10px 12px;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-3);
     background: var(--risk-pale);
     border-left: 3px solid var(--risk);
     align-items: start;
@@ -364,8 +364,8 @@
 
   /* Opportunity callout (proposed side) */
   inec-collation .opp-flag {
-    margin-top: 10px;
-    padding: 10px 12px;
+    margin-top: var(--space-3);
+    padding: var(--space-3) var(--space-3);
     background: rgba(255,255,255,0.6);
     border-left: 3px solid var(--opp);
     font-family: var(--inec-sans);
@@ -389,9 +389,9 @@
     grid-column: 1 / -1;
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 14px 0 4px;
-    margin-top: 4px;
+    gap: var(--space-4);
+    padding: var(--space-4) 0 var(--space-1);
+    margin-top: var(--space-1);
     border-top: 1px dashed var(--ink-3);
     font-family: var(--inec-mono);
     font-size: 0.625rem;
@@ -423,11 +423,11 @@
     grid-template-columns: repeat(4, 1fr);
     gap: 0;
     border: 1px solid var(--ink);
-    margin: 56px 0 0;
+    margin: var(--space-14) 0 0;
     background: var(--paper);
   }
   inec-collation .stat {
-    padding: 24px 26px;
+    padding: var(--space-6) var(--space-7);
     border-right: 1px solid var(--ink);
   }
   inec-collation .stat:last-child { border-right: 0; }
@@ -443,7 +443,7 @@
     font-size: 1.375rem;
     color: var(--ink-3);
     font-style: italic;
-    margin-left: 4px;
+    margin-left: var(--space-1);
   }
   inec-collation .stat-label {
     font-family: var(--inec-mono);
@@ -451,8 +451,8 @@
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--ink-3);
-    margin-top: 12px;
-    margin-bottom: 6px;
+    margin-top: var(--space-3);
+    margin-bottom: var(--space-2);
   }
   inec-collation .stat-desc {
     font-family: var(--inec-serif);
@@ -464,7 +464,7 @@
 
   /* Comparison matrix */
   inec-collation .matrix {
-    margin-top: 36px;
+    margin-top: var(--space-9);
     border: 1px solid var(--ink);
     background: var(--paper);
   }
@@ -474,7 +474,7 @@
   }
   inec-collation .matrix th,
   inec-collation .matrix td {
-    padding: 14px 20px;
+    padding: var(--space-4) var(--space-5);
     text-align: left;
     border-bottom: 1px solid var(--rule);
     vertical-align: top;
@@ -510,12 +510,12 @@
 
   /* Footer */
   inec-collation .footer {
-    margin-top: 56px;
-    padding-top: 24px;
+    margin-top: var(--space-14);
+    padding-top: var(--space-6);
     border-top: 2px solid var(--ink);
     display: grid;
     grid-template-columns: 2fr 1fr;
-    gap: 48px;
+    gap: var(--space-12);
   }
   inec-collation .footer .lede {
     font-family: var(--inec-serif);
@@ -532,13 +532,13 @@
     color: var(--ink-3);
     line-height: 1.8;
   }
-  inec-collation .footer .meta strong { color: var(--ink); display: block; margin-bottom: 4px; }
+  inec-collation .footer .meta strong { color: var(--ink); display: block; margin-bottom: var(--space-1); }
 
   /* Pull quote */
   inec-collation .pullquote {
     grid-column: 1 / -1;
-    margin: 36px 0;
-    padding: 28px 0;
+    margin: var(--space-9) 0;
+    padding: var(--space-7) 0;
     border-top: 1px solid var(--ink);
     border-bottom: 1px solid var(--ink);
     font-family: var(--inec-serif);
@@ -677,7 +677,7 @@
 
   /* Hero ballot journey — scroll-scrubbed */
   inec-collation .hero-journey {
-    margin: 48px 0 8px;
+    margin: var(--space-12) 0 var(--space-2);
     border: 1px solid var(--ink);
     background: linear-gradient(180deg, var(--paper) 0%, var(--paper-2) 100%);
     position: relative;
@@ -719,7 +719,7 @@
     bottom: 16px; left: 20px; right: 20px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: var(--space-3);
     font-family: var(--inec-mono);
     font-size: 0.5625rem;
     letter-spacing: 0.14em;
@@ -775,11 +775,11 @@
      ============================================ */
 
   @media (max-width: 1500px) {
-    inec-collation { padding: 32px 16px; }
+    inec-collation { padding: var(--space-8) var(--space-4); }
     inec-collation .poster {
       width: 100%;
       max-width: 1400px;
-      padding: 56px 56px 64px;
+      padding: var(--space-14) var(--space-14) var(--space-16);
     }
   }
 
@@ -787,7 +787,7 @@
     /* Below tablet, the dark frame becomes redundant — the paper is the page.
        Zero padding on the host so the poster goes truly edge-to-edge. */
     inec-collation { padding: 0; }
-    inec-collation .poster { padding: 40px 32px 48px; }
+    inec-collation .poster { padding: var(--space-10) var(--space-8) var(--space-12); }
 
     inec-collation h1.title { font-size: 3.5rem; }
     inec-collation .deck { font-size: 1.1875rem; }
@@ -795,9 +795,9 @@
     inec-collation .top-meta {
       flex-direction: column;
       align-items: flex-start;
-      gap: 16px;
+      gap: var(--space-4);
     }
-    inec-collation .legend { flex-wrap: wrap; gap: 14px; }
+    inec-collation .legend { flex-wrap: wrap; gap: var(--space-4); }
 
     /* Stack the two compare columns */
     inec-collation .compare { grid-template-columns: 1fr; }
@@ -808,7 +808,7 @@
 
     inec-collation .section-head {
       grid-template-columns: 48px 1fr;
-      gap: 16px;
+      gap: var(--space-4);
     }
     inec-collation .section-num { font-size: 2.75rem; }
     inec-collation .section-title { font-size: 2rem; }
@@ -821,23 +821,23 @@
     inec-collation .stat:nth-child(2) { border-right: 0; }
 
     inec-collation .pullquote { font-size: 1.5rem; }
-    inec-collation .footer { grid-template-columns: 1fr; gap: 28px; }
+    inec-collation .footer { grid-template-columns: 1fr; gap: var(--space-7); }
     inec-collation .footer .lede { font-size: 1.0625rem; }
   }
 
   @media (max-width: 600px) {
-    inec-collation .poster { padding: 28px 22px 36px; }
+    inec-collation .poster { padding: var(--space-7) var(--space-6) var(--space-9); }
 
     inec-collation h1.title { font-size: 2.5rem; line-height: 1; }
     inec-collation .deck { font-size: 1rem; }
     inec-collation .section-num { font-size: 2.25rem; }
     inec-collation .section-title { font-size: 1.5rem; }
 
-    inec-collation .col { padding: 24px 22px 30px; }
+    inec-collation .col { padding: var(--space-6) var(--space-6) var(--space-8); }
     inec-collation .col-title { font-size: 1.5rem; }
-    inec-collation .col-sub { font-size: 0.9375rem; margin-bottom: 22px; }
+    inec-collation .col-sub { font-size: 0.9375rem; margin-bottom: var(--space-6); }
 
-    inec-collation .step { grid-template-columns: 44px 1fr; gap: 14px; }
+    inec-collation .step { grid-template-columns: 44px 1fr; gap: var(--space-4); }
     inec-collation .step-icon { width: 44px; height: 44px; }
     inec-collation .step-icon svg { width: 26px; height: 26px; }
     inec-collation .step-name { font-size: 1rem; }
@@ -854,10 +854,10 @@
 
     /* Matrix: tighter padding so the 3 columns still read */
     inec-collation .matrix th,
-    inec-collation .matrix td { padding: 10px 12px; font-size: 0.8125rem; }
+    inec-collation .matrix td { padding: var(--space-3) var(--space-3); font-size: 0.8125rem; }
     inec-collation .matrix td:first-child { font-size: 0.75rem; }
 
-    inec-collation .pullquote { font-size: 1.25rem; padding: 22px 0; }
+    inec-collation .pullquote { font-size: 1.25rem; padding: var(--space-6) 0; }
     inec-collation .pullquote::before,
     inec-collation .pullquote::after { font-size: 2.5rem; }
 
