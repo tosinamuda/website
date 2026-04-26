@@ -8,6 +8,25 @@ import { escapeHtml } from "./utils.js";
 
 /** @typedef {import("./articles.js").Article} Article */
 
+const GA_MEASUREMENT_ID = "G-D8YJEFRG9M";
+
+/**
+ * Render the Google Analytics gtag snippet. The `async` attribute keeps the
+ * loader script off the critical path; the inline config block initialises
+ * dataLayer before the loader resolves.
+ *
+ * @returns {string}
+ */
+export function renderAnalytics() {
+  return `<script async src="https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', '${GA_MEASUREMENT_ID}');
+    </script>`;
+}
+
 /**
  * @typedef {Object} OgInput
  * @property {string} title
@@ -34,8 +53,9 @@ export function renderOgTags({ title, description, url, image, type = "website" 
     <meta name="twitter:image" content="${escapeHtml(absoluteImage)}" />`
     : "";
 
-  const twitterCreator = site.twitterHandle
-    ? `<meta name="twitter:creator" content="${escapeHtml(site.twitterHandle)}" />`
+  const twitterAccount = site.twitterHandle
+    ? `<meta name="twitter:site" content="${escapeHtml(site.twitterHandle)}" />
+    <meta name="twitter:creator" content="${escapeHtml(site.twitterHandle)}" />`
     : "";
 
   return `<link rel="canonical" href="${escapeHtml(absoluteUrl)}" />
@@ -48,7 +68,7 @@ export function renderOgTags({ title, description, url, image, type = "website" 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="${safeTitle}" />
     <meta name="twitter:description" content="${safeDesc}" />
-    ${twitterCreator}
+    ${twitterAccount}
     ${imgTags}`;
 }
 
@@ -75,13 +95,14 @@ export function renderArticleOgExtras(article) {
 }
 
 /**
- * Render the JSON-LD BlogPosting block for an article.
+ * Render the JSON-LD blocks for an article: a BlogPosting plus a
+ * BreadcrumbList (Home → Blog → Post Title).
  *
  * @param {Article} article
  */
 export function renderJsonLd(article) {
   const base = site.url.replace(/\/$/, "");
-  const data = {
+  const blogPosting = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     headline: article.title,
@@ -105,10 +126,64 @@ export function renderJsonLd(article) {
     keywords: article.categories.join(", "),
   };
   if (article.ogImage) {
-    data.image = article.ogImage.startsWith("http")
+    blogPosting.image = article.ogImage.startsWith("http")
       ? article.ogImage
       : base + article.ogImage;
   }
+
+  const breadcrumb = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: base + "/" },
+      { "@type": "ListItem", position: 2, name: "Notes", item: base + "/blog/" },
+      { "@type": "ListItem", position: 3, name: article.title, item: base + article.url },
+    ],
+  };
+
+  return [blogPosting, breadcrumb]
+    .map((d) => `<script type="application/ld+json">${JSON.stringify(d, null, 2)}</script>`)
+    .join("\n    ");
+}
+
+/**
+ * Render the JSON-LD Person block for the site author. Used on the homepage
+ * and any other page that represents the author directly.
+ *
+ * @returns {string}
+ */
+export function renderPersonJsonLd() {
+  const base = site.url.replace(/\/$/, "");
+  const data = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: site.author,
+    url: base,
+    sameAs: [
+      "https://github.com/tosinamuda",
+      "https://linkedin.com/in/tosinamuda",
+      "https://twitter.com/tosinamuda",
+    ],
+  };
+  return `<script type="application/ld+json">${JSON.stringify(data, null, 2)}</script>`;
+}
+
+/**
+ * Render the JSON-LD WebSite block. Emitted on every page so search engines
+ * can associate site-level metadata with any entry point.
+ *
+ * @returns {string}
+ */
+export function renderWebSiteJsonLd() {
+  const base = site.url.replace(/\/$/, "");
+  const data = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: site.name,
+    url: base,
+    description: site.description,
+    inLanguage: site.locale,
+  };
   return `<script type="application/ld+json">${JSON.stringify(data, null, 2)}</script>`;
 }
 

@@ -7,7 +7,13 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { LAYOUTS_DIR } from "../config.js";
 import { stampBlogPost, stampComponents } from "../render.js";
-import { renderArticleOgExtras, renderJsonLd, renderOgTags } from "../seo.js";
+import {
+  renderAnalytics,
+  renderArticleOgExtras,
+  renderJsonLd,
+  renderOgTags,
+  renderWebSiteJsonLd,
+} from "../seo.js";
 import { escapeHtml } from "../utils.js";
 import { writeFile } from "../fs-helpers.js";
 
@@ -60,9 +66,11 @@ async function renderArticlePage(article, layout, publishedArticles) {
 
   return html.replace(
     "<!--%og%-->",
-    `${og}
+    `${renderAnalytics()}
+    ${og}
     ${articleExtras}
     ${robots}
+    ${renderWebSiteJsonLd()}
     ${jsonLd}`
   );
 }
