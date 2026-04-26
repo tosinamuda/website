@@ -7,7 +7,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { SRC, site } from "../config.js";
 import { stampComponents } from "../render.js";
-import { renderOgTags } from "../seo.js";
+import { renderAnalytics, renderOgTags } from "../seo.js";
 import { writeFile } from "../fs-helpers.js";
 
 /** @typedef {import("../articles.js").Article} Article */
@@ -45,7 +45,8 @@ export async function buildPages(publishedArticles) {
     html = await stampComponents(html, publishedArticles);
     html = html.replace(
       "<!--%og%-->",
-      renderOgTags({ title: page.title, description: page.description, url: page.url })
+      `${renderAnalytics()}
+    ${renderOgTags({ title: page.title, description: page.description, url: page.url })}`
     );
 
     await writeFile(page.dest, html);

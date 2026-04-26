@@ -8,6 +8,25 @@ import { escapeHtml } from "./utils.js";
 
 /** @typedef {import("./articles.js").Article} Article */
 
+const GA_MEASUREMENT_ID = "G-D8YJEFRG9M";
+
+/**
+ * Render the Google Analytics gtag snippet. The `async` attribute keeps the
+ * loader script off the critical path; the inline config block initialises
+ * dataLayer before the loader resolves.
+ *
+ * @returns {string}
+ */
+export function renderAnalytics() {
+  return `<script async src="https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', '${GA_MEASUREMENT_ID}');
+    </script>`;
+}
+
 /**
  * @typedef {Object} OgInput
  * @property {string} title
