@@ -7,7 +7,13 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { LAYOUTS_DIR } from "../config.js";
 import { stampBlogPost, stampComponents } from "../render.js";
-import { renderAnalytics, renderArticleOgExtras, renderJsonLd, renderOgTags } from "../seo.js";
+import {
+  renderAnalytics,
+  renderArticleOgExtras,
+  renderJsonLd,
+  renderOgTags,
+  renderWebSiteJsonLd,
+} from "../seo.js";
 import { escapeHtml } from "../utils.js";
 import { writeFile } from "../fs-helpers.js";
 
@@ -64,6 +70,7 @@ async function renderArticlePage(article, layout, publishedArticles) {
     ${og}
     ${articleExtras}
     ${robots}
+    ${renderWebSiteJsonLd()}
     ${jsonLd}`
   );
 }

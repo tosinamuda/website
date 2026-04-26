@@ -6,7 +6,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { SRC, site } from "../config.js";
 import { renderArchive, stampComponents } from "../render.js";
-import { renderAnalytics, renderOgTags } from "../seo.js";
+import { renderAnalytics, renderOgTags, renderWebSiteJsonLd } from "../seo.js";
 import { writeFile } from "../fs-helpers.js";
 import { escapeHtml, slugify } from "../utils.js";
 
@@ -69,6 +69,7 @@ async function renderCategoryPage({ slug, name, articles, layout, publishedArtic
       title: `${name} | Blog | ${site.name}`,
       description: `Essays tagged ${name}.`,
       url: `/blog/category/${slug}.html`,
-    })}`
+    })}
+    ${renderWebSiteJsonLd()}`
   );
 }

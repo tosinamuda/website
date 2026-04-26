@@ -7,7 +7,12 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { SRC, site } from "../config.js";
 import { stampComponents } from "../render.js";
-import { renderAnalytics, renderOgTags } from "../seo.js";
+import {
+  renderAnalytics,
+  renderOgTags,
+  renderPersonJsonLd,
+  renderWebSiteJsonLd,
+} from "../seo.js";
 import { writeFile } from "../fs-helpers.js";
 
 /** @typedef {import("../articles.js").Article} Article */
@@ -43,10 +48,13 @@ export async function buildPages(publishedArticles) {
 
     html = html.replace("<!--%notes-count-->", String(publishedArticles.length));
     html = await stampComponents(html, publishedArticles);
+    const personLd = page.url === "/" ? renderPersonJsonLd() : "";
     html = html.replace(
       "<!--%og%-->",
       `${renderAnalytics()}
-    ${renderOgTags({ title: page.title, description: page.description, url: page.url })}`
+    ${renderOgTags({ title: page.title, description: page.description, url: page.url })}
+    ${renderWebSiteJsonLd()}
+    ${personLd}`
     );
 
     await writeFile(page.dest, html);

@@ -95,13 +95,14 @@ export function renderArticleOgExtras(article) {
 }
 
 /**
- * Render the JSON-LD BlogPosting block for an article.
+ * Render the JSON-LD blocks for an article: a BlogPosting plus a
+ * BreadcrumbList (Home → Blog → Post Title).
  *
  * @param {Article} article
  */
 export function renderJsonLd(article) {
   const base = site.url.replace(/\/$/, "");
-  const data = {
+  const blogPosting = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     headline: article.title,
@@ -125,10 +126,64 @@ export function renderJsonLd(article) {
     keywords: article.categories.join(", "),
   };
   if (article.ogImage) {
-    data.image = article.ogImage.startsWith("http")
+    blogPosting.image = article.ogImage.startsWith("http")
       ? article.ogImage
       : base + article.ogImage;
   }
+
+  const breadcrumb = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: base + "/" },
+      { "@type": "ListItem", position: 2, name: "Notes", item: base + "/blog/" },
+      { "@type": "ListItem", position: 3, name: article.title, item: base + article.url },
+    ],
+  };
+
+  return [blogPosting, breadcrumb]
+    .map((d) => `<script type="application/ld+json">${JSON.stringify(d, null, 2)}</script>`)
+    .join("\n    ");
+}
+
+/**
+ * Render the JSON-LD Person block for the site author. Used on the homepage
+ * and any other page that represents the author directly.
+ *
+ * @returns {string}
+ */
+export function renderPersonJsonLd() {
+  const base = site.url.replace(/\/$/, "");
+  const data = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: site.author,
+    url: base,
+    sameAs: [
+      "https://github.com/tosinamuda",
+      "https://linkedin.com/in/tosinamuda",
+      "https://twitter.com/tosinamuda",
+    ],
+  };
+  return `<script type="application/ld+json">${JSON.stringify(data, null, 2)}</script>`;
+}
+
+/**
+ * Render the JSON-LD WebSite block. Emitted on every page so search engines
+ * can associate site-level metadata with any entry point.
+ *
+ * @returns {string}
+ */
+export function renderWebSiteJsonLd() {
+  const base = site.url.replace(/\/$/, "");
+  const data = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: site.name,
+    url: base,
+    description: site.description,
+    inLanguage: site.locale,
+  };
   return `<script type="application/ld+json">${JSON.stringify(data, null, 2)}</script>`;
 }
 
