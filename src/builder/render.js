@@ -59,6 +59,24 @@ function wrapElement(tag, attrs, children) {
   return `<${tag}${attrStr}>${children}</${tag}>`;
 }
 
+const HEADER_SUBTITLE_BY_ACTIVE = {
+  home: "/ notes",
+  blog: "/ notes",
+  note: "/ notes",
+  work: "/ work",
+  about: "/ about",
+  contact: "/ contact",
+};
+
+const HEADER_NAV_BY_ACTIVE = {
+  home: "home",
+  blog: "home",
+  note: "home",
+  work: "work",
+  about: "about",
+  contact: "contact",
+};
+
 // ───────────────────────────────────────────────────────
 //  Archive rendering
 //
@@ -175,8 +193,8 @@ export function renderRelated(article, allArticles) {
 //
 //  Server-renders the contents of <site-header>, <site-footer>, and
 //  <blog-archive> custom elements so the page is meaningful without JS.
-//  The original custom-element tags are preserved for any client-side
-//  enhancement (e.g. `is-current` nav highlighting).
+//  The original custom-element tags are preserved for client-side enhancement,
+//  but visible header state is rendered here to avoid post-load layout shifts.
 // ───────────────────────────────────────────────────────
 
 /**
@@ -192,7 +210,7 @@ export async function stampComponents(html, articles) {
 
   html = html.replace(
     /<site-header([^>]*)><\/site-header>/g,
-    (_m, attrs) => wrapElement("site-header", attrs.trim(), headerTpl)
+    (_m, attrs) => wrapElement("site-header", attrs.trim(), renderHeader(headerTpl, attrs))
   );
   html = html.replace(
     /<site-footer([^>]*)><\/site-footer>/g,
@@ -214,6 +232,34 @@ export async function stampComponents(html, articles) {
     html = html.replace(
       /<inec-collation([^>]*)><\/inec-collation>/g,
       (_m, attrs) => wrapElement("inec-collation", attrs.trim(), inecTpl)
+    );
+  }
+
+  return html;
+}
+
+/**
+ * Render header state that would otherwise be applied after the component
+ * module loads. This keeps the Web Component runtime while making first paint
+ * match the enhanced state.
+ *
+ * @param {string} template
+ * @param {string} attrs
+ */
+function renderHeader(template, attrs) {
+  const active = attrs.match(/active="([^"]+)"/)?.[1] ?? "";
+  let html = template;
+
+  const subtitle = HEADER_SUBTITLE_BY_ACTIVE[active];
+  if (subtitle) {
+    html = html.replace(/<span class="sub">[^<]*<\/span>/, `<span class="sub">${subtitle}</span>`);
+  }
+
+  const nav = HEADER_NAV_BY_ACTIVE[active];
+  if (nav) {
+    html = html.replace(
+      new RegExp(`(<a href="[^"]+" data-nav="${nav}")([^>]*>)`),
+      (_match, start, end) => `${start} class="is-current"${end}`
     );
   }
 
