@@ -53,8 +53,9 @@ export function renderOgTags({ title, description, url, image, type = "website" 
     <meta name="twitter:image" content="${escapeHtml(absoluteImage)}" />`
     : "";
 
-  const twitterCreator = site.twitterHandle
-    ? `<meta name="twitter:creator" content="${escapeHtml(site.twitterHandle)}" />`
+  const twitterAccount = site.twitterHandle
+    ? `<meta name="twitter:site" content="${escapeHtml(site.twitterHandle)}" />
+    <meta name="twitter:creator" content="${escapeHtml(site.twitterHandle)}" />`
     : "";
 
   return `<link rel="canonical" href="${escapeHtml(absoluteUrl)}" />
@@ -67,7 +68,7 @@ export function renderOgTags({ title, description, url, image, type = "website" 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="${safeTitle}" />
     <meta name="twitter:description" content="${safeDesc}" />
-    ${twitterCreator}
+    ${twitterAccount}
     ${imgTags}`;
 }
 
