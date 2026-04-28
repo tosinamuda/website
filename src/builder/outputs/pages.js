@@ -6,7 +6,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { SRC, site } from "../config.js";
-import { stampComponents } from "../render.js";
+import { stampAssets, stampComponents } from "../render.js";
 import {
   renderAnalytics,
   renderOgTags,
@@ -41,8 +41,9 @@ function pageDefinitions() {
  * Write each main page to dist/.
  *
  * @param {Article[]} publishedArticles  Used by stampComponents for blog-archive elements.
+ * @param {import("./assets.js").AssetManifest} assets
  */
-export async function buildPages(publishedArticles) {
+export async function buildPages(publishedArticles, assets) {
   for (const page of pageDefinitions()) {
     let html = await fs.readFile(path.join(SRC, page.src), "utf8");
 
@@ -56,6 +57,7 @@ export async function buildPages(publishedArticles) {
     ${renderWebSiteJsonLd()}
     ${personLd}`
     );
+    html = stampAssets(html, assets);
 
     await writeFile(page.dest, html);
   }

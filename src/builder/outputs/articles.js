@@ -6,7 +6,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { LAYOUTS_DIR } from "../config.js";
-import { stampBlogPost, stampComponents } from "../render.js";
+import { stampAssets, stampBlogPost, stampComponents } from "../render.js";
 import {
   renderAnalytics,
   renderArticleOgExtras,
@@ -24,11 +24,12 @@ import { writeFile } from "../fs-helpers.js";
  *
  * @param {Article[]} allArticles        Includes drafts so their pages still render at the URL.
  * @param {Article[]} publishedArticles  Used for related-posts lookups.
+ * @param {import("./assets.js").AssetManifest} assets
  */
-export async function buildArticles(allArticles, publishedArticles) {
+export async function buildArticles(allArticles, publishedArticles, assets) {
   const layout = await fs.readFile(path.join(LAYOUTS_DIR, "article.html"), "utf8");
   for (const article of allArticles) {
-    const html = await renderArticlePage(article, layout, publishedArticles);
+    const html = await renderArticlePage(article, layout, publishedArticles, assets);
     await writeFile(`blog/${article.slug}.html`, html);
   }
 }
@@ -39,9 +40,10 @@ export async function buildArticles(allArticles, publishedArticles) {
  * @param {Article} article
  * @param {string} layout
  * @param {Article[]} publishedArticles
+ * @param {import("./assets.js").AssetManifest} assets
  * @returns {Promise<string>}
  */
-async function renderArticlePage(article, layout, publishedArticles) {
+async function renderArticlePage(article, layout, publishedArticles, assets) {
   const blogPostHtml = await stampBlogPost(article, publishedArticles);
 
   let html = layout
@@ -64,7 +66,7 @@ async function renderArticlePage(article, layout, publishedArticles) {
     ? `<meta name="robots" content="noindex, nofollow" />`
     : "";
 
-  return html.replace(
+  html = html.replace(
     "<!--%og%-->",
     `${renderAnalytics()}
     ${og}
@@ -73,4 +75,6 @@ async function renderArticlePage(article, layout, publishedArticles) {
     ${renderWebSiteJsonLd()}
     ${jsonLd}`
   );
+
+  return stampAssets(html, assets);
 }

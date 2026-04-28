@@ -26,16 +26,22 @@ const REQUIRED = [
 
 /**
  * Throw if any required output file is missing.
+ *
+ * @param {import("./outputs/assets.js").AssetManifest} assets
  */
-export async function verify() {
+export async function verify(assets) {
   for (const f of REQUIRED) {
     await fs.access(path.join(ROOT, f));
   }
+  await fs.access(path.join(ROOT, assets.stylesheetFile));
 
-  await verifyRuntimeContracts();
+  await verifyRuntimeContracts(assets);
 }
 
-async function verifyRuntimeContracts() {
+/**
+ * @param {import("./outputs/assets.js").AssetManifest} assets
+ */
+async function verifyRuntimeContracts(assets) {
   const pages = [
     ["dist/index.html", 'data-nav="home" class="is-current"'],
     ["dist/blog/index.html", 'data-nav="home" class="is-current"'],
@@ -54,6 +60,12 @@ async function verifyRuntimeContracts() {
     }
     if (!html.includes('src="/components/site-header.js" defer crossorigin="anonymous"')) {
       throw new Error(`${file} is missing crossorigin on the site-header module`);
+    }
+    if (!html.includes(`href="${assets.stylesheetHref}"`)) {
+      throw new Error(`${file} is missing the cache-busted stylesheet href`);
+    }
+    if (html.includes('href="/assets/styles.css"')) {
+      throw new Error(`${file} still links the unversioned stylesheet`);
     }
     if (html.includes("static.cloudflareinsights.com/beacon.min.js")) {
       throw new Error(`${file} hardcodes Cloudflare Web Analytics instead of leaving it to hosting`);

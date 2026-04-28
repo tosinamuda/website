@@ -24,23 +24,23 @@ async function build() {
   const draftCount = articles.length - published.length;
   console.log(`  ${published.length} published${draftCount ? `, ${draftCount} draft` : ""}`);
 
+  console.log("» copy assets");
+  const assets = await copyAssets();
+
   console.log("» build pages");
-  await buildPages(published);
+  await buildPages(published, assets);
 
   console.log("» build articles");
-  await buildArticles(articles, published);
+  await buildArticles(articles, published, assets);
 
   console.log("» build category archives");
-  await buildCategoryPages(published);
+  await buildCategoryPages(published, assets);
 
   console.log("» build feed + sitemap");
   await Promise.all([buildFeed(published), buildSitemap(published)]);
 
-  console.log("» copy assets");
-  await copyAssets();
-
   console.log("» verify");
-  await verify();
+  await verify(assets);
 
   console.log("✓ build complete");
 }

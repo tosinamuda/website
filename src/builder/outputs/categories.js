@@ -5,7 +5,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { SRC, site } from "../config.js";
-import { renderArchive, stampComponents } from "../render.js";
+import { renderArchive, stampAssets, stampComponents } from "../render.js";
 import { renderAnalytics, renderOgTags, renderWebSiteJsonLd } from "../seo.js";
 import { writeFile } from "../fs-helpers.js";
 import { escapeHtml, slugify } from "../utils.js";
@@ -16,14 +16,15 @@ import { escapeHtml, slugify } from "../utils.js";
  * Write a /blog/category/{slug}.html page for each unique category.
  *
  * @param {Article[]} publishedArticles
+ * @param {import("./assets.js").AssetManifest} assets
  */
-export async function buildCategoryPages(publishedArticles) {
+export async function buildCategoryPages(publishedArticles, assets) {
   const grouped = groupByCategory(publishedArticles);
   if (!grouped.size) return;
 
   const layout = await fs.readFile(path.join(SRC, "category.html"), "utf8");
   for (const [slug, { name, articles }] of grouped) {
-    const html = await renderCategoryPage({ slug, name, articles, layout, publishedArticles });
+    const html = await renderCategoryPage({ slug, name, articles, layout, publishedArticles, assets });
     await writeFile(`blog/category/${slug}.html`, html);
   }
 }
@@ -51,9 +52,9 @@ function groupByCategory(articles) {
 /**
  * Render one category page from the category.html layout.
  *
- * @param {{slug: string, name: string, articles: Article[], layout: string, publishedArticles: Article[]}} input
+ * @param {{slug: string, name: string, articles: Article[], layout: string, publishedArticles: Article[], assets: import("./assets.js").AssetManifest}} input
  */
-async function renderCategoryPage({ slug, name, articles, layout, publishedArticles }) {
+async function renderCategoryPage({ slug, name, articles, layout, publishedArticles, assets }) {
   let html = layout
     .replace(/%category%/g, escapeHtml(name))
     .replace(/%slug%/g, slug)
@@ -62,7 +63,7 @@ async function renderCategoryPage({ slug, name, articles, layout, publishedArtic
   html = await stampComponents(html, publishedArticles);
   html = html.replace("<!--%category-archive%-->", await renderArchive("full", articles));
 
-  return html.replace(
+  html = html.replace(
     "<!--%og%-->",
     `${renderAnalytics()}
     ${renderOgTags({
@@ -72,4 +73,6 @@ async function renderCategoryPage({ slug, name, articles, layout, publishedArtic
     })}
     ${renderWebSiteJsonLd()}`
   );
+
+  return stampAssets(html, assets);
 }

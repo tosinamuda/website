@@ -59,6 +59,17 @@ function wrapElement(tag, attrs, children) {
   return `<${tag}${attrStr}>${children}</${tag}>`;
 }
 
+/**
+ * Replace stable asset paths in source templates with build-specific asset
+ * paths. The source files stay readable; generated HTML gets cache busting.
+ *
+ * @param {string} html
+ * @param {{stylesheetHref: string}} assets
+ */
+export function stampAssets(html, assets) {
+  return html.replaceAll('href="/assets/styles.css"', `href="${assets.stylesheetHref}"`);
+}
+
 const HEADER_SUBTITLE_BY_ACTIVE = {
   home: "/ notes",
   blog: "/ notes",

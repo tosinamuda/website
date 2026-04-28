@@ -8,7 +8,7 @@ It is a challenge to use no dependency, no framework, just purely tech understoo
 
 - **Custom Nodejs Builder:** small Node script (`build.js`) orchestrating focused modules in `src/builder/`. No bundler.
 - **Templates:** hand-authored HTML in `src/`, served by web components (`<site-header>`, `<site-footer>`, `<blog-archive>`, `<blog-post>`, `<code-block>`) that are server-stamped at build time.
-- **Styles:** hand-written CSS modules in `src/styles/`, concatenated to `dist/assets/styles.css`.
+- **Styles:** hand-written CSS modules in `src/styles/`, concatenated to `dist/assets/styles.css`, and linked from generated HTML with a content-hashed filename to avoid stale deployed CSS.
 - **Typography:** Spectral (serif) and JetBrains Mono (mono), self-hosted as WOFF2 in `public/fonts/`.
 - **Dark mode:** auto via `prefers-color-scheme`. Manual override available with `[data-mode="light|paper|dark"]` on `:root`.
 - **Notes:** plain HTML in `content/blog/` wrapped in a `<blog-post>` element. See [`CONTENT.md`](./CONTENT.md) for the schema.
