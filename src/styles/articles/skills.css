@@ -1,5 +1,17 @@
 @layer components {
 /* Skills essay visual components */
+.skills-visual,
+.skills-code-card,
+.skills-summary-card {
+  --skills-panel-bg: light-dark(#1c1c1c, #181816);
+  --skills-panel-text: light-dark(#e8e6df, #ecebe6);
+  --skills-panel-muted: light-dark(#8b8b7a, #a09d92);
+  --skills-panel-rule: light-dark(#2c2c2c, #333128);
+  --skills-panel-accent: light-dark(#c5b27a, #d5c98d);
+  --skills-code-key-color: light-dark(#d16b5e, #ef8a7d);
+  --skills-code-string-color: light-dark(#97a76e, #b2c782);
+}
+
 .skills-fnref {
   color: var(--accent);
   font-size: 0.75em;
@@ -60,7 +72,7 @@
 }
 .skills-compare-table tbody tr:last-child td,
 .skills-compare-table tbody tr:last-child th { border-bottom: 0; }
-.skills-skill-col { background: color-mix(in srgb, var(--accent) 8%, transparent) !important; }
+.skills-skill-col { background: color-mix(in srgb, var(--accent) 10%, var(--paper)) !important; }
 .skills-mark-yes {
   color: var(--accent);
   font-size: 18px;
@@ -182,8 +194,9 @@
   padding: 0 1px;
 }
 .skills-code-card {
-  background: #1c1c1c;
-  color: #e8e6df;
+  background: var(--skills-panel-bg);
+  border: 1px solid var(--skills-panel-rule);
+  color: var(--skills-panel-text);
   font-family: var(--mono);
   font-size: 13px;
   line-height: 1.55;
@@ -192,8 +205,8 @@
   padding: 22px 24px;
 }
 .skills-code-filename {
-  border-bottom: 1px solid #2c2c2c;
-  color: #8b8b7a;
+  border-bottom: 1px solid var(--skills-panel-rule);
+  color: var(--skills-panel-muted);
   font-size: 11px;
   font-style: italic;
   letter-spacing: 0.02em;
@@ -213,21 +226,22 @@
   padding: 0;
   white-space: pre;
 }
-.skills-code-comment { color: #8b8b7a; }
-.skills-code-key { color: #d16b5e; }
-.skills-code-string { color: #97a76e; }
+.skills-code-comment { color: var(--skills-panel-muted); }
+.skills-code-key { color: var(--skills-code-key-color); }
+.skills-code-string { color: var(--skills-code-string-color); }
 .skills-code-heading {
-  color: #c5b27a;
+  color: var(--skills-panel-accent);
   font-weight: 600;
 }
 .skills-summary-card {
-  background: #1c1c1c;
-  color: #e8e6df;
+  background: var(--skills-panel-bg);
+  border: 1px solid var(--skills-panel-rule);
+  color: var(--skills-panel-text);
   margin: 56px 0 0;
   padding: 36px 32px;
 }
 .skills-summary-card-label {
-  color: #8b8b7a;
+  color: var(--skills-panel-muted);
   font-family: var(--ui);
   font-size: 10.5px;
   letter-spacing: 0.12em;
@@ -235,8 +249,8 @@
   text-transform: uppercase;
 }
 .skills-summary-thesis {
-  border-bottom: 1px solid #2c2c2c;
-  color: #e8e6df;
+  border-bottom: 1px solid var(--skills-panel-rule);
+  color: var(--skills-panel-text);
   font-size: 17px;
   font-style: italic;
   line-height: 1.5;
@@ -246,7 +260,7 @@
 .skills-summary-section { margin-bottom: 22px; }
 .skills-summary-section:last-child { margin-bottom: 0; }
 .skills-summary-heading {
-  color: #c5b27a;
+  color: var(--skills-panel-accent);
   font-family: var(--ui);
   font-size: 10.5px;
   letter-spacing: 0.12em;
@@ -260,30 +274,30 @@
   grid-template-columns: 1fr 1fr;
 }
 .skills-summary-properties {
-  color: #e8e6df;
+  color: var(--skills-panel-text);
   font-size: 14px;
 }
 .skills-summary-properties span::before {
-  color: #8b8b7a;
+  color: var(--skills-panel-muted);
   content: "-";
   margin-right: 8px;
 }
 .skills-summary-pair { gap: 18px; }
 .skills-summary-pair-item {
-  color: #e8e6df;
+  color: var(--skills-panel-text);
   font-size: 14px;
   line-height: 1.5;
 }
 .skills-summary-pair-key {
-  color: #c5b27a;
+  color: var(--skills-panel-accent);
   display: block;
   font-size: 13px;
   font-weight: 600;
   margin-bottom: 4px;
 }
 .skills-summary-question {
-  border-top: 1px solid #2c2c2c;
-  color: #e8e6df;
+  border-top: 1px solid var(--skills-panel-rule);
+  color: var(--skills-panel-text);
   font-size: 15px;
   font-style: italic;
   line-height: 1.5;
