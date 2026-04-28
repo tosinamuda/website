@@ -20,6 +20,8 @@ const REQUIRED = [
   "dist/components/site-footer.js",
   "dist/components/blog-archive.js",
   "dist/components/blog-post.js",
+  "dist/components/inec-collation.js",
+  "dist/blog/inec-presidential-election-collation-architecture.html",
 ];
 
 /**
@@ -28,5 +30,33 @@ const REQUIRED = [
 export async function verify() {
   for (const f of REQUIRED) {
     await fs.access(path.join(ROOT, f));
+  }
+
+  await verifyRuntimeContracts();
+}
+
+async function verifyRuntimeContracts() {
+  const pages = [
+    ["dist/index.html", 'data-nav="home" class="is-current"'],
+    ["dist/blog/index.html", 'data-nav="home" class="is-current"'],
+    ["dist/about.html", 'data-nav="about" class="is-current"'],
+    ["dist/work.html", 'data-nav="work" class="is-current"'],
+    ["dist/contact.html", 'data-nav="contact" class="is-current"'],
+  ];
+
+  for (const [file, activeNavMarkup] of pages) {
+    const html = await fs.readFile(path.join(ROOT, file), "utf8");
+    if (!html.includes(activeNavMarkup)) {
+      throw new Error(`${file} is missing server-rendered active navigation`);
+    }
+    if (!html.includes('rel="preload" href="/fonts/spectral-400.woff2" as="font"')) {
+      throw new Error(`${file} is missing the critical Spectral font preload`);
+    }
+    if (!html.includes('src="/components/site-header.js" defer crossorigin="anonymous"')) {
+      throw new Error(`${file} is missing crossorigin on the site-header module`);
+    }
+    if (html.includes("static.cloudflareinsights.com/beacon.min.js")) {
+      throw new Error(`${file} hardcodes Cloudflare Web Analytics instead of leaving it to hosting`);
+    }
   }
 }

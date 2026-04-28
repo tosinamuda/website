@@ -1,0 +1,337 @@
+<blog-post
+  title="LLM Agents: A Gentle Introduction"
+  excerpt="A developer-friendly introduction to LLM agents: what they are, how they run, what tools and memory do, and where to start."
+  date="2026-04-25">
+  <script type="application/json" id="meta">
+    { "type": "learning", "categories": ["AI", "Engineering"] }
+  </script>
+
+  <p>When developers first hear "AI agent" or "agentic AI," a fair question follows: how is this different from sending a prompt to ChatGPT and getting a response back?</p>
+
+  <p>A raw language model call is a single round trip. You send input, the model returns output, and the exchange ends. By itself, the model cannot decide to search your docs, call your database, run a test, inspect a file, or check whether its answer worked.</p>
+
+  <p>An agent extends that single call into a loop. The model can decide what to do next, call a tool, read the result, update its context, and keep going until the task is finished, blocked, or stopped by a limit.</p>
+
+  <p>The simplest way to say it is:</p>
+
+  <blockquote>
+    <p>An LLM agent is a language model inside a loop, connected to tools, memory, and an environment.</p>
+  </blockquote>
+
+  <figure>
+    <img src="/images/blog/llm-agents/single-call-vs-agent.png" alt="Diagram comparing a single LLM call with an agent loop that remembers context, calls tools, observes results, and decides what to do next.">
+    <figcaption>A single LLM call is input to output. An agent wraps the model in a loop that can act, observe, and continue.</figcaption>
+  </figure>
+
+  <p>At every step, the model still only sees input. That input may contain system instructions, user messages, tool definitions, memory snippets, prior tool results, and retrieved documents. In that practical sense, everything the model sees is a prompt. The engineering work is deciding what should be assembled into that prompt at each step.</p>
+
+  <h2>What is an AI agent?</h2>
+
+  <p>Agents are older than LLMs. In classical AI, an agent is something that perceives an environment and acts on it to achieve a goal. That definition covers simple systems such as thermostats and complex systems such as chess engines, robots, and reinforcement learning policies.</p>
+
+  <p>What they share is a shape:</p>
+
+  <ul>
+    <li>There is a goal.</li>
+    <li>There is an environment.</li>
+    <li>The agent observes something about that environment.</li>
+    <li>The agent chooses an action.</li>
+    <li>The environment changes or returns feedback.</li>
+  </ul>
+
+  <p>An LLM-based agent fits the same shape. The user's task is the goal. The model is the decision-maker. Tools are actions. Tool results are observations. The environment is whatever the agent can act on: a browser, a codebase, a database, a calendar, an API, or a sandbox.</p>
+
+  <p>So "agent" does not name one specific technology. It names a pattern: observe, decide, act, observe again.</p>
+
+  <figure>
+    <img src="/images/blog/llm-agents/agent-loop.png" alt="Diagram showing thermostats, chess engines, robots, and LLM agents as the same observe-decide-act pattern with different decision makers.">
+    <figcaption>The agent pattern predates LLMs. The shape stays the same; the decision-maker changes.</figcaption>
+  </figure>
+
+  <h2>LLMs as the brain of the agent</h2>
+
+  <p>For a long time, the hard part was the policy: the logic that maps an observation to the next action. Hand-written rules were brittle. Search systems could explode in complexity. Learned policies often needed task-specific data and training.</p>
+
+  <p>LLMs changed the bottleneck. A modern instruction-following model can read a natural-language goal, inspect a list of available tools, choose a tool, fill in structured arguments, and interpret the result. That does not make the model the whole agent, but it makes the model a useful decision engine inside the agent.</p>
+
+  <p>Three capabilities made this practical:</p>
+
+  <ul>
+    <li><strong>Instruction following:</strong> you can describe behavior in prose.</li>
+    <li><strong>Structured output:</strong> the model can return JSON or function calls the harness can route.</li>
+    <li><strong>Long context:</strong> the model can receive enough task history, tool output, and retrieved context to continue across multiple steps.</li>
+  </ul>
+
+  <p>Reasoning improved sharply too, and that is where most agent discussions begin.</p>
+
+  <h2>The capabilities of an agent</h2>
+
+  <p>Three capabilities sit at the core of most useful agents: reasoning, tools, and memory.</p>
+
+  <figure>
+    <img src="/images/blog/llm-agents/agent-capabilities.png" alt="Diagram showing reasoning as choosing the next step, tools as reaching outside the model, and memory as carrying state forward.">
+    <figcaption>Useful agents need reasoning to choose, tools to act, and memory to carry context forward.</figcaption>
+  </figure>
+
+  <h3>Reasoning</h3>
+
+  <p>Chain-of-thought prompting was an eye-opening moment. Before it, many developers did not have a practical reason to believe that asking a model to show intermediate steps could improve difficult answers. The model was not given a new tool or a new training run. The prompt simply gave it room to work through the problem.</p>
+
+  <code-block language="text">
+    <pre><code>User: A bakery has 23 cupcakes. They sell 8 in the morning
+and bake 12 more in the afternoon. How many at the end of the day?
+
+Prompt addition: Think step by step.
+
+Model:
+Start with 23.
+After selling 8: 23 - 8 = 15.
+After baking 12: 15 + 12 = 27.
+Answer: 27.</code></pre>
+  </code-block>
+
+  <p>The safer way to phrase the lesson is: no task-specific training was needed. The reasoning behavior was latent enough that a better prompt could surface it.</p>
+
+  <p>ReAct extended that idea into an agent loop. Instead of only writing intermediate reasoning, the model alternates between reasoning and actions:</p>
+
+  <code-block language="text">
+    <pre><code>Task: What is the population of the capital of Slovakia?
+
+Thought: I need the capital first.
+Action: search("capital of Slovakia")
+Observation: The capital of Slovakia is Bratislava.
+
+Thought: Now I need Bratislava's population.
+Action: search("Bratislava population")
+Observation: Approximately 475,000 residents.
+
+Final: Approximately 475,000.</code></pre>
+  </code-block>
+
+  <p>ReAct mattered because it grounded reasoning in feedback from the world. The model could think, act, observe, and revise.</p>
+
+  <p>The newer shift is the reasoning model. For a gentle introduction, you can think of these as "thinking models": models trained to spend more computation on hard problems before producing a final answer. The standard terms are reasoning models and test-time compute. OpenAI's o1 and DeepSeek-R1 made this pattern widely visible.</p>
+
+  <p>The important point for agent builders is that these ideas stack. A reasoning model can run inside a ReAct-style loop. The model handles hard local reasoning; the loop handles tools, observations, and grounding.</p>
+
+  <h3>Tools</h3>
+
+  <p>Tools are how an agent reaches outside the model. A tool might search documents, query a database, send an email, inspect a GitHub issue, run code, or control a browser.</p>
+
+  <p>The model learns which tools exist because tool names, descriptions, and argument schemas are included in the model input.</p>
+
+  <code-block language="text">
+    <pre><code>You have access to these tools:
+
+search_docs(query: string, top_k: number)
+  Search the knowledge base for documents matching a query.
+
+send_email(to: string, subject: string, body: string)
+  Send an email to a recipient.</code></pre>
+  </code-block>
+
+  <p>When the model chooses a tool, it produces structured output. The harness reads that output, runs the actual function in the environment, and feeds the result back as the next observation.</p>
+
+  <code-block language="json">
+    <pre><code>{
+  "tool": "search_docs",
+  "arguments": {
+    "query": "Q3 report",
+    "top_k": 5
+  }
+}</code></pre>
+  </code-block>
+
+  <p>Early agent systems used many custom wrappers. Every framework had its own tool format, and every provider had a slightly different function-calling shape. The Model Context Protocol, released by Anthropic in November 2024, standardizes the client-server boundary for tools and resources. Once an MCP server exists, an agent client can discover and call its tools without a one-off integration for that specific provider.</p>
+
+  <p>There is still engineering work. Someone has to expose the useful API as an MCP server, handle authentication, define permissions, and decide what tool outputs should look like. MCP reduces integration friction; it does not remove design work.</p>
+
+  <p>As tool catalogs grow, another problem appears: you cannot always put every tool definition into the model context. Tool search solves this by loading only the relevant tools on demand. Claude Code's tool-search documentation is a good practical example of this pattern.</p>
+
+  <p>There is also CodeAct, where the model writes executable code instead of emitting one JSON tool call at a time. That can be powerful because code can use variables, loops, and multiple API calls in one action. It also raises the bar for sandboxing and safety.</p>
+
+  <h3>Memory</h3>
+
+  <p>The model does not remember previous calls by itself. Each call starts from the input it receives. If the agent "remembers" something, the harness or a tool has put that memory back into the model context.</p>
+
+  <p><strong>Short-term memory</strong> is the running state of the current task: messages, prior tool calls, prior observations, scratchpad notes, and partial outputs.</p>
+
+  <p><strong>Long-term memory</strong> persists across tasks: user preferences, project facts, prior decisions, or stored documents. It usually lives outside the model in a database, vector store, file, or application backend.</p>
+
+  <p>The hard part is not only storage. The hard part is deciding what to save, when to retrieve it, and how much to put back into context. Too little memory makes the agent forgetful. Too much memory floods the prompt with noise.</p>
+
+  <h2>The anatomy of a running agent</h2>
+
+  <p>The capabilities explain what an agent can do. The anatomy explains how it runs.</p>
+
+  <figure>
+    <img src="/images/blog/llm-agents/running-agent-anatomy.png" alt="Diagram showing how the scaffold feeds the agent harness, the harness runs the loop, and tools act on an environment such as a filesystem, browser, database, shell, or APIs.">
+    <figcaption>The model is only one part. The harness, scaffold, and environment make the agent usable.</figcaption>
+  </figure>
+
+  <h3>The loop</h3>
+
+  <p>The core loop is simple:</p>
+
+  <ol>
+    <li>Build the model input.</li>
+    <li>Call the model.</li>
+    <li>Parse the model response.</li>
+    <li>If the model is done, return the answer.</li>
+    <li>If the model requested a tool, run the tool.</li>
+    <li>Add the result to context.</li>
+    <li>Repeat until done, blocked, or out of budget.</li>
+  </ol>
+
+  <h3>The harness</h3>
+
+  <p>The harness is the runtime code that drives that loop.</p>
+
+  <code-block language="javascript">
+    <pre><code>function runAgent(task, scaffold, environment) {
+  let context = buildInitialContext(scaffold, task);
+
+  for (let step = 0; step &lt; maxSteps; step++) {
+    const response = model.call(context);
+
+    if (response.isComplete()) {
+      return response.answer;
+    }
+
+    const toolCall = response.toolCall;
+    const result = environment.execute(toolCall);
+
+    context = appendToContext(context, response, result);
+    context = compactIfNeeded(context);
+  }
+
+  return timedOut();
+}</code></pre>
+  </code-block>
+
+  <p>Most production concerns live in the harness: tracing, retries, rate limits, cost tracking, malformed output recovery, context compaction, approval gates, and stopping conditions. A demo can survive with a weak harness. A production agent usually cannot.</p>
+
+  <h3>The environment</h3>
+
+  <p>The environment is the world the agent acts on. For a coding agent, that might be a repository, shell, filesystem, test runner, and browser. For a support agent, it might be a CRM, ticketing system, knowledge base, and email API.</p>
+
+  <p>Two questions matter:</p>
+
+  <ul>
+    <li><strong>Is the action deterministic?</strong> Running a local parser is easier to reason about than searching the web.</li>
+    <li><strong>Is the action reversible?</strong> Editing a sandboxed file can be undone. Sending money or deleting production data cannot.</li>
+  </ul>
+
+  <p>The less deterministic and less reversible the environment is, the more guardrails you need: narrow permissions, dry-run modes, human approval, audit logs, and rollback plans.</p>
+
+  <h3>The instruction scaffold</h3>
+
+  <p>The terms scaffold and harness are not fully standardized. People often use agent scaffolding and agent harness interchangeably to mean "the software around the model." That is fine in casual conversation, but the distinction is useful when you are building.</p>
+
+  <p>In this article, the scaffold is the structure available before the agent runs: role, behavioral rules, tool definitions, permissions, memory conventions, and output formats.</p>
+
+  <code-block language="text">
+    <pre><code>[role]
+You are a research assistant for software developers.
+
+[rules]
+- Cite sources.
+- Search before answering if the answer may have changed.
+- Ask before taking irreversible actions.
+
+[tools]
+- search_docs(query, top_k)
+- fetch_url(url)
+
+[output format]
+Respond in markdown with source links.</code></pre>
+  </code-block>
+
+  <p>The harness assembles the scaffold with runtime context: the current task, today's date, retrieved memory, previous tool results, and anything else the model needs for the next step.</p>
+
+  <h3>Everything the model sees is a prompt</h3>
+
+  <p>This is the unifying idea. The model does not see your database connection, your app server, your vector store, or your tool registry directly. It sees the input the harness gives it.</p>
+
+  <p>That input is systematically assembled context. It may contain static instructions from the scaffold, dynamic facts from the environment, retrieved memory, tool schemas, and observations from previous steps. To the model, all of that is the prompt.</p>
+
+  <p>If the agent chooses the wrong next action, the bug is often in this assembled prompt: missing tool description, unclear instruction, stale memory, noisy retrieval, ambiguous output format, or a tool result that lost the important detail.</p>
+
+  <p>This is why context engineering is becoming a core agent skill. You are not just "writing prompts." You are designing the information surface the model uses to act.</p>
+
+  <h2>Architectural patterns</h2>
+
+  <p>Once you understand a single agent, the next question is how to compose systems.</p>
+
+  <p><strong>A workflow</strong> is a fixed sequence of steps. Your code decides what happens next. The model may summarize, classify, extract, or generate at each step, but the path is known ahead of time.</p>
+
+  <p><strong>A single agent</strong> is one model-driven loop with access to tools. The model decides the next action based on the current context. This is the best starting point when the task path is uncertain.</p>
+
+  <p><strong>A multi-agent system</strong> uses multiple agents, often with specialized roles. This can help when work naturally splits across domains, but it also adds communication overhead, coordination failures, and harder debugging.</p>
+
+  <p><strong>An orchestrator-worker pattern</strong> is the most common useful multi-agent shape. One orchestrator breaks the task into subtasks and delegates to workers. Mechanically, calling a worker agent is just a tool call where the implementation happens to be another agent.</p>
+
+  <p>The honest guidance is boring and useful: start with a workflow when the steps are predictable. Use a single agent when the path is genuinely uncertain. Reach for multi-agent systems only when you have evidence that one agent with better tools is not enough.</p>
+
+  <h2>Customizing agents</h2>
+
+  <p>The cheapest way to change an agent is to change the prompt: improve the role, tighten the output format, clarify tool descriptions, add examples, or change what memory gets injected.</p>
+
+  <p>When manual prompting plateaus, three stronger options show up.</p>
+
+  <p><strong>Prompt optimization</strong> treats the prompt as something that can be searched and tuned against a metric. DSPy is the clearest example: you define a language-model program, provide a metric and examples, and let an optimizer improve instructions or demonstrations.</p>
+
+  <p><strong>Supervised fine-tuning</strong> trains a model on examples of the behavior you want. It is useful when you need a stable format, domain-specific language, or a smaller model to imitate a larger one. It also gives you a model artifact to maintain.</p>
+
+  <p><strong>Reinforcement learning with verifiable rewards</strong> is useful when correctness can be checked automatically: math answers, code that passes tests, structured outputs that parse, or tasks with clear success signals. For most application developers, this is something you consume by choosing a reasoning model, not something you run yourself.</p>
+
+  <p>The order matters. Start with better context. Add prompt optimization when you have a metric. Consider SFT when prompting cannot reliably produce the behavior. Treat RL with verifiable rewards as advanced training infrastructure.</p>
+
+  <h2>Frameworks at a glance</h2>
+
+  <p>A framework is a set of opinions about harness, scaffold, tools, state, and deployment.</p>
+
+  <p><strong>LangChain and LangGraph</strong> are widely used in the Python and JavaScript ecosystem. LangChain gives agent and tool abstractions; LangGraph gives an explicit graph runtime with state, persistence, interrupts, and human-in-the-loop patterns.</p>
+
+  <p><strong>Google ADK</strong> is a code-first framework for developing and deploying agents. It is optimized for Gemini and the Google ecosystem, but the official docs describe it as model-agnostic and deployment-agnostic.</p>
+
+  <p><strong>BeeAI Framework</strong> is an open-source framework for building production-grade multi-agent systems with provider-agnostic model support and memory strategies.</p>
+
+  <p><strong>Agent Stack</strong>, formerly BeeAI Platform, is deployment and runtime infrastructure. It helps run agents as services, with a web UI, CLI, LLM routing, storage, document extraction, secrets, OAuth, MCP integrations, and A2A compatibility.</p>
+
+  <p><strong>DSPy</strong> is different from graph frameworks. It treats prompts and LM calls as parts of a typed program that can be optimized against examples and metrics.</p>
+
+  <p>Do not pick a framework because it is popular. Pick it because its mental model matches the problem you are solving.</p>
+
+  <h2>Where to start</h2>
+
+  <p>The smallest useful project is a ReAct-style agent with one real tool.</p>
+
+  <ol>
+    <li>Pick a model with function calling or structured output.</li>
+    <li>Define one tool that does something real.</li>
+    <li>Write the loop yourself.</li>
+    <li>Log every model input, tool call, observation, and final answer.</li>
+    <li>Add a stopping condition and a step budget.</li>
+    <li>Add one small eval set: five to ten tasks you expect it to handle.</li>
+    <li>Only then move the same idea into a framework.</li>
+  </ol>
+
+  <p>You will hit the real problems quickly. The model will ask for a tool that does not exist. A tool will fail. Context will get noisy. The agent will repeat itself. Each failure teaches something specific about harness design, scaffold writing, tool design, memory, or context engineering.</p>
+
+  <p>That is the durable lesson: an agent is not just an LLM. It is a model inside a runtime loop, shaped by a scaffold, connected to tools, operating in an environment, and fed by carefully assembled context.</p>
+
+  <h2>Further reading</h2>
+
+  <ul>
+    <li><a href="https://huggingface.co/papers/2201.11903">Chain-of-Thought Prompting Elicits Reasoning in Large Language Models</a></li>
+    <li><a href="https://react-lm.github.io/">ReAct: Synergizing Reasoning and Acting in Language Models</a></li>
+    <li><a href="https://openai.com/index/learning-to-reason-with-llms/">OpenAI: Learning to reason with LLMs</a></li>
+    <li><a href="https://www.anthropic.com/news/model-context-protocol">Anthropic: Introducing the Model Context Protocol</a></li>
+    <li><a href="https://www.anthropic.com/research/building-effective-agents/">Anthropic: Building effective agents</a></li>
+    <li><a href="https://code.claude.com/docs/en/agent-sdk/tool-search">Claude Code docs: Tool search</a></li>
+    <li><a href="https://docs.cloud.google.com/agent-builder/agent-development-kit/overview">Google Cloud: Agent Development Kit overview</a></li>
+    <li><a href="https://agentstack.beeai.dev/stable/introduction/welcome">Agent Stack documentation</a></li>
+    <li><a href="https://dspy.ai/">DSPy documentation</a></li>
+  </ul>
+</blog-post>
