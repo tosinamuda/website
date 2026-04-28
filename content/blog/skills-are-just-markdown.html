@@ -1,140 +1,259 @@
 <blog-post
-  title="Skills Are Just Markdown, So Why Do They Matter?"
-  excerpt="Skills look trivial, but they represent a portable package of expert problem-solving. This essay argues that Skills create the conditions for a new knowledge economy: one built on distribution, discovery, incentives, and trust."
-  date="2026-01-07"
+  title="Skills Are Prompts, But Not All Prompts Are Equal"
+  excerpt="What's new about a Skill isn't any single property. It is that the properties live together in one named, loadable package."
+  date="2026-04-28"
   draft>
   <script type="application/json" id="meta">
     { "type": "essay", "categories": ["AI"] }
   </script>
 
-<p>Skills look trivial. A Skill can be “just a markdown file” that contains instructions to prime an AI. It feels like a lightweight feature, not a technological shift.</p>
-<p>That reaction misses the point.</p>
-<p>The file format does not matter. The leverage comes from what the markdown represents: a portable package of expert problem-solving that a machine can execute on demand. Once you can publish, discover, and reuse those packages at scale, you stop treating expertise as something locked inside people and institutions. You start treating it as infrastructure.</p>
-<p>This essay argues a simple claim: Skills look easy, but they create the conditions for a new knowledge economy. The economy does not emerge from better prompts. It emerges from distribution, discovery, incentives, and trust.</p>
-<h2>A Skill Is Not “Just a Prompt”</h2>
-<p>Yes, a Skill can be a prompt. In practice, a useful Skill encodes more than instructions. It encodes the parts of expertise that non-experts usually cannot improvise:</p>
-<ul>
-<li><strong>Problem framing:</strong> what questions to ask, what signals matter, what to ignore.</li>
-<li><strong>Workflow:</strong> step-by-step procedures, checklists, decision trees, templates.</li>
-<li><strong>Tool use:</strong> what tools to call, what inputs to request, how to validate outputs.</li>
-<li><strong>Constraints:</strong> jurisdiction rules, definitions, safety boundaries, escalation triggers.</li>
-<li><strong>Quality standards:</strong> rubrics, expected output formats, verification steps.</li>
-</ul>
-<p>If you compress expertise into a single sentence, you get this: experts win because they explore the right solution space quickly. A Skill can encode that exploration strategy.</p>
-<p>That changes the role of the AI. The AI stops acting like a generic chat partner. It starts acting like a specialist interface that runs an expert’s playbook.</p>
-<h2>What Becomes Possible: Standing on Expert Shoulders</h2>
-<p>People already “stand on the shoulders of giants” through books, courses, and open source code. Skills can make that standing interactive, personalized, and immediate.</p>
-<p>A non-expert often fails for one reason: they do not know what to ask. They also do not know which intermediate steps matter. Skills fill that gap by forcing structure onto messy situations. They guide the user through the same sequence an expert would follow.</p>
-<p>This is the practical promise:</p>
-<ul>
-<li>An amateur can do higher-quality work because the system supplies expert framing and procedure.</li>
-<li>The user does not need the vocabulary or mental models that normally gatekeep the domain.</li>
-<li>The AI does not just output an answer. It leads a process.</li>
-</ul>
-<p>Be careful with the strongest version of the claim. Skills will not magically turn amateurs into experts in high-stakes domains. They can still miss context, misinterpret inputs, and fail without real-world verification. But they can raise the floor dramatically in many domains, especially where the work is procedural, document-based, or pattern-driven.</p>
-<p>The real shift is this: when you standardize expert reasoning into reusable Skill packages, you can distribute competence the way software distributes capability.</p>
-<h2>Discovery Is the Real Bottleneck</h2>
-<p>Most “prompt libraries” failed because users could not find the right prompt at the right time. They had to know what they needed before they could search for it.</p>
-<p>Skills can only matter if a platform solves discovery. Two discovery problems exist:</p>
-<h3>1) User discovery: “What Skill do I need?”</h3>
-<p>Users describe symptoms, business problems, or vague goals. They do not know the name of the domain that will solve it. A good system should infer the domain and recommend the right Skill with high precision.</p>
-<h3>2) Skill discovery: “Which version is trustworthy?”</h3>
-<p>Once a user enters a category, they face spam, clones, and low-quality variants. The platform must rank by demonstrated performance, not by marketing.</p>
-<p>If you do not solve discovery, Skills remain niche tools used by power users. If you solve discovery, Skills become ambient infrastructure. The platform quietly routes each user to the best expert workflow for their situation.</p>
-<p>That is when “just markdown” becomes a distribution channel for expertise.</p>
-<h2>Publishing and Distribution Turn Skills Into a Market</h2>
-<p>Discovery makes Skills usable. Publishing makes them scalable.</p>
-<p>Once creators can publish Skills into a registry, and users can activate them instantly, the system starts to resemble an app ecosystem. Except the product is not an interface. The product is a chunk of expertise.</p>
-<p>This creates second-order effects:</p>
-<ul>
-<li>Experts can specialize further because distribution expands their audience.</li>
-<li>Teams can standardize internal workflows by codifying “how we do it here.”</li>
-<li>Organizations can build Skill stacks that reflect their standards, risk posture, and domain constraints.</li>
-</ul>
-<p>At that point, the key question stops being “Can you write a better prompt?” and becomes “Can you build the supply chain for expertise?”</p>
-<h2>Incentives Decide Whether Experts Participate</h2>
-<p>Most experts will not publish high-quality Skills for free at scale.</p>
-<p>A real Skill requires cognitive labor. The creator must formalize tacit knowledge, expose their reasoning to scrutiny, and maintain it over time. Maintenance matters because domains change, tools change, and best practices shift.</p>
-<p>So you need incentives that pay for:</p>
-<ul>
-<li>initial creation</li>
-<li>verification and review</li>
-<li>ongoing updates</li>
-<li>incident response when something goes wrong</li>
-</ul>
-<p>A workable “skill economy” can use a mix of models:</p>
-<h3>Pay-per-use royalties</h3>
-<p>Users pay a small amount per invocation or per successful outcome. The platform shares revenue with the creator and reviewers. This fits domains where the Skill substitutes for paid professional time.</p>
-<h3>Subscriptions and bundles</h3>
-<p>Users pay for curated packs: contract analysis, sales enablement, data cleaning, interview prep, compliance checks. Bundles reduce search friction and fund maintenance.</p>
-<h3>Bounties</h3>
-<p>A company or institution funds a Skill that meets published test criteria. This pushes creators to build measurable quality.</p>
-<h3>Sponsorship for open Skills</h3>
-<p>A sponsor funds an open Skill because broader access benefits them. This matches education, public interest, and foundational knowledge.</p>
-<h3>Maintenance and review rewards</h3>
-<p>Pay the people who keep Skills accurate. If you only pay creators, the ecosystem degrades.</p>
-<p>Incentives do not just solve participation. They determine the shape of the ecosystem. A platform that cannot compensate expertise at the right level will fill with shallow content.</p>
-<h2>The Hard Question: Paid Skills and Source Code</h2>
-<p>If users pay to use a Skill, should they see the Skill “source code” (the markdown)?</p>
-<p>You can design this in several viable ways. Each trades off trust, defensibility, and usability.</p>
-<h3>1) Open source</h3>
-<p>Users can inspect, fork, self-host, and improve. This maximizes trust and accelerates iteration. It shifts monetization to hosting, certification, support, sponsorship, and reputation.</p>
-<h3>2) Source available with restrictions</h3>
-<p>Users can read the Skill but cannot redistribute or compete. This improves trust while protecting the creator’s business.</p>
-<h3>3) Closed source but auditable</h3>
-<p>Users do not see the code, but qualified reviewers can. The platform publishes measurable evidence: test results, update history, provenance, and risk rating. This fits high-stakes domains where users want accountability but creators want protection.</p>
-<h3>4) Fully closed black box</h3>
-<p>Users see only behavior. This produces the lowest trust and highest scam risk. It can work in low-stakes domains or when the publisher brand already carries trust.</p>
-<p>A serious platform should not treat this as a philosophical debate. It should define minimum transparency requirements for all paid Skills, even closed ones:</p>
-<ul>
-<li>behavior spec: what it does and what it refuses</li>
-<li>versioning and changelog</li>
-<li>evaluation results on a published harness</li>
-<li>provenance metadata: assumptions, jurisdiction, references, last updated</li>
-<li>escalation triggers for high-stakes situations</li>
-</ul>
-<p>If you cannot prove quality, you cannot justify a marketplace.</p>
-<h2>Open Skills, a Commons, and the “Wikipedia for Skills”</h2>
-<p>Could Skills become a wiki? Yes, but not the naive version.</p>
-<p>Wikipedia works because low-risk knowledge tolerates broad editing. Many Skills operate in high-stakes contexts where a wrong step can cause harm. So you need a commons with stronger gates:</p>
-<ul>
-<li>open contribution, but tiered permissions</li>
-<li>credential checks for protected domains</li>
-<li>mandatory tests before publish</li>
-<li>peer review workflows</li>
-<li>rollback, deprecation, and version pinning</li>
-<li>clear ownership and stewardship for maintenance</li>
-</ul>
-<p>Think of it as “Wikipedia mechanics plus software engineering discipline.” Treat each Skill like a living artifact with CI, tests, and release notes. Treat contributors like maintainers, not authors.</p>
-<p>This also creates a powerful hybrid: open Skills as the base layer, paid Skills as premium layers, and institutional sponsorship to keep essential Skills free.</p>
-<h2>Risks You Cannot Ignore</h2>
-<p>A skill economy will attract misuse and low-quality production. You need controls early.</p>
-<h3>Quality collapse</h3>
-<p>Without tests and review, the marketplace becomes prompt spam. Users lose trust fast. Platforms must rank by demonstrated performance and verified provenance.</p>
-<h3>Staleness</h3>
-<p>Skills decay as domains change. Platforms must enforce update cadences and flag stale Skills. They should show “last reviewed” as prominently as price.</p>
-<h3>Misuse</h3>
-<p>Some Skills can enable harm. Platforms need policy, monitoring, and controlled access for dual-use content. They must classify risk and enforce stricter guardrails for high-risk categories.</p>
-<h3>Overreliance</h3>
-<p>Users will treat Skills as authority. Platforms must design for humility: clear limits, required context checks, and escalation to professionals when necessary.</p>
-<p>If you do not build risk controls, regulators and enterprises will block adoption. If you overcorrect, you kill the ecosystem. Platforms must balance access and safety with explicit governance, not vibes.</p>
-<h2>The Core Argument: Infrastructure Creates the Economy</h2>
-<p>Skills are small artifacts. The big deal is not the markdown.</p>
-<p>The big deal is that Skills can become the unit of exchange for expertise if you build:</p>
-<ol>
-<li><strong>Discovery:</strong> routing users to the right Skill at the right moment</li>
-<li><strong>Distribution:</strong> publishing, versioning, composition, and bundling</li>
-<li><strong>Incentives:</strong> payments that fund creation, review, and maintenance</li>
-<li><strong>Trust:</strong> provenance, evaluation, credentialing, and auditability</li>
-<li><strong>Risk controls:</strong> classification, guardrails, and incident response</li>
-</ol>
-<p>Once those exist, you get a new kind of knowledge economy:</p>
-<ul>
-<li>people pay to use other people’s expertise as packaged workflows</li>
-<li>experts earn from reuse rather than repeated one-to-one delivery</li>
-<li>open commons Skills raise the baseline for everyone</li>
-<li>specialized paid Skills fund deep work and continuous maintenance</li>
-</ul>
-<p>That is why Skills matter. They turn expert cognition into distributable infrastructure. The file looks simple because the value lives in the ecosystem around it.</p>
+  <p>A Skill is a prompt. Anything that enters an LLM's context shapes what comes out, and a <code>SKILL.md</code> file enters the context like any user instruction or system prompt. Mechanically, the skeptic is right.</p>
+
+  <p>Each individual property of a Skill can already be done some other way. A narrowly written system prompt can function as task-scoped. A shared template can be reusable across people. Retrieval can load context only when relevant. A folder can package a prompt with examples and helper scripts. None of these capabilities is new on its own.</p>
+
+  <p>What is new is the combination, as a single package.</p>
+
+  <p>A Skill is the prompt-shaped package where four properties live together. It is task-scoped rather than project-scoped or session-scoped. The system loads it selectively when the task calls for it, instead of the user pasting it in. It can be reused across people, rather than living inside one person's session.<a href="#fn1" class="skills-fnref">1</a></p>
+
+  <p>And it bundles its full payload, instructions plus examples plus scripts plus references, as one named unit that can be versioned, installed, and uninstalled.</p>
+
+  <figure class="skills-visual">
+    <table class="skills-compare-table" role="table" aria-label="Comparison of prompt-shaped artifacts">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Handwritten<br>prompt</th>
+          <th>System<br>prompt</th>
+          <th>Custom<br>instruction</th>
+          <th><code>CLAUDE.md</code></th>
+          <th class="skills-skill-col">Skill</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">Task-scoped</th>
+          <td><span class="skills-mark-yes">●</span></td>
+          <td><span class="skills-mark-partial">if narrow</span></td>
+          <td><span class="skills-mark-no">○</span></td>
+          <td><span class="skills-mark-no">○</span></td>
+          <td class="skills-skill-col"><span class="skills-mark-yes">●</span></td>
+        </tr>
+        <tr>
+          <th scope="row">Selectively loaded</th>
+          <td><span class="skills-mark-no">○</span></td>
+          <td><span class="skills-mark-no">○</span></td>
+          <td><span class="skills-mark-no">○</span></td>
+          <td><span class="skills-mark-no">○</span></td>
+          <td class="skills-skill-col"><span class="skills-mark-yes">●</span></td>
+        </tr>
+        <tr>
+          <th scope="row">Reusable across people</th>
+          <td><span class="skills-mark-no">○</span></td>
+          <td><span class="skills-mark-partial">if shared</span></td>
+          <td><span class="skills-mark-no">○</span></td>
+          <td><span class="skills-mark-yes">●</span></td>
+          <td class="skills-skill-col"><span class="skills-mark-yes">●</span></td>
+        </tr>
+        <tr>
+          <th scope="row">Bundled payload</th>
+          <td><span class="skills-mark-no">○</span></td>
+          <td><span class="skills-mark-no">○</span></td>
+          <td><span class="skills-mark-no">○</span></td>
+          <td><span class="skills-mark-partial">partial</span></td>
+          <td class="skills-skill-col"><span class="skills-mark-yes">●</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <figcaption class="skills-visual-caption">No single existing artifact carries all four properties. The Skill is the form that ships with them combined.</figcaption>
+  </figure>
+
+  <p>Each property, on its own, is reachable with what you already have. The combination is what's harder to assemble, because it requires the package to be a first-class unit the system loads, addresses, and unloads on its own. You can build that yourself, with a routing layer and a prompt library and some glue. Skills are the form in which the combination ships as a default, with the system handling the loading instead of the user.</p>
+
+  <p>The claim is not that this is unprecedented. The claim is that it is now the default form, and the default form is what determines whether most users will ever benefit from it. What unification enables is why that matters.</p>
+
+  <h2>What Unification Makes Possible</h2>
+
+  <p>Two consequences follow from the same property. Both depend on the package being named, selectively loaded, and reusable. Each one solves a different problem.</p>
+
+  <figure class="skills-visual">
+    <div class="skills-consequences-wrapper">
+      <div class="skills-consequences">
+        <div class="skills-consequence-panel">
+          <div class="skills-consequence-label">Consequence 1</div>
+          <div class="skills-consequence-title">Expert knowledge becomes transferable across domains</div>
+          <div class="skills-consequence-row">
+            <div class="skills-consequence-marker">Before</div>
+            <div class="skills-consequence-text">A lawyer's working knowledge stays with the lawyer. Useful once.</div>
+          </div>
+          <div class="skills-consequence-row">
+            <div class="skills-consequence-marker skills-after">After</div>
+            <div class="skills-consequence-text">The same knowledge is loadable by a founder who has never read a contract carefully.</div>
+          </div>
+        </div>
+        <div class="skills-consequence-panel">
+          <div class="skills-consequence-label">Consequence 2</div>
+          <div class="skills-consequence-title">Detailed refusals become viable</div>
+          <div class="skills-consequence-row">
+            <div class="skills-consequence-marker">Before</div>
+            <div class="skills-consequence-text">The model drifts to its training average: AI slop, generic and machine-made.</div>
+          </div>
+          <div class="skills-consequence-row">
+            <div class="skills-consequence-marker skills-after">After</div>
+            <div class="skills-consequence-text">A long, domain-specific list of patterns to refuse is loaded only when needed.</div>
+          </div>
+        </div>
+      </div>
+      <div class="skills-consequence-bridge">Both come back to the same property: the Skill is selectively loaded and named.</div>
+    </div>
+    <figcaption class="skills-visual-caption">One package, two jobs at once. The same structural property that makes long-form expertise portable also makes long-form refusals affordable.</figcaption>
+  </figure>
+
+  <p>The first thing it enables is that expert knowledge becomes transferable across domains. A handwritten prompt encoding what a senior contracts lawyer would check is useful exactly once, to the person who wrote it. The same instructions in a Skill, named and addressable, can be loaded by a founder who has never read a contract carefully.</p>
+
+  <p>The lawyer's working knowledge becomes a passable substitute for the lawyer, accessible to anyone whose task calls for it. Before Skills, this transfer required the recipient to know enough to copy the right prompt at the right time. Now the system handles the loading.</p>
+
+  <figure class="skills-visual">
+    <div class="skills-flow-diagram">
+      <div class="skills-flow-steps">
+        <div class="skills-flow-step">
+          <div class="skills-flow-step-num">1</div>
+          <div class="skills-flow-step-text">User asks for a slide deck</div>
+        </div>
+        <div class="skills-flow-arrow">&rarr;</div>
+        <div class="skills-flow-step">
+          <div class="skills-flow-step-num">2</div>
+          <div class="skills-flow-step-text">System scans installed Skills</div>
+        </div>
+        <div class="skills-flow-arrow">&rarr;</div>
+        <div class="skills-flow-step skills-highlight">
+          <div class="skills-flow-step-num">3</div>
+          <div class="skills-flow-step-text">pptx Skill matches and loads</div>
+        </div>
+        <div class="skills-flow-arrow">&rarr;</div>
+        <div class="skills-flow-step">
+          <div class="skills-flow-step-num">4</div>
+          <div class="skills-flow-step-text">Model responds with the Skill in context</div>
+        </div>
+      </div>
+    </div>
+    <figcaption class="skills-visual-caption">Selective loading. The Skill enters context only when the task calls for it, then leaves.</figcaption>
+  </figure>
+
+  <p>The second thing it enables is that detailed refusals become viable. The model tends to produce something close to the average response in its training distribution. For factual queries, the average is usually correct. For creative or aesthetic work, the average is what people recognize as AI slop: generic, bland, machine-made.</p>
+
+  <p>Pushing the model off the average requires telling it specifically what to avoid, not just what to produce. The list of patterns to refuse is often long and domain-specific. A system prompt is the wrong place for it because most conversations don't need the list. A custom instruction is the wrong place because the scope is global.</p>
+
+  <p>A Skill loads only when the relevant task is at hand, so it can carry the full refusal list without paying a cost on every other interaction.</p>
+
+  <h2>An Example That Shows Both at Once</h2>
+
+  <p>Anthropic's <code>pptx</code> Skill is built for slide decks, and it shows both consequences working in a single package.<a href="#fn2" class="skills-fnref">2</a> Asked to make a deck about quarterly results, a model with no Skill produces what people now recognize as AI slop: title plus three bullets per slide, generic styling, the same look every time.</p>
+
+  <p>The Skill changes the result. It tells the model to pick a content-informed color palette and reject default blue, to commit to a single visual motif and repeat it across the deck, to treat text-only slides as failures, and to vary layouts. It also names specific AI-generated tells and refuses them: accent lines under titles, full-width colored bars, cream backgrounds.</p>
+
+  <figure class="skills-visual">
+    <div class="skills-code-card" role="figure" aria-label="Excerpt from the pptx SKILL.md file">
+      <div class="skills-code-filename">pptx/SKILL.md (excerpt)</div>
+<pre><span class="skills-code-comment">---</span>
+<span class="skills-code-key">name</span>: pptx
+<span class="skills-code-key">description</span>: <span class="skills-code-string">"Use this skill any time a .pptx file is involved..."</span>
+<span class="skills-code-comment">---</span>
+
+<span class="skills-code-heading">## Design Ideas</span>
+
+<span class="skills-code-heading">### Before Starting</span>
+
+- <span class="skills-code-key">Pick a bold, content-informed color palette</span>:
+  the palette should feel designed for THIS topic.
+- <span class="skills-code-key">Dominance over equality</span>: one color
+  should dominate (60-70% visual weight).
+- <span class="skills-code-key">Commit to a visual motif</span>: pick ONE
+  distinctive element and repeat it across every slide.
+
+<span class="skills-code-heading">### Avoid (Common Mistakes)</span>
+
+- <span class="skills-code-key">Don't default to blue</span> - pick colors
+  that reflect the specific topic.
+- <span class="skills-code-key">Don't create text-only slides</span> - add
+  images, icons, charts, or visual elements.
+- <span class="skills-code-key">NEVER use accent lines under titles</span> -
+  these are a hallmark of AI-generated slides.
+- <span class="skills-code-key">Don't add full-width colored bars</span> -
+  they read as AI slop unless explicitly requested.
+- <span class="skills-code-key">Don't default to cream/beige backgrounds</span>
+  - use white or the user's brand palette.
+
+<span class="skills-code-heading">## QA (Required)</span>
+
+Convert slides to images, then run a verification loop:
+overflow, low contrast, overlapping elements, leftover
+placeholder text. Fix and re-verify.</pre>
+    </div>
+    <figcaption class="skills-visual-caption">The bundled payload: instructions, named refusals, and a verification loop, in one package the system loads on demand.</figcaption>
+  </figure>
+
+  <p>Two things came together in that one package. The user who asked for the deck did not need to know what makes a deck good. That knowledge came from a designer, packaged once, addressable from then on.</p>
+
+  <p>The deck also did not come back as the slop the model would have produced by default. The specific refusals came from someone who had watched the model fail enough times to know exactly which patterns to name.</p>
+
+  <p>A skeptic could write a system prompt that captures part of this. They could write it and live with the cost: it gets loaded on every call where it might be relevant, paid for in tokens, and carried even on calls where it is not. The selective loading isn't a UX detail. It is what makes a long, domain-specific refusal list practical to maintain over time.</p>
+
+  <h2>What Unification Does Not Solve</h2>
+
+  <p>Skills can be bad. The format guarantees nothing about the contents. A Skill written by someone without taste in a domain produces tasteless results, and one written before a major change in tools or conventions can keep telling the model to follow rules that no longer apply.</p>
+
+  <p>Length and structure do not protect against shallow judgment. A long bad Skill can be worse than no Skill, because users may treat it as authority. Unification is a property of the package, not of what the package contains.</p>
+
+  <h2>The Markdown Is Simple. What's in the Package Is Not.</h2>
+
+  <p>Skills are prompts. That is the starting point.</p>
+
+  <p>What is new is not the markdown. The markdown is now part of a named, selectively loaded, reusable package that carries its full payload as a unit. What ships in a Skill is a compact way to do two jobs at once: move expert knowledge across domains, and refuse the model's defaults at a level of detail most general-purpose prompts can't afford to carry.</p>
+
+  <p>The practical upshot is a different question to ask before reaching for a Skill. The question is no longer "is this prompt good." The question is "does this task call for a package the user could not have assembled themselves." When the answer is yes, the markdown stops being markdown and starts being infrastructure.</p>
+
+  <p>The markdown is simple. What's in the package is not.</p>
+
+  <aside class="skills-summary-card" aria-label="Essay summary">
+    <div class="skills-summary-card-label">In one card</div>
+
+    <div class="skills-summary-thesis">A Skill is the prompt-shaped package where four properties live together. The combination is the new thing, and the combination is what makes two awkward problems solvable.</div>
+
+    <div class="skills-summary-section">
+      <div class="skills-summary-heading">The four properties</div>
+      <div class="skills-summary-properties">
+        <span>Task-scoped</span>
+        <span>Selectively loaded</span>
+        <span>Reusable across people</span>
+        <span>Bundled payload</span>
+      </div>
+    </div>
+
+    <div class="skills-summary-section">
+      <div class="skills-summary-heading">What that makes possible</div>
+      <div class="skills-summary-pair">
+        <div class="skills-summary-pair-item">
+          <span class="skills-summary-pair-key">Knowledge transfer</span>
+          An expert's working process becomes loadable by anyone whose task calls for it.
+        </div>
+        <div class="skills-summary-pair-item">
+          <span class="skills-summary-pair-key">Refusing defaults</span>
+          A long, domain-specific list of patterns to reject is loaded only when needed.
+        </div>
+      </div>
+    </div>
+
+    <div class="skills-summary-question">
+      <strong>The new question to ask</strong>
+      Not "is this prompt good." Instead: does this task call for a package the user could not have assembled themselves?
+    </div>
+  </aside>
+
+  <section class="skills-footnotes">
+    <ol>
+      <li id="fn1">Anthropic's documentation on Agent Skills covers the package format and the progressive-disclosure loading model in more detail. See <a href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview">platform.claude.com/docs/en/agents-and-tools/agent-skills/overview</a>.</li>
+      <li id="fn2">The full instruction file for the <code>pptx</code> Skill, including the specific patterns shown above, is published in Anthropic's open repository at <a href="https://github.com/anthropics/skills/tree/main/skills/pptx">github.com/anthropics/skills/tree/main/skills/pptx</a>.</li>
+    </ol>
+  </section>
 
 </blog-post>
