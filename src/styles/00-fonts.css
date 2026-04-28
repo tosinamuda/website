@@ -1,0 +1,42 @@
+/* View transitions — smooth cross-fade between pages on same-origin nav */
+@view-transition { navigation: auto; }
+
+/* Cascade layers — explicit ordering, lowest priority first */
+@layer reset, tokens, base, components, utilities;
+
+/* Local fonts — self-hosted */
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 400 500;
+  font-display: optional;
+  src: url("/fonts/jetbrains-mono.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Spectral";
+  font-style: normal;
+  font-weight: 400;
+  font-display: optional;
+  src: url("/fonts/spectral-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Spectral";
+  font-style: normal;
+  font-weight: 500;
+  font-display: optional;
+  src: url("/fonts/spectral-500.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Spectral";
+  font-style: normal;
+  font-weight: 600;
+  font-display: optional;
+  src: url("/fonts/spectral-600.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Spectral";
+  font-style: italic;
+  font-weight: 400;
+  font-display: optional;
+  src: url("/fonts/spectral-italic.woff2") format("woff2");
+}

@@ -3,7 +3,7 @@
 
 import fs from "node:fs/promises";
 import path from "node:path";
-import { COMPONENTS_DIR, DIST, PUBLIC_DIR, STYLES_FILE } from "../config.js";
+import { COMPONENTS_DIR, DIST, PUBLIC_DIR, STYLE_MODULES } from "../config.js";
 import { copyDir } from "../fs-helpers.js";
 
 /**
@@ -39,11 +39,12 @@ async function copyPublic() {
 }
 
 /**
- * Copy the source CSS to dist/assets/styles.css. No bundling step — the
- * stylesheet is hand-authored.
+ * Concatenate hand-authored CSS modules into the single stylesheet linked by
+ * every page. This keeps authoring files focused without adding a bundler.
  */
 async function copyStyles() {
   const dest = path.join(DIST, "assets", "styles.css");
   await fs.mkdir(path.dirname(dest), { recursive: true });
-  await fs.copyFile(STYLES_FILE, dest);
+  const modules = await Promise.all(STYLE_MODULES.map((file) => fs.readFile(file, "utf8")));
+  await fs.writeFile(dest, `${modules.map((css) => css.trim()).join("\n\n")}\n`);
 }

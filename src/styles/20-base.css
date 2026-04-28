@@ -1,0 +1,26 @@
+@layer base {
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: var(--text-md);
+    line-height: var(--leading-normal);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "ss01", "ss02";
+  }
+
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+  .wrap {
+    max-width: var(--col);
+    margin: 0 auto;
+    padding: var(--space-14) var(--space-7) var(--space-30);
+  }
+  .wrap--wide { max-width: 920px; }
+
+  ::selection { background: var(--accent-soft); color: var(--ink); }
+}

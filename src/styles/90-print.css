@@ -1,0 +1,13 @@
+/* Print */
+@media print {
+  @page { margin: 1in; }
+  body { background: white !important; color: black; }
+  site-header, site-footer { display: none !important; }
+  .back { display: none; }
+  a { color: black; text-decoration: underline; }
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.85em;
+    color: #555;
+  }
+}

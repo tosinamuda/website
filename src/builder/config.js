@@ -13,7 +13,15 @@ export const PUBLIC_DIR = path.join(ROOT, "public");
 export const CONTENT_BLOG = path.join(ROOT, "content", "blog");
 export const COMPONENTS_DIR = path.join(SRC, "components");
 export const LAYOUTS_DIR = path.join(SRC, "layouts");
-export const STYLES_FILE = path.join(SRC, "styles", "app.css");
+export const STYLES_DIR = path.join(SRC, "styles");
+export const STYLE_MODULES = [
+  "00-fonts.css",
+  "10-tokens.css",
+  "20-base.css",
+  "30-components.css",
+  "articles/skills.css",
+  "90-print.css",
+].map((file) => path.join(STYLES_DIR, file));
 
 /** @type {import("./articles.js").SiteConfig} */
 export const site = JSON.parse(

@@ -8,7 +8,7 @@ It is a challenge to use no dependency, no framework, just purely tech understoo
 
 - **Custom Nodejs Builder:** small Node script (`build.js`) orchestrating focused modules in `src/builder/`. No bundler.
 - **Templates:** hand-authored HTML in `src/`, served by web components (`<site-header>`, `<site-footer>`, `<blog-archive>`, `<blog-post>`, `<code-block>`) that are server-stamped at build time.
-- **Styles:** one hand-written `src/styles/app.css`, copied as-is to `dist/assets/styles.css`.
+- **Styles:** hand-written CSS modules in `src/styles/`, concatenated to `dist/assets/styles.css`.
 - **Typography:** Spectral (serif) and JetBrains Mono (mono), self-hosted as WOFF2 in `public/fonts/`.
 - **Dark mode:** auto via `prefers-color-scheme`. Manual override available with `[data-mode="light|paper|dark"]` on `:root`.
 - **Notes:** plain HTML in `content/blog/` wrapped in a `<blog-post>` element. See [`CONTENT.md`](./CONTENT.md) for the schema.
@@ -37,7 +37,13 @@ src/
     verify.js                  # smoke check
   components/                  # web component HTML + JS
   layouts/article.html         # blog post page layout
-  styles/app.css               # all CSS
+  styles/                       # ordered CSS modules concatenated at build time
+    00-fonts.css                # view transitions, cascade layers, font faces
+    10-tokens.css               # design tokens
+    20-base.css                 # base element/layout rules
+    30-components.css           # shared site components and prose
+    articles/                   # article-specific visual systems
+    90-print.css                # print rules
   index.html, about.html, work.html, contact.html, blog.html, category.html
 content/blog/                  # source notes, one HTML file per post
 public/                        # static assets copied to dist/

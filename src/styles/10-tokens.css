@@ -1,0 +1,86 @@
+@layer tokens {
+  :root {
+    /* Light/dark are resolved by light-dark() based on color-scheme. */
+    color-scheme: light dark;
+
+    /* Type scale — 1.25 ratio, root-relative. */
+    --text-xs:   0.75rem;   /* 12px */
+    --text-sm:   0.875rem;  /* 14px */
+    --text-base: 1rem;      /* 16px */
+    --text-md:   1.125rem;  /* 18px — body */
+    --text-lg:   1.25rem;   /* 20px — h3 */
+    --text-xl:   1.5rem;    /* 24px — h2 */
+    --text-2xl:  1.875rem;  /* 30px */
+    --text-3xl:  2.25rem;   /* 36px — article title */
+    --text-4xl:  clamp(2.5rem, 4vw + 1rem, 4rem); /* fluid hero */
+
+    /* Spacing scale — 0.25rem base. Odd steps kept where the site uses them. */
+    --space-1:  0.25rem;   /*  4 */
+    --space-2:  0.5rem;    /*  8 */
+    --space-3:  0.75rem;   /* 12 */
+    --space-4:  1rem;      /* 16 */
+    --space-5:  1.25rem;   /* 20 */
+    --space-6:  1.5rem;    /* 24 */
+    --space-7:  1.75rem;   /* 28 */
+    --space-8:  2rem;      /* 32 */
+    --space-9:  2.25rem;   /* 36 */
+    --space-10: 2.5rem;    /* 40 */
+    --space-12: 3rem;      /* 48 */
+    --space-14: 3.5rem;    /* 56 */
+    --space-16: 4rem;      /* 64 */
+    --space-20: 5rem;      /* 80 */
+    --space-24: 6rem;      /* 96 */
+    --space-30: 7.5rem;    /* 120 */
+
+    /* Line heights */
+    --leading-tight:   1.2;
+    --leading-snug:    1.4;
+    --leading-normal:  1.55;
+    --leading-relaxed: 1.65;
+
+    /* Weights */
+    --weight-regular:  400;
+    --weight-medium:   500;
+    --weight-semibold: 600;
+
+    /* Color — single source of truth via light-dark(). */
+    --paper:  light-dark(#FAFAF7, #111110);
+    --ink:    light-dark(#141414, #ECEBE6);
+    --ink-2:  light-dark(#3a3a36, #c9c7bf);
+    --ink-3:  light-dark(#6b6b66, #908d83);
+    --ink-4:  light-dark(#9a9a93, #65635c);
+    --rule:   light-dark(#e6e4dc, #2a2925);
+    --rule-2: light-dark(#efede5, #1f1e1b);
+    --accent: light-dark(#5B3FB8, #A48BFF);
+    --accent-soft: color-mix(in srgb, var(--accent) 12%, transparent);
+
+    /* Type families & layout primitives. */
+    --serif: "Spectral", Georgia, "Times New Roman", serif;
+    --mono: "JetBrains Mono", "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    --body: var(--serif);
+    --display: var(--serif);
+    --ui: var(--mono);
+    --measure: 64ch;
+    --col: 720px;
+    --row-pad: var(--space-6);
+  }
+
+  /* Mode overrides set color-scheme so light-dark() picks the right side. */
+  [data-mode="light"] { color-scheme: light; }
+  [data-mode="dark"]  { color-scheme: dark; }
+  [data-mode="paper"] {
+    color-scheme: light;
+    --paper: #F4EFE2;
+    --ink: #1a1814;
+    --ink-2: #3d382e;
+    --ink-3: #6e6859;
+    --ink-4: #9a9382;
+    --rule: #ddd6c2;
+    --rule-2: #e6dfca;
+  }
+
+  [data-accent="loud"]   { --accent: #4D2BC4; }
+  [data-accent="quiet"]  { --accent: #5B3FB8; }
+  [data-accent="whisper"]{ --accent: var(--ink); }
+  [data-mode="dark"][data-accent="whisper"] { --accent: var(--ink); }
+}
