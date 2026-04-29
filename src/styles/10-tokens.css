@@ -38,6 +38,10 @@
     --leading-normal:  1.55;
     --leading-relaxed: 1.65;
 
+    /* Borders & layers */
+    --border-hairline: 0.0625rem;
+    --layer-sticky: 10;
+
     /* Weights */
     --weight-regular:  400;
     --weight-medium:   500;

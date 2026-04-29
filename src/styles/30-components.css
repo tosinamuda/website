@@ -1,13 +1,23 @@
 @layer components {
   /* Header */
+  site-header {
+    display: block;
+    position: sticky;
+    top: 0;
+    z-index: var(--layer-sticky);
+    padding-top: var(--space-3);
+    margin-top: calc(-1 * var(--space-3));
+    margin-bottom: var(--space-9);
+    background: var(--paper);
+  }
+
   .site-head {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
     gap: var(--space-6);
     padding-bottom: var(--space-7);
-    margin-bottom: var(--space-9);
-    border-bottom: 1px solid var(--rule);
+    border-bottom: var(--border-hairline) solid var(--rule);
     flex-wrap: nowrap;
   }
   .site-head .brand, .site-head .nav { flex-shrink: 0; }
@@ -27,8 +37,8 @@
   }
   .brand a, .brand .sub { white-space: nowrap; }
   .brand a { color: var(--ink); display: inline-flex; align-items: center; }
-  .brand-logo { height: 18px; width: auto; display: block; }
-  .brand .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); display: inline-block; transform: translateY(-2px); }
+  .brand-logo { height: var(--text-md); width: auto; display: block; }
+  .brand .dot { width: calc(var(--space-3) / 2); height: calc(var(--space-3) / 2); border-radius: 50%; background: var(--accent); display: inline-block; transform: translateY(calc(-1 * var(--space-2) / 4)); }
   .brand .sub { color: var(--ink-3); font-family: var(--ui); font-size: var(--text-xs); font-weight: var(--weight-regular); letter-spacing: 0.02em; }
 
   .nav {
@@ -41,7 +51,7 @@
   .nav a { color: var(--ink-3); }
   .nav a:hover { color: var(--ink); text-decoration: none; }
   .nav a.is-current { color: var(--ink); }
-  .nav a.is-current::after { content: ""; display: block; height: 1px; background: var(--accent); margin-top: 2px; }
+  .nav a.is-current::after { content: ""; display: block; height: var(--border-hairline); background: var(--accent); margin-top: calc(var(--space-2) / 4); }
 
   /* Intro */
   .intro {
