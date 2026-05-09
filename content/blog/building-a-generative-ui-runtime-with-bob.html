@@ -267,18 +267,24 @@ export function runBobShell({
 
   <h3>7. Sandboxed iframe preview</h3>
 
-  <p>The first version rendered generated components directly inside the host page. CSS collided, globals collided, and generated code shared too much surface area with the product around it.</p>
+  <p>The first version rendered generated components directly inside the host page. That put the generated app in the same DOM, CSS cascade, and JavaScript surface as the product UI. A bad selector could restyle the host, and generated code could overwrite assumptions the host depended on.</p>
 
-  <p>The second version moved the generated app into an iframe. We considered web components with Shadow DOM. Shadow DOM encapsulates DOM and styles, but it does not create a separate JavaScript execution environment. Generated code needed a stronger boundary.</p>
+  <p>The runtime needed to isolate generated code, styles, build output, and failures. A bundling error should stop the preview, not the host UI. A script error in the generated bundle should be reported by the preview, not treated as a product-shell crash.</p>
 
-  <p>With <code>sandbox="allow-scripts allow-forms"</code>, the iframe runs scripts and submits forms but is treated as a separate origin from the host. That isolation is the boundary the rest of the section depends on.</p>
+  <p>The second version moved the generated app into an iframe. We considered web components with Shadow DOM, but Shadow DOM only isolates DOM and CSS. It does not create a separate JavaScript execution environment. With <code>sandbox="allow-scripts allow-forms"</code>, the iframe gives the preview its own browser boundary for scripts, styles, storage, and runtime failures.</p>
 
-  <p>That boundary shapes runtime and prompt design. The prompt tells Bob to keep state in memory, avoid cross-origin fetches, and not assume access to the host page. If the generated app communicates outward, it must cross a controlled bridge.</p>
+  <p>That boundary shapes prompt design too. Bob is told to keep state in memory, avoid cross-origin fetches, and not assume access to the parent page. If the generated app needs to report status outward, it crosses a narrow bridge.</p>
 
-  <p>For the current version, the bridge mainly handles error reporting. Runtime errors go from the iframe to the parent page through <code>postMessage</code>, then surface in the host UI. Build errors still stop earlier, before the iframe exists. That mismatch is the next runtime gap to close.</p>
+  <p>The bridge uses <code>postMessage</code> for two states: the wrapper finished loading, or the generated app hit a runtime error. The host listens for both and updates the chat or preview panel without exposing the rest of the product to the generated app.</p>
 
   <code-block language="tsx">
     <pre><code>// Inside the wrapper, before the bundle loads
+window.addEventListener("load", () =&gt; {
+  parent.postMessage({
+    type: "generated-app-loaded",
+  }, "*");
+});
+
 window.addEventListener("error", (event) =&gt; {
   parent.postMessage({
     type:    "generated-app-error",
@@ -292,6 +298,9 @@ window.addEventListener("error", (event) =&gt; {
 function PreviewPane({ previewUrl }: { previewUrl: string }) {
   useEffect(() =&gt; {
     const handleMessage = (event: MessageEvent) =&gt; {
+      if (event.data?.type === "generated-app-loaded") {
+        markPreviewReady();
+      }
       if (event.data?.type === "generated-app-error") {
         showRuntimeError(event.data);
       }
