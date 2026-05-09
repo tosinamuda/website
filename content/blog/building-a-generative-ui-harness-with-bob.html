@@ -1,42 +1,42 @@
 <blog-post
-  title="Building a Generative UI Runtime with Bob"
-  excerpt="How I built a Bob-powered runtime that turns booth prompts into React apps, bundles them with esbuild, and renders them safely in a sandboxed iframe."
+  title="Building a Generative UI Harness with Bob"
+  excerpt="How I built a Bob-powered harness that turns booth prompts into React apps, bundles them with esbuild, and renders them safely in a sandboxed iframe."
   date="2026-05-09"
-  og-image="/images/blog/generative-ui-runtime-on-bob/runtime-architecture.jpg">
+  og-image="/images/blog/generative-ui-harness-with-bob/harness-architecture.jpg">
   <script type="application/json" id="meta">
     { "type": "learning", "categories": ["AI", "Engineering"] }
   </script>
 
-  <p>At Think 2026, IBM's flagship conference, a visitor could describe an app at the booth and start using a working version of it about two minutes later. I built the runtime behind that experience on top of Bob, IBM's coding agent.</p>
+  <p>At Think 2026, IBM's flagship conference, a visitor could describe an app at the booth and start using a working version of it about two minutes later. I built the harness behind that experience on top of Bob, IBM's coding agent.</p>
 
-  <p>From a prompt typed in the chat panel, the runtime ran Bob to generate React and Tailwind source, bundled the files with esbuild, and rendered the result inside an iframe in the host UI.</p>
+  <p>From a prompt typed in the chat panel, the harness ran Bob to generate React and Tailwind source, bundled the files with esbuild, and rendered the result inside an iframe in the host UI.</p>
 
   <h2>Design goals</h2>
 
-  <p>The booth format changed the problem. The loop had to complete while a visitor was still standing there. That gave the runtime five design goals: the first specific to the booth setting, the rest required of any runtime that renders generated code in a browser.</p>
+  <p>The booth format changed the problem. The loop had to complete while a visitor was still standing there. That gave the harness five design goals: the first specific to the booth setting, the rest required of any harness that renders generated code in a browser.</p>
 
   <ul>
     <li><strong>Two-minute cycle.</strong> The system had to move from prompt to rendered UI in roughly two minutes. Anything longer would turn the experience from a live demo into a waiting screen.</li>
-    <li><strong>Predictable structure.</strong> Bob could generate the app, but the runtime needed to know where the entry file lived, which files belonged to the app, and what to bundle. That meant the output needed a known shape, not just a pile of generated files.</li>
-    <li><strong>Predictable dependencies.</strong> Generated code could only import what the host had already declared. Surprise modules at runtime would make the app harder to bundle, harder to debug, and harder to trust.</li>
-    <li><strong>Sandboxing.</strong> The generated app needed to render without sharing the host page's styles, globals, or storage surface. The runtime had to let the code run while keeping it inside a controlled browser boundary.</li>
+    <li><strong>Predictable structure.</strong> Bob could generate the app, but the harness needed to know where the entry file lived, which files belonged to the app, and what to bundle. That meant the output needed a known shape, not just a pile of generated files.</li>
+    <li><strong>Predictable dependencies.</strong> Generated code could only import what the host had already declared. Surprise modules at execution time would make the app harder to bundle, harder to debug, and harder to trust.</li>
+    <li><strong>Sandboxing.</strong> The generated app needed to render without sharing the host page's styles, globals, or storage surface. The harness had to let the code run while keeping it inside a controlled browser boundary.</li>
     <li><strong>Iteration support.</strong> A visitor could ask for changes after the first render. Continuing the app needed to be a storage lookup against the same conversation workspace, not a fresh bootstrap from scratch.</li>
   </ul>
 
-  <p>Those goals shaped the runtime that followed: a workspace for generated files, a context layer for Bob's prompts, a BobShell subprocess, an esbuild bundler, an HTML wrapper, and a sandboxed iframe preview.</p>
+  <p>Those goals shaped the harness that followed: a workspace for generated files, a context layer for Bob's prompts, a BobShell subprocess, an esbuild bundler, an HTML wrapper, and a sandboxed iframe preview.</p>
 
-  <h2>The runtime</h2>
+  <h2>The harness</h2>
 
-  <p>The runtime compressed Bob's coding-agent workflow into a loop that could run in front of a visitor. Because Bob did not yet have an agent SDK, the runtime wrapped BobShell, Bob's CLI, as a non-interactive subprocess.</p>
+  <p>The harness compressed Bob's coding-agent workflow into a loop that could run in front of a visitor. Because Bob did not yet have an agent SDK, the harness wrapped BobShell, Bob's CLI, as a non-interactive subprocess.</p>
 
   <p>From there, the pipeline was straightforward: a prompt entered through the chat panel, the context builder assembled the right input, BobShell generated files, esbuild produced a browser-runnable bundle, and the host UI mounted the iframe preview.</p>
 
   <figure>
-    <img src="/images/blog/generative-ui-runtime-on-bob/runtime-architecture.jpg" alt="Runtime architecture: a host UI with a chat panel and preview area sits above the backend pipeline of context builder, BobShell subprocess, conversation workspace, esbuild bundler, bundle, and an HTML wrapper that the iframe loads to render the generated app.">
-    <figcaption>Figure 1: the runtime, end to end.</figcaption>
+    <img src="/images/blog/generative-ui-harness-with-bob/harness-architecture.jpg" alt="Harness architecture: a host UI with a chat panel and preview area sits above the backend pipeline of context builder, BobShell subprocess, conversation workspace, esbuild bundler, bundle, and an HTML wrapper that the iframe loads to render the generated app.">
+    <figcaption>Figure 1: the harness, end to end.</figcaption>
   </figure>
 
-  <p>The runtime separates four concerns: input, generation, bundling, and rendering.</p>
+  <p>The harness separates four concerns: input, generation, bundling, and rendering.</p>
 
   <h3>1. Context Builder</h3>
 
@@ -62,7 +62,7 @@
 
   <p>Before Bob writes the manifest, the planning prompt gives it a split heuristic. In testing, a single <code>write_to_file</code> call started to struggle once it grew past roughly 600 lines, so the prompt tells Bob to split larger apps before declaring the file list.</p>
 
-  <p>The manifest is the runtime-facing part of the plan:</p>
+  <p>The manifest is the harness-facing part of the plan:</p>
 
   <code-block language="json">
     <pre><code>{
@@ -75,11 +75,11 @@
 }</code></pre>
   </code-block>
 
-  <p>It gives the runtime a known file structure before code generation starts. It tells Bob what to create and tells esbuild where to start.</p>
+  <p>It gives the harness a known file structure before code generation starts. It tells Bob what to create and tells esbuild where to start.</p>
 
   <p>In <strong>Code mode</strong>, the prompt includes the approved plan, workspace path, conversation history, and any existing files in <code>src/</code>. That lets Bob edit in place during iteration rather than regenerate the app from scratch.</p>
 
-  <p>The Code-mode prompt also carries runtime constraints. Because the generated app runs inside a sandboxed iframe, the prompt tells Bob not to assume access to the parent page, cookies, <code>localStorage</code>, or direct cross-origin APIs. The browser boundary becomes a generation constraint before Bob writes any code.</p>
+  <p>The Code-mode prompt also carries harness constraints. Because the generated app runs inside a sandboxed iframe, the prompt tells Bob not to assume access to the parent page, cookies, <code>localStorage</code>, or direct cross-origin APIs. The browser boundary becomes a generation constraint before Bob writes any code.</p>
 
   <h3>2. Conversation Workspace</h3>
 
@@ -95,11 +95,11 @@
 
   <p>The workspace sits on a volume mount backed by object storage. A database would have been too much structure for a few markdown and JSX files per conversation. Ephemeral Docker storage would have lost the workspace whenever the container restarted. The volume mount was the middle answer: files survive past the container lifetime without requiring a schema layer.</p>
 
-  <p>The workspace also makes iteration cheap. When a visitor asks for a change, the runtime reloads the workspace, sends Bob the plan and existing files, and lets Bob edit in place. Continuing becomes a storage lookup, not a full restart.</p>
+  <p>The workspace also makes iteration cheap. When a visitor asks for a change, the harness reloads the workspace, sends Bob the plan and existing files, and lets Bob edit in place. Continuing becomes a storage lookup, not a full restart.</p>
 
   <h3>3. BobShell Subprocess</h3>
 
-  <p>Once the context builder assembles the prompt, the runtime launches BobShell. Without a Bob agent SDK for this use case, the runtime wrapped Bob's CLI as a non-interactive subprocess: one invocation per turn, prompt in, output out, wait for completion.</p>
+  <p>Once the context builder assembles the prompt, the harness launches BobShell. Without a Bob agent SDK for this use case, the harness wrapped Bob's CLI as a non-interactive subprocess: one invocation per turn, prompt in, output out, wait for completion.</p>
 
   <p>The command shape looked like this:</p>
 
@@ -115,7 +115,7 @@ bob \
 
   <p>The <code>{prompt}</code> comes from the context builder. The <code>{mode}</code> comes from the user's selection in the frontend: usually <code>plan</code> or <code>code</code>, with room for custom modes.</p>
 
-  <p>In Node.js, the runtime can spawn that command as a child process:</p>
+  <p>In Node.js, the harness can spawn that command as a child process:</p>
 
   <code-block language="typescript">
     <pre><code>import { spawn } from "node:child_process";
@@ -185,9 +185,9 @@ export function runBobShell({
 
   <p>The trick is operational: the Node.js process must run somewhere <code>bob</code> is installed and available on <code>PATH</code>. In this implementation, the backend ran inside a container image that already had BobShell installed. Without that, <code>spawn("bob", ...)</code> fails before Bob receives the prompt.</p>
 
-  <p>The <code>--yolo</code> flag matters. It auto-approves tool calls so the booth flow completed without stopping for approval. That made sense inside a controlled runtime with a scoped workspace and sandboxed preview. I would not recommend it for ordinary development.</p>
+  <p>The <code>--yolo</code> flag matters. It auto-approves tool calls so the booth flow completed without stopping for approval. That made sense inside a controlled harness with a scoped workspace and sandboxed preview. I would not recommend it for ordinary development.</p>
 
-  <p>While BobShell runs, the runtime parses its output and streams intermediate results back to the chat panel through Server-Sent Events. The visitor sees progress instead of staring at an empty preview.</p>
+  <p>While BobShell runs, the harness parses its output and streams intermediate results back to the chat panel through Server-Sent Events. The visitor sees progress instead of staring at an empty preview.</p>
 
   <p>We tried staged generation: skeleton first, then components. It looked useful for live UX, but the bundler cannot tell a partially written file from a complete one. Detecting incompleteness or waiting for completion both added complexity and latency.</p>
 
@@ -199,7 +199,7 @@ export function runBobShell({
 
   <p>The first version ran <code>esbuild-wasm</code> inside the iframe, but CSP made that path awkward.</p>
 
-  <p>Moving esbuild to the server simplified the runtime. BobShell writes files, exits, and the backend runs esbuild against the manifest's entry point:</p>
+  <p>Moving esbuild to the server simplified the harness. BobShell writes files, exits, and the backend runs esbuild against the manifest's entry point:</p>
 
   <code-block language="javascript">
     <pre><code>await esbuild.build({
@@ -263,19 +263,19 @@ export function runBobShell({
 
   <p>That Tailwind choice was pragmatic. Bob writes clean Tailwind classes, and utility-class strings are compact in prompts. A production version should generate Tailwind CSS server-side rather than depend on the browser CDN.</p>
 
-  <p>The HTML wrapper belongs to the render path, not the backend runtime pipeline. After the backend produces the bundle, the preview receives a bundle-ready notification. The iframe then loads the wrapper, which loads the bundle.</p>
+  <p>The HTML wrapper belongs to the render path, not the backend harness pipeline. After the backend produces the bundle, the preview receives a bundle-ready notification. The iframe then loads the wrapper, which loads the bundle.</p>
 
   <h3>7. Sandboxed iframe preview</h3>
 
   <p>The first version rendered generated components directly inside the host page. That put the generated app in the same DOM, CSS cascade, and JavaScript surface as the product UI. A bad selector could restyle the host, and generated code could overwrite assumptions the host depended on.</p>
 
-  <p>The runtime needed to isolate generated code, styles, build output, and failures. A bundling error should stop the preview, not the host UI. A script error in the generated bundle should be reported by the preview, not treated as a product-shell crash.</p>
+  <p>The harness needed to isolate generated code, styles, build output, and failures. A bundling error should stop the preview, not the host UI. A script error in the generated bundle should be reported by the preview, not treated as a product-shell crash.</p>
 
-  <p>The second version moved the generated app into an iframe. We considered web components with Shadow DOM, but Shadow DOM only isolates DOM and CSS. It does not create a separate JavaScript execution environment. With <code>sandbox="allow-scripts allow-forms"</code>, the iframe gives the preview its own browser boundary for scripts, styles, storage, and runtime failures.</p>
+  <p>The second version moved the generated app into an iframe. We considered web components with Shadow DOM, but Shadow DOM only isolates DOM and CSS. It does not create a separate JavaScript execution environment. With <code>sandbox="allow-scripts allow-forms"</code>, the iframe gives the preview its own browser boundary for scripts, styles, storage, and execution failures.</p>
 
   <p>That boundary shapes prompt design too. Bob is told to keep state in memory, avoid cross-origin fetches, and not assume access to the parent page. If the generated app needs to report status outward, it crosses a narrow bridge.</p>
 
-  <p>The bridge uses <code>postMessage</code> for two states: the wrapper finished loading, or the generated app hit a runtime error. The host listens for both and updates the chat or preview panel without exposing the rest of the product to the generated app.</p>
+  <p>The bridge uses <code>postMessage</code> for two states: the wrapper finished loading, or the generated app hit an execution error. The host listens for both and updates the chat or preview panel without exposing the rest of the product to the generated app.</p>
 
   <code-block language="tsx">
     <pre><code>// Inside the wrapper, before the bundle loads
@@ -321,13 +321,13 @@ function PreviewPane({ previewUrl }: { previewUrl: string }) {
 
   <h2>Lessons and next steps</h2>
 
-  <p>The runtime made one thing clear: Bob already has the primitives. It reads and writes files, runs commands, and generates working React and Tailwind. The work was pointing those primitives at a predictable flow: where to write, what context to use, when to bundle, where to render. Without that scaffold, the output is code in a folder. With it, a browser-runnable app.</p>
+  <p>The harness made one thing clear: Bob already has the primitives. It reads and writes files, runs commands, and generates working React and Tailwind. The work was pointing those primitives at a predictable flow: where to write, what context to use, when to bundle, where to render. Without that scaffold, the output is code in a folder. With it, a browser-runnable app.</p>
 
-  <p>The first improvement is prompt and runtime efficiency. Every second matters in a booth; every token and setup step has a cost in production. The goal is to design the prompt, context, tools, and workflow so the agent reaches a useful result faster. Interactive BobShell could help: a warm session across turns reduces latency while the runtime keeps controlling workspace and output shape.</p>
+  <p>The first improvement is prompt and harness efficiency. Every second matters in a booth; every token and setup step has a cost in production. The goal is to design the prompt, context, tools, and workflow so the agent reaches a useful result faster. Interactive BobShell could help: a warm session across turns reduces latency while the harness keeps controlling workspace and output shape.</p>
 
   <p>The second improvement is to put the build step, linting, and security scanning inside the same agent loop. We had this and removed it for latency, since Bob writes compilable code in one pass often enough to skip validation. Once the first improvement frees up time budget, validation comes back: Bob runs esbuild and the scanners, reads diagnostics, patches the offending file, and retries before the preview reaches the user.</p>
 
-  <p>The third improvement is the approved frontend surface. The current runtime exposed only React and Tailwind. A polished version should add richer approved ESM modules, including something like Carbon React, so generated apps do not make Bob recreate every UI primitive.</p>
+  <p>The third improvement is the approved frontend surface. The current harness exposed only React and Tailwind. A polished version should add richer approved ESM modules, including something like Carbon React, so generated apps do not make Bob recreate every UI primitive.</p>
 
   <p>The Think 2026 version proved the core loop: prompt, context, BobShell, workspace, bundle, wrapper, iframe. The next version should make it more self-correcting, safer, and more efficient.</p>
 
