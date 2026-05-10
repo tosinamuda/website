@@ -195,7 +195,7 @@
     letter-spacing: -0.02em;
     margin: 0 0 var(--space-4);
     color: var(--ink);
-    text-wrap: balance;
+    text-wrap: wrap;
   }
   .note-page-dek {
     font-family: var(--body);
