@@ -210,6 +210,37 @@
   .note-page-body ul { padding-left: var(--space-5); }
   .note-page-body li { margin-bottom: var(--space-2); }
 
+  source-note {
+    display: block;
+    margin: var(--space-12) 0 0;
+    padding: var(--space-5) var(--space-6);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent);
+    background: color-mix(in srgb, var(--accent) 4%, transparent);
+    color: var(--ink-2);
+    font-size: var(--text-base);
+    line-height: var(--leading-relaxed);
+  }
+  source-note::before {
+    content: attr(heading);
+    display: block;
+    margin-bottom: var(--space-3);
+    font-family: var(--ui);
+    font-size: var(--text-xs);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  source-note:not([heading])::before {
+    content: attr(label);
+  }
+  source-note p {
+    margin: 0 0 1em;
+  }
+  source-note p:last-child {
+    margin-bottom: 0;
+  }
+
   .related {
     margin-top: var(--space-16);
     padding-top: var(--space-6);
