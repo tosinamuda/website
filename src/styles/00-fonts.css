@@ -1,3 +1,6 @@
+/* View transitions — smooth cross-fade between pages on same-origin nav */
+@view-transition { navigation: auto; }
+
 /* Cascade layers — explicit ordering, lowest priority first */
 @layer reset, tokens, base, components, utilities;
 
