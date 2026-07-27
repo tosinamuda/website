@@ -21,6 +21,7 @@ const REQUIRED = [
   "dist/components/blog-archive.js",
   "dist/components/blog-post.js",
   "dist/components/source-note.js",
+  "dist/components/further-reading.js",
   "dist/components/inec-collation.js",
   "dist/blog/inec-presidential-election-collation-architecture.html",
 ];
