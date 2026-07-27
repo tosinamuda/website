@@ -6,7 +6,7 @@
 
 import fs from "node:fs/promises";
 import path from "node:path";
-import { CONTENT_BLOG, DEFAULT_TYPE } from "./config.js";
+import { CONTENT_BLOG } from "./config.js";
 import { escapeHtml, fullDate, readingTime, shortDate, slugify } from "./utils.js";
 
 // ───────────────────────────────────────────────────────
@@ -41,7 +41,6 @@ import { escapeHtml, fullDate, readingTime, shortDate, slugify } from "./utils.j
  * @property {string} title
  * @property {string} excerpt           One-sentence summary, used in listings + OG.
  * @property {string} date              ISO date "YYYY-MM-DD".
- * @property {string} type              See TYPE_ORDER in config.js.
  * @property {string[]} categories      Free-form subject tags. First is primary.
  * @property {string} body              Body HTML, with heading anchors processed.
  * @property {Heading[]} headings       Extracted h2/h3 headings.
@@ -114,7 +113,6 @@ async function loadArticle(fullPath, filename) {
     title,
     excerpt,
     date,
-    type: meta.json.type || DEFAULT_TYPE,
     categories: meta.json.categories ?? [],
     ogImage: attrs["og-image"] || meta.json.ogImage,
     draft: "draft" in attrs,
