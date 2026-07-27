@@ -121,8 +121,8 @@ email = dspy.ReAct(WriteEmail, tools=[search_handbook])
 
   <p>DSPy adds a compilation step. You define a metric, build an eval set, and hand both to an optimizer. They differ in what they search over: <code>BootstrapFewShot</code> hunts for worked examples to put in the prompt, <code>GEPA</code> rewrites the instruction itself, and <code>MIPROv2</code> searches both at once. The one below is GEPA. The eval set can be a CSV:</p>
 
-  <pre><code>import re
-import pandas as pd
+  <pre><code>import csv
+import re
 
 # "[Your Name]", "[Company]" — the gap a model leaves when it does not
 # know something and will not say so.
@@ -150,11 +150,11 @@ def email_quality(example, prediction, trace=None, pred_name=None, pred_trace=No
     )
 
 # Load eval set from a spreadsheet
-df = pd.read_csv("email_examples.csv")
-eval_set = [
-    dspy.Example(**row).with_inputs("topic", "tone")
-    for row in df.to_dict("records")
-]
+with open("email_examples.csv", newline="") as f:
+    eval_set = [
+        dspy.Example(**row).with_inputs("topic", "tone")
+        for row in csv.DictReader(f)
+    ]
 
 # Score the baseline before tuning anything
 email = dspy.ChainOfThought(WriteEmail)
@@ -261,7 +261,7 @@ compiled_email.save("optimized_email_writer.json")
 
   <p>If the result is promising, put together a spreadsheet of a dozen or so inputs, varied along whatever actually changes the answer, and run an optimizer. A dozen is enough to watch a score move, which is all you need to know whether this is worth more of your time. DSPy's own guidance is 30 to 300 rows for real optimization, and you get there by adding one each time something breaks, not by writing them all up front. That is where the payoff compounds: improving the system turns into a data job instead of a prompt job.</p>
 
-  <p>The full code is in the <a href="https://github.com/tosinamuda/dspy-email-writer">companion repo</a>: both versions of the email writer side by side, a sample eval spreadsheet, and the optimization script. It also carries a Claude agent skill, <code>prompt-to-dspy</code>: point it at a codebase and it finds the f-string prompts, works out the inputs, outputs, and intent of each one, and proposes a Signature and a module.</p>
+  <p>The full code is in the <a href="https://github.com/tosinamuda/dspy-email-writer">companion repo</a>: both versions of the email writer side by side, a sample eval spreadsheet, and the optimization script. It also carries a Claude agent skill, <code>prompt-to-dspy</code>: point it at a codebase and it finds the f-string prompts, scores the code as it stands (inventing eval inputs if you have none), proposes a Signature and a module for each call, and scores the result against the number it started with.</p>
 
   <further-reading heading="Further reading">
     <ul>
