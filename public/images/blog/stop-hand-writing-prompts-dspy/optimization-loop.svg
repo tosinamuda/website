@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 300" style="max-width:700px;background:transparent" role="img" aria-label="Improving prompts: without DSPy is guess-and-check with no metric, with DSPy is compile, measure, add data, recompile.">
+  <style>
+    text { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    .title { font-size: 15px; font-weight: 700; fill: #141414; }
+    .heading { font-size: 13px; font-weight: 700; fill: #141414; }
+    .label { font-size: 12px; font-weight: 600; fill: #141414; }
+    .desc { font-size: 11px; fill: #6b6b66; }
+    .code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 10px; fill: #5B3FB8; }
+    .pain { font-size: 11px; fill: #C0392B; font-weight: 600; }
+    .win { font-size: 11px; fill: #27AE60; font-weight: 600; }
+    .arrow { fill: none; stroke: #6b6b66; stroke-width: 1.5; marker-end: url(#a2); }
+    .loop-red { fill: none; stroke: #C0392B; stroke-width: 1.5; stroke-dasharray: 5,3; marker-end: url(#a2r); }
+    .loop-green { fill: none; stroke: #27AE60; stroke-width: 1.5; stroke-dasharray: 5,3; marker-end: url(#a2g); }
+    .box-red { fill: #FDEDEC; stroke: #C0392B; stroke-width: 1; rx: 6; }
+    .box-green { fill: #E8F8F5; stroke: #27AE60; stroke-width: 1; rx: 6; }
+    .divider { stroke: #e0ddd5; stroke-width: 1; stroke-dasharray: 6,4; }
+  </style>
+  <defs>
+    <marker id="a2" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5 Z" fill="#6b6b66"/></marker>
+    <marker id="a2r" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5 Z" fill="#C0392B"/></marker>
+    <marker id="a2g" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5 Z" fill="#27AE60"/></marker>
+  </defs>
+
+  <text x="350" y="24" text-anchor="middle" class="title">Improving prompt quality over time</text>
+  <line x1="350" y1="38" x2="350" y2="290" class="divider"/>
+
+  <!-- LEFT: Without DSPy -->
+  <text x="170" y="56" text-anchor="middle" class="heading">Without DSPy</text>
+
+  <rect x="55" y="72" width="230" height="30" class="box-red"/>
+  <text x="170" y="91" text-anchor="middle" class="label">Write prompt, run, look at output</text>
+
+  <path d="M170,102 L170,115" class="arrow"/>
+
+  <rect x="55" y="118" width="230" height="30" class="box-red"/>
+  <text x="170" y="137" text-anchor="middle" class="pain">"Does this feel right?"</text>
+
+  <path d="M170,148 L170,161" class="arrow"/>
+
+  <rect x="55" y="164" width="230" height="30" class="box-red"/>
+  <text x="170" y="183" text-anchor="middle" class="label">Edit a sentence, try again</text>
+
+  <!-- Loop back -->
+  <path d="M55,179 C20,179 20,87 55,87" class="loop-red"/>
+
+  <rect x="100" y="220" width="140" height="44" rx="8" fill="#FDEDEC" stroke="#C0392B" stroke-width="1.5"/>
+  <text x="170" y="239" text-anchor="middle" class="pain" style="font-size:12px">No convergence</text>
+  <text x="170" y="254" text-anchor="middle" class="desc">v3 may be worse than v1</text>
+
+  <!-- RIGHT: With DSPy -->
+  <text x="530" y="56" text-anchor="middle" class="heading">With DSPy</text>
+
+  <rect x="415" y="72" width="230" height="30" class="box-green"/>
+  <text x="530" y="91" text-anchor="middle" class="label">Compile from eval set + metric</text>
+
+  <path d="M530,102 L530,115" class="arrow"/>
+
+  <rect x="415" y="118" width="230" height="30" class="box-green"/>
+  <text x="530" y="133" text-anchor="middle" class="win">Score against the metric</text>
+  <text x="530" y="144" text-anchor="middle" class="desc">objective, repeatable</text>
+
+  <path d="M530,148 L530,161" class="arrow"/>
+
+  <rect x="415" y="164" width="230" height="30" class="box-green"/>
+  <text x="530" y="183" text-anchor="middle" class="label">Add data, recompile, compare</text>
+
+  <!-- Loop back -->
+  <path d="M645,179 C680,179 680,87 645,87" class="loop-green"/>
+
+  <rect x="460" y="220" width="140" height="44" rx="8" fill="#E8F8F5" stroke="#27AE60" stroke-width="1.5"/>
+  <text x="530" y="239" text-anchor="middle" class="win" style="font-size:12px">Measurable gains</text>
+  <text x="530" y="254" text-anchor="middle" class="desc">checked on the eval set</text>
+
+</svg>
