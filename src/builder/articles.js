@@ -46,7 +46,7 @@ import { escapeHtml, fullDate, readingTime, shortDate, slugify } from "./utils.j
  * @property {string} body              Body HTML, with heading anchors processed.
  * @property {Heading[]} headings       Extracted h2/h3 headings.
  * @property {boolean} draft            Hidden from listings, feed, and sitemap.
- * @property {boolean} featured         Reserved for elevation (not yet rendered).
+ * @property {boolean} featured         Lifts the note into the home page's featured section.
  * @property {string=} ogImage          Optional OG image override.
  */
 

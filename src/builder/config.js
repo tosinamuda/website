@@ -47,3 +47,7 @@ export const TYPE_LABELS = {
 };
 
 export const DEFAULT_TYPE = "essay";
+
+// Notes with `"featured": true` in their meta are lifted into a section above
+// the type groups, and are not repeated in the group they would otherwise sit in.
+export const FEATURED_LABEL = "featured";

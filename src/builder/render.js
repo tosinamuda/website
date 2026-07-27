@@ -12,7 +12,7 @@
 
 import fs from "node:fs/promises";
 import path from "node:path";
-import { COMPONENTS_DIR, TYPE_LABELS, TYPE_ORDER } from "./config.js";
+import { COMPONENTS_DIR, FEATURED_LABEL, TYPE_LABELS, TYPE_ORDER } from "./config.js";
 import { articleToTemplateVars } from "./articles.js";
 import { escapeHtml, shortDate } from "./utils.js";
 
@@ -106,8 +106,9 @@ export async function renderArchive(variant, articles) {
 }
 
 /**
- * Group articles by `type` and render each group as a `<section class="group">`.
- * Empty types are skipped.
+ * Render the home page archive: a "featured" section first, then the
+ * remaining notes grouped by type. A featured note appears once, under
+ * featured, not again in its type group.
  *
  * @param {Article[]} articles
  */
@@ -117,12 +118,28 @@ async function renderByTypeArchive(articles) {
     "full"
   );
 
+  const featured = articles.filter((a) => a.featured);
+  const groups = [
+    ...(featured.length ? [[FEATURED_LABEL, featured]] : []),
+    ...groupByType(articles.filter((a) => !a.featured)),
+  ];
+
+  return groups.map(([label, items]) => renderGroup(label, items, itemTpl)).join("\n");
+}
+
+/**
+ * Bucket articles by `type`, ordered by TYPE_ORDER with unknown types last.
+ * Empty types are skipped. Returns [label, articles] pairs.
+ *
+ * @param {Article[]} articles
+ * @returns {[string, Article[]][]}
+ */
+function groupByType(articles) {
   /** @type {Map<string, Article[]>} */
   const byType = new Map();
   for (const article of articles) {
-    const key = article.type;
-    if (!byType.has(key)) byType.set(key, []);
-    byType.get(key).push(article);
+    if (!byType.has(article.type)) byType.set(article.type, []);
+    byType.get(article.type).push(article);
   }
 
   const orderedTypes = [
@@ -130,18 +147,25 @@ async function renderByTypeArchive(articles) {
     ...[...byType.keys()].filter((t) => !TYPE_ORDER.includes(t)),
   ];
 
-  return orderedTypes.map((type) => {
-    const items = byType.get(type) || [];
-    const label = TYPE_LABELS[type] || type;
-    const rows = items.map((p) => interpolate(itemTpl, articleToTemplateVars(p))).join("");
-    return `<section class="group">
+  return orderedTypes.map((type) => [TYPE_LABELS[type] || type, byType.get(type)]);
+}
+
+/**
+ * One labelled `<section class="group">` of note rows.
+ *
+ * @param {string} label
+ * @param {Article[]} items
+ * @param {string} itemTpl
+ */
+function renderGroup(label, items, itemTpl) {
+  const rows = items.map((p) => interpolate(itemTpl, articleToTemplateVars(p))).join("");
+  return `<section class="group">
   <div class="group-head">
     <span>${escapeHtml(label)}</span>
     <span class="count">${items.length} ${items.length === 1 ? "note" : "notes"}</span>
   </div>
   <div>${rows}</div>
 </section>`;
-  }).join("\n");
 }
 
 const itemMarkerRegex = () => /<!--%item-start%-->([\s\S]*?)<!--%item-end%-->/;
