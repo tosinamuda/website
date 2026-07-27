@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 424" style="max-width:600px;background:transparent" role="img" aria-label="The five steps: declare a signature, choose a module, score a baseline against an eval set, run an optimizer, and save the compiled program you call in production. When a new model ships, re-run the eval to decide whether to optimize again.">
+  <style>
+    text { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    .label { font-size: 13px; font-weight: 700; fill: #141414; }
+    .desc { font-size: 11px; fill: #6b6b66; }
+    .code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 10px; fill: #5B3FB8; }
+    .arrow { fill: none; stroke: #6b6b66; stroke-width: 1.5; marker-end: url(#as); }
+    .arrow-d { fill: none; stroke: #5B3FB8; stroke-width: 1.5; stroke-dasharray: 5,3; marker-end: url(#asd); }
+    .box { fill: #F5F4EE; stroke: #5B3FB8; stroke-width: 1.5; rx: 8; }
+    .box-out { fill: #EDE9FE; stroke: #5B3FB8; stroke-width: 1.5; rx: 8; }
+    .note { font-size: 10px; fill: #6b6b66; font-style: italic; }
+  </style>
+  <defs>
+    <marker id="as" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5 Z" fill="#6b6b66"/></marker>
+    <marker id="asd" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5 Z" fill="#5B3FB8"/></marker>
+  </defs>
+
+  <!-- 1. Signature -->
+  <rect x="140" y="18" width="300" height="60" class="box"/>
+  <text x="290" y="42" text-anchor="middle" class="label">1 · Signature</text>
+  <text x="290" y="58" text-anchor="middle" class="desc">what goes in, what comes out</text>
+  <text x="290" y="72" text-anchor="middle" class="code">topic, tone -&gt; subject, body</text>
+
+  <path d="M290,78 L290,98" class="arrow"/>
+
+  <!-- 2. Module -->
+  <rect x="140" y="100" width="300" height="60" class="box"/>
+  <text x="290" y="124" text-anchor="middle" class="label">2 · Module</text>
+  <text x="290" y="140" text-anchor="middle" class="desc">a proven technique, or your own</text>
+  <text x="290" y="154" text-anchor="middle" class="code">ChainOfThought · ReAct · CodeAct · RLM</text>
+
+  <path d="M290,160 L290,180" class="arrow"/>
+
+  <!-- 3. Baseline -->
+  <rect x="140" y="182" width="300" height="60" class="box"/>
+  <text x="290" y="206" text-anchor="middle" class="label">3 · Baseline</text>
+  <text x="290" y="222" text-anchor="middle" class="desc">eval set + metric, scored before tuning</text>
+  <text x="290" y="236" text-anchor="middle" class="code">dspy.Evaluate</text>
+
+  <path d="M290,242 L290,262" class="arrow"/>
+
+  <!-- 4. Optimizer -->
+  <rect x="140" y="264" width="300" height="60" class="box"/>
+  <text x="290" y="288" text-anchor="middle" class="label">4 · Optimizer</text>
+  <text x="290" y="304" text-anchor="middle" class="desc">search for a prompt that scores better</text>
+  <text x="290" y="318" text-anchor="middle" class="code">MIPROv2 · GEPA · BootstrapFewShot</text>
+
+  <path d="M290,324 L290,344" class="arrow"/>
+
+  <!-- 5. Compiled program -->
+  <rect x="140" y="346" width="300" height="60" class="box-out"/>
+  <text x="290" y="370" text-anchor="middle" class="label">5 · Compiled Program</text>
+  <text x="290" y="386" text-anchor="middle" class="desc">call this in production, not the module</text>
+  <text x="290" y="400" text-anchor="middle" class="code">save · load · version · deploy</text>
+
+  <!-- Back to the baseline when a new model ships -->
+  <path d="M440,376 C580,376 580,212 440,212" class="arrow-d"/>
+  <text x="492" y="286" text-anchor="middle" class="note">new model?</text>
+  <text x="492" y="298" text-anchor="middle" class="note">re-run the eval</text>
+
+</svg>

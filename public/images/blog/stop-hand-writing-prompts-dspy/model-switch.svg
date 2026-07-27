@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 320" style="max-width:700px;background:transparent" role="img" aria-label="Switching models: without DSPy takes days of manual re-tuning, with DSPy takes minutes via config change and recompile.">
+  <style>
+    text { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    .title { font-size: 15px; font-weight: 700; fill: #141414; }
+    .heading { font-size: 13px; font-weight: 700; fill: #141414; }
+    .label { font-size: 12px; font-weight: 600; fill: #141414; }
+    .desc { font-size: 11px; fill: #6b6b66; }
+    .code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 10px; fill: #5B3FB8; }
+    .pain { font-size: 11px; fill: #C0392B; font-weight: 600; }
+    .win { font-size: 11px; fill: #27AE60; font-weight: 600; }
+    .arrow { fill: none; stroke: #6b6b66; stroke-width: 1.5; marker-end: url(#a); }
+    .box-red { fill: #FDEDEC; stroke: #C0392B; stroke-width: 1; rx: 6; }
+    .box-green { fill: #E8F8F5; stroke: #27AE60; stroke-width: 1; rx: 6; }
+    .divider { stroke: #e0ddd5; stroke-width: 1; stroke-dasharray: 6,4; }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5 Z" fill="#6b6b66"/></marker>
+  </defs>
+
+  <text x="350" y="24" text-anchor="middle" class="title">Switching models: GPT-4o → Claude</text>
+  <line x1="350" y1="38" x2="350" y2="310" class="divider"/>
+
+  <!-- LEFT: Without DSPy -->
+  <text x="170" y="56" text-anchor="middle" class="heading">Without DSPy</text>
+
+  <rect x="40" y="72" width="260" height="34" class="box-red"/>
+  <text x="170" y="88" text-anchor="middle" class="pain">Re-tune each prompt for Claude</text>
+  <text x="170" y="100" text-anchor="middle" class="desc">JSON formatting, system messages, verbosity</text>
+
+  <path d="M170,106 L170,122" class="arrow"/>
+
+  <rect x="40" y="125" width="260" height="34" class="box-red"/>
+  <text x="170" y="141" text-anchor="middle" class="pain">Test manually, prompt by prompt</text>
+  <text x="170" y="153" text-anchor="middle" class="desc">run, look at output, tweak, repeat</text>
+
+  <path d="M170,159 L170,175" class="arrow"/>
+
+  <rect x="40" y="178" width="260" height="34" class="box-red"/>
+  <text x="170" y="194" text-anchor="middle" class="pain">Ship and hope quality held</text>
+  <text x="170" y="206" text-anchor="middle" class="desc">no metric to verify</text>
+
+  <rect x="110" y="240" width="120" height="34" rx="17" fill="#FDEDEC" stroke="#C0392B" stroke-width="1.5"/>
+  <text x="170" y="262" text-anchor="middle" class="pain" style="font-size:13px">Rewrite each one</text>
+
+  <!-- RIGHT: With DSPy -->
+  <text x="530" y="56" text-anchor="middle" class="heading">With DSPy</text>
+
+  <rect x="400" y="72" width="260" height="34" class="box-green"/>
+  <text x="530" y="88" text-anchor="middle" class="code">dspy.configure(lm=dspy.LM("anthropic/..."))</text>
+  <text x="530" y="100" text-anchor="middle" class="win">one line</text>
+
+  <path d="M530,106 L530,122" class="arrow"/>
+
+  <rect x="400" y="125" width="260" height="34" class="box-green"/>
+  <text x="530" y="141" text-anchor="middle" class="code">optimizer.compile(module, trainset=eval_set)</text>
+  <text x="530" y="153" text-anchor="middle" class="win">automated</text>
+
+  <path d="M530,159 L530,175" class="arrow"/>
+
+  <rect x="400" y="178" width="260" height="34" class="box-green"/>
+  <text x="530" y="194" text-anchor="middle" class="label">Metric confirms quality held</text>
+  <text x="530" y="206" text-anchor="middle" class="win">measurable</text>
+
+  <rect x="470" y="240" width="120" height="34" rx="17" fill="#E8F8F5" stroke="#27AE60" stroke-width="1.5"/>
+  <text x="530" y="262" text-anchor="middle" class="win" style="font-size:13px">Recompile instead</text>
+
+</svg>
