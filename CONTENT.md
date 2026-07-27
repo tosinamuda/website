@@ -11,7 +11,6 @@ Notes are the only content type on the site. Each note lives at `content/blog/{s
   date="2026-04-24">
   <script type="application/json" id="meta">
     {
-      "type": "essay",
       "categories": ["AI", "Education"],
       "featured": false
     }
@@ -39,23 +38,13 @@ These live in the `<script type="application/json" id="meta">` block:
 
 | Field        | Required | Description                                                                            |
 | ------------ | -------- | -------------------------------------------------------------------------------------- |
-| `type`       | no       | Note type. See **Types** below. Defaults to `essay` if unset.                          |
 | `categories` | no       | Array of subject tags. Free-form strings. See **Categories** below.                    |
-| `featured`   | no       | Boolean. Reserved for elevating a note to the top of its type section. Not yet wired.  |
+| `featured`   | no       | Boolean. Puts the note in the home page's featured section instead of essays.          |
 | `ogImage`    | no       | Same as the `og-image` attribute, alternative location.                                |
 
-## Types
+## Featured
 
-The `type` field describes the **form** of the note — what kind of writing it is. Used on the home page to group notes into sections.
-
-| Type           | Use it for                                                                              |
-| -------------- | --------------------------------------------------------------------------------------- |
-| `essay`        | Long-form, polished thinking. The default if `type` is unset.                           |
-| `ongoing-work` | Working notes from active projects. Threads in motion, WIP thinking.                    |
-| `learning`     | Notes from reading, study, replication, research.                                       |
-| `note`         | Short observations, lightweight pieces.                                                 |
-
-The home page renders sections in this order: `ongoing-work → learning → essay → note`. Empty types are skipped.
+The home page has two sections: **featured**, then **essays**. A note with `"featured": true` appears in the first and is not repeated in the second. Everything else lands in essays, newest first.
 
 ## Categories
 
@@ -74,24 +63,11 @@ Examples in use:
 
 Lowercased and slugified for URLs (`Civic Tech` → `/blog/category/civic-tech.html`).
 
-## Type vs category
-
-Two orthogonal axes. A note has both:
-
-- **type** = what form is this writing? (`essay`, `ongoing-work`, etc.)
-- **category** = what is it about? (`AI`, `Education`, etc.)
-
-So a note about ongoing AI-in-education research would be:
-
-```json
-{ "type": "ongoing-work", "categories": ["AI", "Education"] }
-```
-
 ## How pages render
 
 | Page                                         | Behaviour                                                                  |
 | -------------------------------------------- | -------------------------------------------------------------------------- |
-| `/`                                          | Intro paragraph + notes grouped by `type`, in the order listed above.      |
+| `/`                                          | Intro paragraph, then the featured section and essays.                    |
 | `/blog/`                                     | Flat archive of all published notes, newest first.                         |
 | `/blog/{slug}.html`                          | Single note with header meta, body, and "more in {category}" related list. |
 | `/blog/category/{slug}.html`                 | All notes tagged with that category, newest first.                         |
@@ -100,7 +76,7 @@ So a note about ongoing AI-in-education research would be:
 
 1. Create `content/blog/{your-slug}.html`.
 2. Wrap content in `<blog-post>` with the required attributes (`title`, `excerpt`, `date`).
-3. Add a meta JSON block. At minimum, set `type` and `categories`.
+3. Add a meta JSON block. At minimum, set `categories`.
 4. Write the body in plain HTML.
 5. Run `npm run build`.
 6. The build script will warn about title/excerpt length if they're too long for SERP.

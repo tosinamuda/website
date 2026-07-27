@@ -1,27 +1,23 @@
 # Site Spec
 
-A writer-first static site built to stay readable and maintainable for a long time. Plain HTML, plain CSS, web components, no framework runtime.
-
-It is a challenge to use no dependency, no framework, just purely tech understood and standardized for the browsers.
+A static site with no dependencies and no framework: plain HTML, plain CSS, and web components, using only what browsers already standardize.
 
 ## Stack
 
-- **Custom Nodejs Builder:** small Node script (`build.js`) orchestrating focused modules in `src/builder/`. No bundler.
-- **Templates:** hand-authored HTML in `src/`, served by web components (`<site-header>`, `<site-footer>`, `<blog-archive>`, `<blog-post>`, `<code-block>`) that are server-stamped at build time.
+- **Builder:** a Node script (`build.js`) over modules in `src/builder/`. No bundler.
+- **Templates:** HTML in `src/`, using the web components in `src/components/`. `<site-header>`, `<site-footer>`, and `<blog-archive>` are stamped into the output at build time so pages work without JS.
 - **Styles:** hand-written CSS modules in `src/styles/`, concatenated to `dist/assets/styles.css`.
 - **Typography:** Spectral (serif) and JetBrains Mono (mono), self-hosted as WOFF2 in `public/fonts/`.
-- **Dark mode:** auto via `prefers-color-scheme`. Manual override available with `[data-mode="light|paper|dark"]` on `:root`.
-- **Notes:** plain HTML in `content/blog/` wrapped in a `<blog-post>` element. See [`CONTENT.md`](./CONTENT.md) for the schema.
-
-
+- **Dark mode:** `color-scheme: light dark` with `light-dark()` in `10-tokens.css`, so it follows the OS. Override with `[data-mode="light|paper|dark"]` on `:root`.
+- **Notes:** plain HTML in `content/blog/` wrapped in a `<blog-post>` element. [`CONTENT.md`](./CONTENT.md) has the authoring schema.
 
 ## Project layout
 
 ```
-build.js                       # build orchestrator (~50 lines, reads like a recipe)
+build.js                       # build orchestrator
 src/
   builder/                     # build pipeline modules
-    config.js                  # paths, site config, type taxonomy
+    config.js                  # paths, site config, home page section labels
     utils.js                   # html escape, dates, slugify, reading time
     fs-helpers.js              # writeFile, copyDir, resetDist
     articles.js                # Article type + loader + parser + template vars
@@ -37,13 +33,13 @@ src/
     verify.js                  # smoke check
   components/                  # web component HTML + JS
   layouts/article.html         # blog post page layout
-  styles/                       # ordered CSS modules concatenated at build time
-    00-fonts.css                # view transitions, cascade layers, font faces
-    10-tokens.css               # design tokens
-    20-base.css                 # base element/layout rules
-    30-components.css           # shared site components and prose
-    articles/                   # article-specific visual systems
-    90-print.css                # print rules
+  styles/                      # ordered CSS modules concatenated at build time
+    00-fonts.css               # view transitions, cascade layers, font faces
+    10-tokens.css              # design tokens, colour modes
+    20-base.css                # base element/layout rules
+    30-components.css          # shared site components and prose
+    articles/                  # article-specific visual systems
+    90-print.css               # print rules
   index.html, about.html, work.html, contact.html, blog.html, category.html
 content/blog/                  # source notes, one HTML file per post
 public/                        # static assets copied to dist/
@@ -54,16 +50,12 @@ CONTENT.md                     # authoring guide for notes
 ## Commands
 
 ```bash
-npm install        # no runtime deps; only resolves the empty devDependencies block
+npm install        # nothing to install; the site has no dependencies
 npm run build      # build into dist/
 npm run preview    # serve dist/ at http://127.0.0.1:4173
 npm run dev        # rebuild on file changes
 npm run clean      # remove dist/
 ```
-
-## Authoring
-
-See [`CONTENT.md`](./CONTENT.md) for the note schema (frontmatter, types, categories, drafts).
 
 ## Comments (giscus)
 
