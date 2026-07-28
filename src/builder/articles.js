@@ -37,7 +37,7 @@ import { escapeHtml, fullDate, readingTime, shortDate, slugify } from "./utils.j
  *
  * @typedef {Object} Article
  * @property {string} slug              e.g. "12-factor-engineering-best-practices"
- * @property {string} url               e.g. "/blog/12-factor-engineering-best-practices.html"
+ * @property {string} url               e.g. "/blog/12-factor-engineering-best-practices"
  * @property {string} title
  * @property {string} excerpt           One-sentence summary, used in listings + OG.
  * @property {string} date              ISO date "YYYY-MM-DD".
@@ -109,7 +109,7 @@ async function loadArticle(fullPath, filename) {
 
   return {
     slug,
-    url: `/blog/${slug}.html`,
+    url: `/blog/${slug}`,
     title,
     excerpt,
     date,
@@ -220,8 +220,11 @@ export function articleToTemplateVars(article) {
   const categoriesHtml = primary
     ? `<span class="sep">·</span>${renderTagSpan(primary)}`
     : "";
+  // Category pages are built from published notes only, so a draft's category
+  // has no page to link to. Render its tags as plain spans instead.
+  const renderTag = article.draft ? renderTagSpan : renderTagLink;
   const categoriesLinksHtml = article.categories.length
-    ? article.categories.map(renderTagLink).join(" ")
+    ? article.categories.map(renderTag).join(" ")
     : "";
   const dateTime = `<time datetime="${escapeHtml(article.date)}">${escapeHtml(fullDate(article.date))}</time>`;
 
@@ -254,5 +257,5 @@ function renderTagSpan(category) {
  * @param {string} category
  */
 function renderTagLink(category) {
-  return `<a href="/blog/category/${slugify(category)}.html" class="tag">${escapeHtml(category.toLowerCase())}</a>`;
+  return `<a href="/blog/category/${slugify(category)}" class="tag">${escapeHtml(category.toLowerCase())}</a>`;
 }

@@ -30,10 +30,13 @@ import { writeFile } from "../fs-helpers.js";
 function pageDefinitions() {
   return [
     { src: "index.html",   dest: "index.html",      title: site.name, description: site.description, url: "/" },
-    { src: "about.html",   dest: "about.html",      title: `About | ${site.name}`,   description: "About Tosin Amuda. Software engineer at IBM, MSc on lesson-plan-driven personalised learning.", url: "/about.html" },
-    { src: "work.html",    dest: "work.html",       title: `Work | ${site.name}`,    description: "Applied projects, research, and experiments by Tosin Amuda.", url: "/work.html" },
-    { src: "contact.html", dest: "contact.html",    title: `Contact | ${site.name}`, description: "Best ways to reach Tosin Amuda.", url: "/contact.html" },
+    { src: "about.html",   dest: "about.html",      title: `About | ${site.name}`,   description: "About Tosin Amuda. Software engineer at IBM, MSc on lesson-plan-driven personalised learning.", url: "/about" },
+    { src: "work.html",    dest: "work.html",       title: `Work | ${site.name}`,    description: "Applied projects, research, and experiments by Tosin Amuda.", url: "/work" },
+    { src: "contact.html", dest: "contact.html",    title: `Contact | ${site.name}`, description: "Best ways to reach Tosin Amuda.", url: "/contact" },
     { src: "blog.html",    dest: "blog/index.html", title: `Notes | ${site.name}`,   description: "Notes on engineering, AI, cloud, and personal reflections.", url: "/blog/" },
+    // Cloudflare Pages serves index.html with a 200 for unmatched routes when no
+    // 404.html exists, which turns every wrong URL into a soft 404.
+    { src: "404.html",     dest: "404.html",        title: `Page not found | ${site.name}`, description: "This page does not exist.", url: "/404" },
   ];
 }
 
