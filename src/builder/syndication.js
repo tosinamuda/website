@@ -1,17 +1,20 @@
 // Making note bodies portable, for the feed.
 //
-// The site's custom elements get their shape from CSS: `source-note` and
-// `further-reading` render their `heading` attribute through a ::before rule,
-// and `further-reading` turns its `cite` tags into a second line. A feed reader
-// loads none of that, so the heading disappears and the markup falls back to
-// browser defaults.
+// The site's custom elements get their shape from CSS. A feed reader loads no
+// stylesheet, so anything the styling supplied is lost: a `heading` attribute
+// rendered through ::before disappears, and elements that CSS put on separate
+// lines run together.
 //
-// Everything here rewrites those elements into plain HTML that carries the same
-// meaning without a stylesheet. Only the feed uses it; the site keeps the
-// custom elements.
+// The two rules below are keyed on markup, not on element names, so a new
+// custom element needs no change here. Only the feed uses this; the site keeps
+// the custom elements.
 
 const CUSTOM_ELEMENT = /<([a-z][a-z0-9]*-[a-z0-9-]+)((?:\s[^>]*)?)>([\s\S]*?)<\/\1>/g;
 const HEADING_ATTR = /\sheading="([^"]*)"/;
+
+// A cite straight after a link has nothing between them without CSS, so the
+// source reads as part of the link text.
+const SOURCE_AFTER_LINK = /<\/a>\s*<cite>([\s\S]*?)<\/cite>/g;
 
 /**
  * Rewrite the custom elements in a note body as plain HTML.
@@ -20,26 +23,19 @@ const HEADING_ATTR = /\sheading="([^"]*)"/;
  * @returns {string}
  */
 export function toPortableHtml(html) {
-  let out = html;
-  // Innermost elements first, so a wrapper never re-wraps flattened content.
-  for (let pass = 0; pass < 3; pass++) {
-    const next = out.replace(CUSTOM_ELEMENT, (_m, tag, attrs, inner) => {
-      const heading = (attrs.match(HEADING_ATTR) || [])[1];
-      const body = tag === "further-reading" ? inlineCitations(inner) : inner;
-      return heading ? `<h3>${heading}</h3>${body}` : body;
-    });
-    if (next === out) break;
-    out = next;
-  }
-  return out;
+  return unwrapCustomElements(html).replace(SOURCE_AFTER_LINK, "</a> ($1)");
 }
 
 /**
- * `<a>Title</a><cite>Source</cite>` reads as one run of text without CSS to
- * separate the two, so put the source in brackets.
+ * Replace each custom element with its own contents, keeping the `heading`
+ * attribute as a real heading. Recurses so a nested element is unwrapped too.
  *
  * @param {string} html
  */
-function inlineCitations(html) {
-  return html.replace(/<cite>([\s\S]*?)<\/cite>/g, " ($1)");
+function unwrapCustomElements(html) {
+  return html.replace(CUSTOM_ELEMENT, (_match, _tag, attrs, inner) => {
+    const contents = unwrapCustomElements(inner);
+    const heading = (attrs.match(HEADING_ATTR) || [])[1];
+    return heading ? `<h3>${heading}</h3>${contents}` : contents;
+  });
 }
