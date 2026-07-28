@@ -27,7 +27,10 @@ Copilot
 CrewAI
 DBOS
 deepagents
+docstring
 DSPy
+dspy\.ai
+dspy-email-writer
 else's
 esbuild
 eval
