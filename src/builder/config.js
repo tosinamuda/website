@@ -20,6 +20,7 @@ export const STYLE_MODULES = [
   "20-base.css",
   "30-components.css",
   "articles/skills.css",
+  "articles/agent-frameworks.css",
   "90-print.css",
 ].map((file) => path.join(STYLES_DIR, file));
 

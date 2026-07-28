@@ -1,0 +1,263 @@
+<blog-post
+  title="Four Kinds of Agent Framework, and When to Use Each"
+  excerpt="They all overlap in what they can do, so sort them by what you hand over instead: the prompt, the loop, the tools, or the whole perimeter."
+  date="2026-07-27"
+  draft>
+  <script type="application/json" id="meta">
+    { "categories": ["AI", "Engineering"] }
+  </script>
+
+  <p>You are starting a project that needs an LLM-based agent somewhere in the architecture. Almost immediately, two questions arrive together: which framework should I use, and should I just write my own from scratch?</p>
+
+  <p>Neither has an answer yet, because the tools on the shortlist are not doing the same job. DSPy, LangGraph, the Claude Agent SDK and Bedrock AgentCore can all be proposed for one project, and picking between them compares nothing.</p>
+
+  <p>They all sit around the same thing, so name it once. An agent is a loop: assemble some context, call the model, run the tool it asks for, add the result, and go round again until the task is done or the budget runs out. A tool is one of your own functions the model may ask for by name. That loop is about forty lines, and writing it is not the hard part. What separates the four kinds is <strong>which part of it you keep, and which part you hand over</strong>.</p>
+
+  <figure class="af-visual">
+    <div class="af-units-wrapper">
+      <div class="af-units">
+        <div class="af-unit">
+          <span class="af-unit-name">Generation-level tools</span>
+          <span class="af-unit-label">You keep</span>
+          <span class="af-unit-controls">The program, the output types, and what counts as good</span>
+          <span class="af-unit-label">You hand over</span>
+          <span class="af-unit-hands">How the prompt is written and how many attempts it takes</span>
+          <span class="af-unit-eg">DSPy, Mellea, BAML, Ax</span>
+        </div>
+        <div class="af-unit">
+          <span class="af-unit-name">Orchestration frameworks</span>
+          <span class="af-unit-label">You keep</span>
+          <span class="af-unit-controls">Every tool, and whether you or the model picks the next step</span>
+          <span class="af-unit-label">You hand over</span>
+          <span class="af-unit-hands">Execution, state, and what happens after a failure</span>
+          <span class="af-unit-eg">LangGraph, Strands, OpenAI Agents SDK, Pydantic AI, CrewAI, ADK, Mastra, Rig, Microsoft Agent Framework, BeeAI</span>
+        </div>
+        <div class="af-unit">
+          <span class="af-unit-name">Prebuilt harnesses</span>
+          <span class="af-unit-label">You keep</span>
+          <span class="af-unit-controls">The task, the permissions, and the hooks</span>
+          <span class="af-unit-label">You hand over</span>
+          <span class="af-unit-hands">The tools, the environment, the system prompt, and context management</span>
+          <span class="af-unit-eg">Claude Agent SDK, Codex SDK, Antigravity SDK, OpenCode, pi, deepagents, Bob Shell</span>
+        </div>
+        <div class="af-unit">
+          <span class="af-unit-name">Enterprise agent platforms</span>
+          <span class="af-unit-label">You keep</span>
+          <span class="af-unit-controls">The policy, and who is allowed to run what</span>
+          <span class="af-unit-label">You hand over</span>
+          <span class="af-unit-hands">Identity, deployment, observability, and the runtime itself</span>
+          <span class="af-unit-eg">watsonx Orchestrate, Bedrock AgentCore, Agentforce 360, Copilot Studio, Gemini Enterprise</span>
+        </div>
+      </div>
+      <div class="af-nest">
+        <p class="af-nest-note">Any of them can call any other</p>
+        <p class="af-nest-row">orchestrator → tool → harness</p>
+        <p class="af-nest-row">harness → tool → DSPy program</p>
+        <p class="af-nest-row">DSPy program → tool → platform agent</p>
+      </div>
+    </div>
+    <p class="af-caption">Four kinds, sorted by what you keep and what you give up.</p>
+  </figure>
+
+  <p>Comparing capabilities gets you nowhere, because they overlap almost completely. Any of them can call any other, since asking for a tool is just calling a function. What sorts them is what you stop being responsible for, which gives the rule that makes a shortlist tractable: <strong>two tools compete only if you would be handing them the same responsibility.</strong> DSPy against Mellea is a real decision. DSPy against LangGraph is a category error.</p>
+
+  <h2>Generation-level tools</h2>
+
+  <p>What you hand these is the prompt. You keep the program and declare what a good answer looks like; the tool takes over the wording, the parsing, and how many attempts it makes. Note that this is not "one model call," since sampling and repair loops fire several.</p>
+
+  <p>The failure is specific: the steps were right, the tools worked, and the model still returned prose where you needed JSON. Control flow above this cannot fix it. Three approaches, differing in <em>when</em> they act.</p>
+
+  <p><strong><a href="https://docs.boundaryml.com/home">BAML</a> fixes it at the boundary.</strong> Every prompt becomes a function with a typed input and return value, written in a small language that compiles into client code. It optimises nothing and judges nothing, which makes it the cheapest to adopt.</p>
+
+  <p><strong><a href="https://mellea.ai/">Mellea</a> fixes it at runtime.</strong> Built at IBM Research, it lets you attach requirements to a generation. They go into the prompt, then get checked afterwards, and anything failing is retried with the reason attached. Use it for constraints you can check but not score: tone, policy, whether a claim is supported by its source.</p>
+
+  <p><strong><a href="https://dspy.ai/">DSPy</a> fixes it before runtime.</strong> You declare inputs and outputs, write a function that scores an answer, and hand it examples. An optimizer rewrites the instructions until the score goes up. The entry fee is that scoring function, and writing it is usually the real project.</p>
+
+  <p>They combine: BAML for the shape, Mellea for the constraints, DSPy for the accuracy. <a href="https://axllm.dev/">Ax</a> carries DSPy to TypeScript. <strong>LangChain</strong> used to belong here, but since 1.0 it is an agent API on the LangGraph runtime, which makes it an orchestration framework.</p>
+
+  <h2>Orchestration frameworks</h2>
+
+  <p>These give you the loop: control flow, state, and what happens when a step fails. <strong>They do not give you tools.</strong> That is the sharp line between this category and the next. LangGraph ships nothing that can touch your filesystem; Strands ships nothing that can run a shell command. Every capability is one you wrote, which is right when your tools are three calls into your own API and wrong when the agent must work in a repository.</p>
+
+  <p>Two forks live inside this category. The first: <strong>either your code decides the next step, or the model does.</strong> <a href="https://strandsagents.com/">AWS Strands</a> is the clearest model-driven statement, where the model decides whether to call a tool, keep reasoning, or answer. LangGraph states the opposite, with nodes, edges, explicit state and checkpoints. CrewAI ships both, <strong>Crews</strong> where agents work out who goes next and <strong>Flows</strong> where you pin the order down. This is not taste: if you can draw the flowchart, write the flowchart. Model-driven control costs more tokens and latency, and makes it much harder to work out afterwards why the agent did what it did.</p>
+
+  <p>The second fork: <strong>what does it cost you when a run dies halfway?</strong> If the answer is "nothing, we rerun it," retries are fine. If the run takes an hour or waits on a human approval, it has to survive a crash and resume, which means saving progress outside the process. LangGraph does that with checkpoints. <a href="https://pydantic.dev/docs/ai/integrations/durable_execution/overview/">Pydantic AI</a> runs agents on Temporal, DBOS, Prefect or Restate, engines that already run long business processes and record every completed step. That is what I would look at hardest for anything long-running.</p>
+
+  <p>Language is the next filter, and it deletes most of the list. Nearly all of it is Python; TypeScript has Mastra and the Vercel AI SDK; Rust has <a href="https://lib.rs/crates/rig-core">Rig</a>. Google ADK spans four languages but is also the front door to Google's runtime, so adopting it quietly picks that too.</p>
+
+  <h2>Prebuilt harnesses</h2>
+
+  <p>The word needs pinning down. "Harness" generally means everything around the model, so by that definition every orchestration framework is one. This category is narrower: <strong>a harness somebody already built, that you run from your own code</strong>. It arrives able to act in a real environment, reading and writing files, running shell commands, working inside a sandbox, and speaking the Model Context Protocol (MCP) to whatever else you connect. It brings what keeps a long session alive too: permission gates, session resume, and summarising the conversation once it outgrows the context window.</p>
+
+  <p>Where the previous category hands you the loop empty, this one hands it full. You are driving an agent, not building one, usually as a subprocess on your own machine. What you give up is the inside: the tools, the system prompt and the context strategy are theirs. You keep the task, the permissions, and whatever hooks they expose.</p>
+
+  <p>Most of the others are the same bargain from a different vendor. Three are not:</p>
+
+  <ul>
+    <li><a href="https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/rpc.md">pi</a> is the one to read rather than adopt: a small system prompt and four tools make it legible.</li>
+    <li><strong>deepagents</strong> packages the pattern as a library, so you can run it against any model.</li>
+    <li><strong>Managed Agents</strong> is the category as a service. Anthropic runs the loop and the sandbox; everything else here runs on your machine.</li>
+  </ul>
+
+  <p>I have paid what this category charges. Building a generative UI agent for IBM Think 2026, I needed a coding agent to go from a visitor's idea to a running app inside two minutes, live. The agent was Bob, IBM's, and it had no SDK, so the integration point was <code>bob -p "your prompt"</code> as a subprocess. It supplied the model and the tools; I supplied the task and a deterministic build step around it. <a href="/blog/building-a-generative-ui-agent-for-bob-with-bob-by-bob.html">The full build is here</a>.</p>
+
+  <p>You inherit two things: opinions you did not choose, and a product roadmap. Google <a href="https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli/">retired Gemini CLI</a> in May 2026 and stopped serving requests on 18 June. That is a fast cycle to be downstream of.</p>
+
+  <h2>Enterprise agent platforms</h2>
+
+  <p>Platforms orchestrate too, so capability would put them on top of the previous category rather than beside it. What makes them a different purchase is the perimeter wrapped around the orchestration: which identity an agent acted under, credentials handed over without handing over secrets, what it may touch, what it did, and where memory, evaluation and deployment live. What you do not buy is better reasoning.</p>
+
+  <p>The split inside the category matters more than the brand. <strong>Business-user surfaces</strong> let a domain expert compose the agent: IBM <a href="https://www.ibm.com/products/watsonx-orchestrate/ai-agent-builder">watsonx Orchestrate</a> pairs drag-and-drop with a developer kit underneath, and Copilot Studio and Agentforce 360 hold the same position over their own data. <strong>Developer runtimes</strong> assume you wrote the agent and need somewhere accountable to run it: Bedrock AgentCore offers runtime, memory, gateway, identity and monitoring as separate services, and does not care which framework wrote the agent. You need this category when the sentences blocking your launch start with "who approved," "who can see," or "what happens when it is wrong."</p>
+
+  <h2>Which one do you need?</h2>
+
+  <figure class="af-visual">
+    <table class="af-table" role="table" aria-label="Symptoms mapped to categories">
+      <thead>
+        <tr>
+          <th>What is actually going wrong</th>
+          <th>Kind</th>
+          <th>Where to start</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Output is unparseable or breaks a rule you can state</td>
+          <th scope="row">Generation</th>
+          <td>BAML for the shape, Mellea for the rule</td>
+        </tr>
+        <tr>
+          <td>Output is right eight times out of ten and you can score it</td>
+          <th scope="row">Generation</th>
+          <td>DSPy with a scoring function</td>
+        </tr>
+        <tr>
+          <td>The steps are known and you need them enforced</td>
+          <th scope="row">Orchestration</th>
+          <td>LangGraph, CrewAI Flows, or plain code</td>
+        </tr>
+        <tr>
+          <td>The path is genuinely unknown at design time</td>
+          <th scope="row">Orchestration</th>
+          <td>Strands or OpenAI Agents SDK</td>
+        </tr>
+        <tr>
+          <td>Runs span hours, restarts, or wait on a human</td>
+          <th scope="row">Orchestration</th>
+          <td>Pydantic AI on Temporal or DBOS</td>
+        </tr>
+        <tr>
+          <td>The agent must read a repo, run tests, and edit files</td>
+          <th scope="row">Harness</th>
+          <td>Claude Agent SDK, Codex SDK, or deepagents</td>
+        </tr>
+        <tr>
+          <td>Legal, security, or procurement is the blocker</td>
+          <th scope="row">Platform</th>
+          <td>Whichever platform already owns most of your data</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="af-caption">Sort by symptom, not by popularity.</p>
+  </figure>
+
+  <p>Reaching for the wrong kind fails predictably. Answer an unreliable extraction step with a second agent that double-checks the first, and you have added another unreliable generation plus the job of coordinating the pair. A second pass only helps when the checker looks for something the first step did not.</p>
+
+  <h2>Combinations worth running</h2>
+
+  <p>One kind alone is the common case: a classification service is a generation-level tool and your own code, and a CI job that fixes failing tests is a harness in a shell script, because the harness already owns the loop.</p>
+
+  <p>Two pairings earn a second dependency. <strong>Orchestration plus generation-level</strong>, when the run has known steps but one must be accurate: a document pipeline whose extraction step is a DSPy program. <strong>Orchestration plus a harness</strong>, when repo work is one step of something larger: a migration across two hundred services needs a queue, restart survival and an approval gate, while reading each repository is harness work invoked per service. Do not invert that one. An orchestrator <em>inside</em> a harness loop, supervising an agent already supervising itself, buys overhead and nothing else.</p>
+
+  <h2>So should you write your own?</h2>
+
+  <p>Write those forty lines yourself the first time. It is a day of work, and afterwards none of the frameworks look like magic. What it does not buy is production readiness, and the trap is durability: a hand-rolled way of saving progress is often worse than none, because it looks like it works until the process dies at the wrong moment.</p>
+
+  <p>Keep it hand-written for as long as four things stay true. The output is easy to check. The path is a fixed sequence you can draw. Your tools are a handful of calls into your own API. Nobody outside your team has to approve what it does. Each of those four going false points at one of the four categories, in that order. You are noticing which responsibility you no longer want.</p>
+
+  <p>You will still get one of these wrong. Three protocols now cover the points where the kinds meet: MCP for how an agent reaches a tool, A2A for how one agent calls another across a vendor boundary, and <a href="https://agentclientprotocol.com/get-started/introduction">ACP</a> for how an editor talks to a coding agent. Pick tools that speak them and a wrong choice stays a swap.</p>
+
+  <p>The framework names on this page will churn. Two of them changed identity while I was writing it. What you can hand over will not.</p>
+
+  <h2>The full roster</h2>
+
+  <p>Everything named above, plus the ones the argument did not need. Sorted by kind, so you can find the shortlist you are actually allowed to compare.</p>
+
+  <details class="af-roster">
+    <summary>Show all 34 tools</summary>
+  <figure class="af-visual">
+    <table class="af-table" role="table" aria-label="Every tool mentioned, by kind">
+      <thead>
+        <tr>
+          <th>Tool</th>
+          <th>Kind</th>
+          <th>What it is for</th>
+          <th>Language</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">BAML</th><td>Generation</td><td>Prompts as typed functions, checked at the boundary</td><td>Many, via codegen</td></tr>
+        <tr><th scope="row">Mellea</th><td>Generation</td><td>Requirements checked and repaired at runtime</td><td>Python</td></tr>
+        <tr><th scope="row">DSPy</th><td>Generation</td><td>Prompts optimised against a scoring function before you ship</td><td>Python</td></tr>
+        <tr><th scope="row">Ax</th><td>Generation</td><td>The DSPy approach for TypeScript</td><td>TypeScript</td></tr>
+        <tr><th scope="row">LangGraph</th><td>Orchestration</td><td>Explicit graph, state, and checkpoints; you draw the run</td><td>Python, TypeScript</td></tr>
+        <tr><th scope="row">LangChain</th><td>Orchestration</td><td>Opinionated agent API over the LangGraph runtime</td><td>Python, TypeScript</td></tr>
+        <tr><th scope="row">AWS Strands</th><td>Orchestration</td><td>Model-driven loop; the model picks the next step</td><td>Python, TypeScript</td></tr>
+        <tr><th scope="row">OpenAI Agents SDK</th><td>Orchestration</td><td>Agents, handoffs, parallel checks, stored sessions</td><td>Python, TypeScript</td></tr>
+        <tr><th scope="row">Pydantic AI</th><td>Orchestration</td><td>Agents on real workflow engines, so runs survive restarts</td><td>Python</td></tr>
+        <tr><th scope="row">CrewAI</th><td>Orchestration</td><td>Crews for self-directing teams, Flows for pinned paths</td><td>Python</td></tr>
+        <tr><th scope="row">Google ADK</th><td>Orchestration</td><td>Code-first, and the front door to Google's runtime</td><td>Python, Go, Java, TypeScript</td></tr>
+        <tr><th scope="row">Microsoft Agent Framework</th><td>Orchestration</td><td>AutoGen and Semantic Kernel, merged and at 1.0</td><td>Python, .NET</td></tr>
+        <tr><th scope="row">BeeAI Framework</th><td>Orchestration</td><td>Provider-neutral, built around agent-to-agent calling</td><td>Python, TypeScript</td></tr>
+        <tr><th scope="row">Mastra</th><td>Orchestration</td><td>Agents, workflows, memory and tracing in one package</td><td>TypeScript</td></tr>
+        <tr><th scope="row">Vercel AI SDK</th><td>Orchestration</td><td>A tool loop with stop conditions and approval flags, little else</td><td>TypeScript</td></tr>
+        <tr><th scope="row">Rig</th><td>Orchestration</td><td>Tools as typed traits, checked by the compiler</td><td>Rust</td></tr>
+        <tr><th scope="row">Agno</th><td>Orchestration</td><td>Serving agents as long-lived production services</td><td>Python</td></tr>
+        <tr><th scope="row">Letta</th><td>Orchestration</td><td>When memory across sessions is the actual product</td><td>Python</td></tr>
+        <tr><th scope="row">LlamaIndex Workflows</th><td>Orchestration</td><td>When retrieval is the centre of the system</td><td>Python</td></tr>
+        <tr><th scope="row">smolagents</th><td>Orchestration</td><td>The model writes Python as its action, not one call at a time</td><td>Python</td></tr>
+        <tr><th scope="row">Claude Agent SDK</th><td>Harness</td><td>Anthropic's harness as a library, with hooks and permissions</td><td>Python, TypeScript</td></tr>
+        <tr><th scope="row">Codex SDK</th><td>Harness</td><td>Wraps OpenAI's <code>codex</code> command; <code>codex exec</code> for CI</td><td>TypeScript, Python</td></tr>
+        <tr><th scope="row">Antigravity SDK</th><td>Harness</td><td>Google's, in preview, behind the Antigravity CLI</td><td>Python</td></tr>
+        <tr><th scope="row">OpenCode</th><td>Harness</td><td>Headless HTTP server with a documented API and a JS client</td><td>Any, over HTTP</td></tr>
+        <tr><th scope="row">pi</th><td>Harness</td><td>Deliberately small; read it to understand the rest</td><td>TypeScript</td></tr>
+        <tr><th scope="row">deepagents</th><td>Harness</td><td>The harness pattern as a library, against any model</td><td>Python, JavaScript</td></tr>
+        <tr><th scope="row">Bob Shell</th><td>Harness</td><td>IBM's; no SDK, driven as a subprocess</td><td>Any, via CLI</td></tr>
+        <tr><th scope="row">Managed Agents</th><td>Harness</td><td>Anthropic runs the loop and the sandbox; you call it</td><td>Any, over HTTP</td></tr>
+        <tr><th scope="row">watsonx Orchestrate</th><td>Platform</td><td>Business-user builder with a developer kit underneath</td><td>YAML, Python</td></tr>
+        <tr><th scope="row">Copilot Studio</th><td>Platform</td><td>Business-user builder over Microsoft's data</td><td>Low-code</td></tr>
+        <tr><th scope="row">Agentforce 360</th><td>Platform</td><td>Reasoning, trust layer and data fused, inside Salesforce</td><td>Low-code, Apex</td></tr>
+        <tr><th scope="row">Bedrock AgentCore</th><td>Platform</td><td>Runtime, memory, gateway, identity; framework-neutral</td><td>Any</td></tr>
+        <tr><th scope="row">Foundry Agent Service</th><td>Platform</td><td>Microsoft's code-first runtime for agents you wrote</td><td>Any</td></tr>
+        <tr><th scope="row">Gemini Enterprise / Agent Engine</th><td>Platform</td><td>Google's managed runtime, sessions and memory included</td><td>Any</td></tr>
+      </tbody>
+    </table>
+    <p class="af-caption">Compare within a column value, never across one.</p>
+  </figure>
+  </details>
+
+  <further-reading heading="Further reading">
+    <ul>
+      <li><a href="/blog/llm-agents-gentle-introduction.html">LLM Agents: A Gentle Introduction</a><cite>this site</cite></li>
+      <li><a href="https://docs.mellea.ai/concepts/architecture-vs-agents">Mellea: Architecture vs Agents</a>, which draws the line between orchestration and reliability that started me on this<cite>Mellea docs</cite></li>
+      <li><a href="https://docs.boundaryml.com/home">BAML documentation</a><cite>BAML docs</cite></li>
+      <li><a href="https://dspy.ai/">DSPy documentation</a><cite>DSPy docs</cite></li>
+      <li><a href="https://www.langchain.com/blog/langchain-langgraph-1dot0">LangChain and LangGraph 1.0</a><cite>LangChain</cite></li>
+      <li><a href="https://docs.langchain.com/oss/python/deepagents/overview">Deep Agents overview</a><cite>LangChain</cite></li>
+      <li><a href="https://aws.amazon.com/blogs/opensource/strands-agents-and-the-model-driven-approach/">Strands Agents and the model-driven approach</a><cite>AWS</cite></li>
+      <li><a href="https://openai.github.io/openai-agents-python/">OpenAI Agents SDK</a><cite>OpenAI</cite></li>
+      <li><a href="https://learn.microsoft.com/en-us/agent-framework/overview/">Microsoft Agent Framework overview</a><cite>Microsoft</cite></li>
+      <li><a href="https://pydantic.dev/docs/ai/integrations/durable_execution/overview/">Pydantic AI: durable execution</a><cite>Pydantic</cite></li>
+      <li><a href="https://lib.rs/crates/rig-core">Rig, for Rust</a><cite>crates.io</cite></li>
+      <li><a href="https://code.claude.com/docs/en/agent-sdk/overview">Claude Agent SDK overview</a><cite>Anthropic</cite></li>
+      <li><a href="https://developers.openai.com/codex/sdk">Codex SDK</a><cite>OpenAI</cite></li>
+      <li><a href="https://antigravity.google/blog/introducing-google-antigravity-sdk">Introducing the Google Antigravity SDK</a><cite>Google</cite></li>
+      <li><a href="https://agentclientprotocol.com/get-started/introduction">Agent Client Protocol</a><cite>Zed</cite></li>
+      <li><a href="https://www.linuxfoundation.org/press/a2a-protocol-surpasses-150-organizations-lands-in-major-cloud-platforms-and-sees-enterprise-production-use-in-first-year">A2A at one year</a><cite>Linux Foundation</cite></li>
+    </ul>
+  </further-reading>
+
+  <source-note heading="Disclaimer">
+    <p>The views in this essay are personal. They do not represent IBM or any of my employers.</p>
+  </source-note>
+</blog-post>
