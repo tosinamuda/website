@@ -1,0 +1,50 @@
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "fontFamily": "ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif",
+    "fontSize": "14px",
+    "primaryColor": "#F5F4EE",
+    "primaryTextColor": "#141414",
+    "primaryBorderColor": "#5B3FB8",
+    "lineColor": "#6b6b66",
+    "actorBkg": "#F5F4EE",
+    "actorBorder": "#5B3FB8",
+    "actorTextColor": "#141414",
+    "actorLineColor": "#908d83",
+    "signalColor": "#908d83",
+    "signalTextColor": "#c9c7bf",
+    "labelBoxBkgColor": "#F5F4EE",
+    "labelBoxBorderColor": "#5B3FB8",
+    "labelTextColor": "#141414",
+    "noteBkgColor": "#F5F4EE",
+    "noteBorderColor": "#908d83",
+    "noteTextColor": "#3a3a36",
+    "sequenceNumberColor": "#ffffff",
+    "background": "transparent"
+  }
+}}%%
+sequenceDiagram
+    autonumber
+    participant C as Browser / agent client
+    participant A as A2A endpoint (FastAPI)
+    participant W as ADK workflow
+    participant D as DSPy module
+    participant L as LiteLLM → model
+
+    C->>A: POST /recommendation/a2a<br/>{method: "message/stream", ...}
+    A->>W: run(RecommendationRequest)
+    W->>W: retrieve_candidate_items_node
+    W-->>A: Event{stage: retrieve, status: running}
+    A-->>C: SSE event
+    W->>D: judge.judge(candidates, persona, ...)
+    D->>L: ChainOfThought prompt
+    L-->>D: structured output
+    D-->>W: CoverageDecision
+    W-->>A: Event{stage: judging, status: done}
+    A-->>C: SSE event
+    W->>D: ranker.rank(candidates, k=5)
+    D->>L: ChainOfThought prompt
+    L-->>D: structured output
+    D-->>W: RankingResult
+    W-->>A: Event{stage: ranking, output: ...}
+    A-->>C: SSE event (final)
