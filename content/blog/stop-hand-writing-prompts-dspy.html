@@ -1,21 +1,21 @@
 <blog-post
   title="Stop Hand-Writing and Brute-Forcing Prompts: Use DSPy Instead"
-  excerpt="DSPy turns the prompt from text you hand-edit into something you compile: declare the inputs and outputs, define a metric, and let an optimizer do the tuning."
+  excerpt="DSPy is a Python framework that writes the prompt for you. You declare what an LLM call takes and returns, define a metric, and an optimizer tunes the wording."
   date="2026-06-19"
   og-image="/images/blog/stop-hand-writing-prompts-dspy/dspy-stack-og.png">
   <script type="application/json" id="meta">
-    { "type": "essay", "categories": ["AI", "Engineering"] }
+    { "categories": ["AI", "Engineering"], "featured": true }
   </script>
 
   <p>Most production LLM calls come with the same overhead: a prompt template with formatting rules, a JSON parser with retry logic, a reasoning pattern built from scratch, and quality checks that amount to reading outputs and hoping they look right. Switch models and every prompt needs manual re-tuning. Collect better eval data and there is no systematic way to use it.</p>
 
-  <p><a href="https://dspy.ai/">DSPy</a> is a Python framework that removes that overhead. The shift it asks for is the one a compiler asks for: you describe what you want computed and let something else decide how to express it. You declare what a call takes and what it returns, and DSPy writes the prompt, parses the reply, and tunes the wording against data you supply. The prompt stops being a file you maintain and becomes an output of your system.</p>
+  <p><a href="https://dspy.ai/">DSPy</a> is a Python framework that removes that overhead. You declare what an LLM call takes and what it returns, and DSPy writes the prompt, parses the reply, and tunes the wording against data you supply. The prompt stops being a file you maintain and becomes an output of your system.</p>
 
-  <p>It works in three steps. <strong>Declare</strong> the task by its inputs and outputs and DSPy builds the prompt, calls the model, and hands back typed values. <strong>Wrap</strong> the task in a module to get a proven prompting technique without building it yourself. <strong>Optimize</strong> against your own data, so the prompt is tuned by a metric instead of by taste. One example runs through all three: generating a professional email.</p>
+  <p>It works in three steps. <strong>Declare</strong> the task by its inputs and outputs and DSPy builds the prompt, calls the model, and hands back typed values. <strong>Reuse</strong> a proven prompting technique by picking the module that already implements it. <strong>Optimize</strong> against your own data, so a metric tunes the prompt instead of your taste. One example runs through all three: generating a professional email.</p>
 
   <h2>1. Declare the task, not the prompt</h2>
 
-  <p>Say you need to write a professional email about a topic, in a given tone. Without DSPy, the code looks something like this:</p>
+  <p>Say you need to write a professional email about a topic, in a given tone. Without DSPy:</p>
 
   <pre><code>def generate_email(topic: str, tone: str) -> dict:
     prompt = f"""Write a professional email.
@@ -30,7 +30,7 @@ Do not include backticks. Do not add text before or after the JSON."""
 
     for attempt in range(3):
         response = client.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-5",
             messages=[{"role": "user", "content": prompt}],
         )
         text = response.choices[0].message.content.strip()
@@ -46,7 +46,7 @@ Do not include backticks. Do not add text before or after the JSON."""
 
   <p>The intent is "generate an email," but most of the code is plumbing: formatting instructions, JSON escaping, a retry loop, markdown fence stripping, and manual validation. Remove any of those layers and the function breaks in production.</p>
 
-  <p>In DSPy you declare that intent instead of writing it out, and the declaration has a name: a <strong>Signature</strong>. You subclass <code>dspy.Signature</code>, put one sentence in the docstring saying what the task is, and list the data going in and the data coming out. Nothing else. There is no prompt in it anywhere.</p>
+  <p>In DSPy you declare that intent instead of writing it out, and the declaration has a name: a <strong>Signature</strong>. You subclass <code>dspy.Signature</code>, put one sentence in the docstring saying what the task is, and list the fields. There is no prompt in it anywhere.</p>
 
   <pre><code>import dspy
 
@@ -64,9 +64,7 @@ result = email(topic="Following up on a job application", tone="formal")
 # result.subject and result.body are typed strings
 </code></pre>
 
-  <p>Notice what is not in there. An earlier version of this signature also took a sender and a recipient, and both had to go. The sender was the same string on every call, which makes it configuration rather than data, and the recipient was a name the model knew nothing else about, so it produced greetings and invented context instead of a better email. An input field earns its place by varying between calls and changing what a good answer looks like.</p>
-
-  <p>That is the whole contract: what goes in, what comes out, and what each field means. DSPy handles prompt construction, output parsing, type coercion, and retries. The result comes back as a typed object, so you access <code>result.subject</code> and <code>result.body</code> directly with no JSON parsing or extraction logic. The docstring is not just a comment either. DSPy uses it as the core instruction when building the prompt, so intent and contract live in the same place.</p>
+  <p>That is the whole contract: what goes in, what comes out, and what each field means. DSPy handles prompt construction, output parsing, type coercion, and retries. The docstring is not just a comment: DSPy uses it as the core instruction when building the prompt.</p>
 
   <figure class="diagram">
     <svg viewBox="0 0 560 190" role="img" aria-labelledby="fig-sig-title" style="max-width:520px">
@@ -95,24 +93,9 @@ result = email(topic="Following up on a job application", tone="formal")
     <figcaption>A signature defines its input fields, the data going into the model, and its output fields, the data coming back out. DSPy renders the prompt from the input fields, calls the model, and parses the reply back into the output fields.</figcaption>
   </figure>
 
-  <p>When no field needs explaining, the same signature fits in a string:</p>
-
-  <pre><code>email = dspy.Predict("topic, tone -> subject, body")
-
-print(email.signature.instructions)
-# Given the fields `topic`, `tone`, produce the fields `subject`, `body`.
-
-# annotate types when you need them
-triage = dspy.Predict("topic, tone -> subject, body, needs_reply: bool")
-</code></pre>
-
-  <p>That is the same two inputs and two outputs as the class, minus the docstring and the field descriptions. DSPy infers an instruction from the field names alone, which is the line printed above, and everything else behaves identically. Start with the string while you are working out the shape of a call, and move to the class when a field needs a description or a type worth naming, the way <code>tone</code> does.</p>
-
-  <p>If you have worked with Pydantic for API validation, the mental model is the same: declare the shape, let the framework handle parsing. Signature fields are Pydantic fields under the hood, so when you need more complex output structures, you can type them with full Pydantic models and DSPy will parse and validate automatically.</p>
-
   <h2>2. Reuse a proven prompting technique instead of rebuilding it</h2>
 
-  <p>A Signature defines what goes in and what comes out. A Module defines how the model reasons about it. The prompting techniques that papers and blog posts describe are already implemented here, so you pick one rather than reconstructing it from a write-up. Each is a one-line wrapper that works with any Signature:</p>
+  <p>A Signature names the fields: <code>topic</code> and <code>tone</code> going in, <code>subject</code> and <code>body</code> coming back. It says nothing about how the model should think on the way. That part is a Module: you hand it a Signature and it decides what reasoning happens between the input fields and the output fields. The prompting techniques that papers and blog posts describe are already implemented as modules, each a one-line call that takes any Signature:</p>
 
   <pre><code># Direct call, no reasoning
 email = dspy.Predict(WriteEmail)
@@ -124,33 +107,22 @@ email = dspy.ChainOfThought(WriteEmail)
 email = dspy.ReAct(WriteEmail, tools=[search_handbook])
 </code></pre>
 
-  <p>Swapping <code>dspy.Predict</code> for <code>dspy.ChainOfThought</code> is a one-word change. No prompt rewrite, no new parsing logic. The Signature and calling code stay the same. Only the reasoning wrapper changes.</p>
+  <p>Swapping <code>dspy.Predict</code> for <code>dspy.ChainOfThought</code> is a one-word change: no prompt rewrite, no new parsing logic, and the Signature and calling code stay the same.</p>
 
-  <p>The practical effect is fast prototyping. You start with <code>dspy.Predict</code> to get the pipeline working, then upgrade selectively. The email writer might get <code>ChainOfThought</code> because its outputs are too generic. A review step might get <code>Refine</code> because first drafts are inconsistent. If you have ever implemented chain-of-thought by prepending "Let's think step by step" to a prompt, you have already done what <code>dspy.ChainOfThought</code> does, except DSPy ships it as a tested, composable primitive.</p>
+  <p>The practical effect is fast prototyping. You start with <code>dspy.Predict</code> to get the pipeline working, then upgrade selectively: the email writer might get <code>ChainOfThought</code> because its outputs are too generic, a review step <code>Refine</code>, which runs the module several times against a reward function and keeps the best attempt.</p>
 
-  <p>When your task does not match any of them, you write your own. A module is a class with a <code>forward()</code> method, and inside it you call other modules, so a multi-step technique is just composition. Draft the email, then revise it:</p>
+  <p>When your task matches none of them, you write your own: a class with a <code>forward()</code> method that calls other modules. That composition is itself a module, so an optimizer tunes every step as one program.</p>
 
-  <pre><code>class DraftAndRevise(dspy.Module):
-    def __init__(self):
-        super().__init__()
-        self.draft = dspy.ChainOfThought(WriteEmail)
-        self.revise = dspy.ChainOfThought("draft_subject, draft_body -> subject, body")
-
-    def forward(self, **inputs):
-        draft = self.draft(**inputs)
-        return self.revise(draft_subject=draft.subject, draft_body=draft.body)
-</code></pre>
-
-  <p>Two rules are worth knowing here. Field names have to be distinct across a signature's inputs and outputs, which is why the second step takes <code>draft_subject</code> rather than reusing <code>subject</code>. And the composed class is itself a module, so it can be wrapped, nested, and handed to an optimizer, which then tunes both steps as one program.</p>
+  <p>You could stop reading here and still come out ahead. Two steps in, structured data comes back from a model as typed Python, and the JSON wrangling, the retry loop, and the hand-rolled reasoning pattern are gone. The third step is what turns a tidier way to call a model into something you can improve on purpose.</p>
 
   <h2>3. Optimize against your own data</h2>
 
-  <p>The standard prompt engineering workflow looks like this: write a prompt, run it, look at the outputs, edit a sentence, run it again, check if it looks better. There is no metric. The feedback loop is "does this feel right?" That is craft, not engineering.</p>
+  <p>The standard prompt engineering workflow: write a prompt, run it, look at the outputs, edit a sentence, run it again, check if it looks better. There is no metric. The feedback loop is "does this feel right?" That is craft, not engineering.</p>
 
-  <p>DSPy adds a compilation step. You define a metric, build an eval set, and hand both to an optimizer that searches for the best prompt and few-shot examples. The eval set can be as simple as a CSV file with one column per input field and one row per test case:</p>
+  <p>DSPy adds a compilation step. You define a metric, build an eval set, and hand both to an optimizer. They differ in what they search over: <code>BootstrapFewShot</code> hunts for worked examples to put in the prompt, <code>GEPA</code> rewrites the instruction itself, and <code>MIPROv2</code> searches both at once. The one below is GEPA. The eval set can be a CSV:</p>
 
-  <pre><code>import re
-import pandas as pd
+  <pre><code>import csv
+import re
 
 # "[Your Name]", "[Company]" — the gap a model leaves when it does not
 # know something and will not say so.
@@ -164,7 +136,7 @@ def email_quality(example, prediction, trace=None, pred_name=None, pred_trace=No
         problems.append(f"Subject is {len(prediction.subject)} characters. Keep it under 60.")
     if example.tone.lower() in prediction.body.lower():
         problems.append(f"The body names the tone ('{example.tone}') instead of reading that way.")
-    if len(prediction.body) < 40:
+    if len(prediction.body) &lt; 40:
         problems.append("The body is too short to be a real email.")
     if holes := PLACEHOLDER.findall(prediction.body):
         problems.append(
@@ -178,11 +150,11 @@ def email_quality(example, prediction, trace=None, pred_name=None, pred_trace=No
     )
 
 # Load eval set from a spreadsheet
-df = pd.read_csv("email_examples.csv")
-eval_set = [
-    dspy.Example(**row).with_inputs("topic", "tone")
-    for row in df.to_dict("records")
-]
+with open("email_examples.csv", newline="") as f:
+    eval_set = [
+        dspy.Example(**row).with_inputs("topic", "tone")
+        for row in csv.DictReader(f)
+    ]
 
 # Score the baseline before tuning anything
 email = dspy.ChainOfThought(WriteEmail)
@@ -231,13 +203,13 @@ compiled_email.save("optimized_email_writer.json")
     <figcaption>One column per input field, one row per case. Every row becomes an example, and the twelve of them together are what the score is computed over.</figcaption>
   </figure>
 
-  <p>Run the baseline first. Without a number from before the optimizer touched anything, a compiled program is just a different prompt rather than a better one. The same metric does both jobs: <code>dspy.Evaluate</code> reads the score off it, and GEPA reads the score and the feedback.</p>
+  <p>Run the baseline first. Without a number from before the optimizer touched anything, a compiled program is just a different prompt, not a better one. The same metric does both jobs: <code>dspy.Evaluate</code> reads the score, GEPA reads the score and the feedback.</p>
 
-  <p>Two details make GEPA work. The metric returns a score <em>and</em> a sentence explaining it, because GEPA hands that text to a second model that rewrites the instruction. A bare number says something is wrong; the sentence says what to change. That reflection model should be a strong one even when the task itself runs on something cheaper, since it is called once per proposal rather than once per example.</p>
+  <p>GEPA runs your program over the eval set, reads what the metric said about each failure, and has a second model, the <code>reflection_lm</code> above, rewrite the instruction. The <code>auto</code> setting bounds what that search spends: light, medium, and heavy are budgets, not quality tiers. The metric returns a score <em>and</em> a sentence explaining it, because that sentence is what the second model reads: a bare number says something is wrong, the sentence says what to change. That reflection model should be strong even when the task runs on something cheaper, since it is called once per proposal, not once per example.</p>
 
-  <p>The fourth check is there because of what weaker models actually do. Run this against a small local model and the emails come back full of <code>[Company Name]</code>, <code>[position title]</code>, <code>[Your Phone Number]</code>: rather than write around a detail it was never given, the model leaves a slot for a human to fill. It reads as a competent draft and is useless as an email. That failure is invisible to a metric that only counts characters, which is the general lesson about metrics. Write down the specific way your outputs go wrong, not the way quality sounds in the abstract, and each new failure you meet becomes another few lines here rather than another round of squinting.</p>
+  <p>The placeholder check exists because of what weaker models do: run this against a small local model and the emails come back full of <code>[Company Name]</code> and <code>[Your Phone Number]</code>. Rather than write around a detail it was never given, the model leaves a slot for a human to fill: a competent-looking draft that is useless as an email. So write down the specific way your outputs go wrong, not the way quality sounds in the abstract.</p>
 
-  <p>What you saved is the artifact you ship. In production you load the compiled program and call that, not the module you started with, because the module has none of the tuning in it:</p>
+  <p>In production you load the compiled program and call that, not the module you started with, which has none of the tuning in it:</p>
 
   <pre><code>email = dspy.ChainOfThought(WriteEmail)
 email.load("optimized_email_writer.json")
@@ -245,9 +217,7 @@ email.load("optimized_email_writer.json")
 result = email(topic="Following up on a job application", tone="formal")
 </code></pre>
 
-  <p>The saved file is JSON, holding the tuned instruction and the selected few-shot examples, so it diffs in a pull request and versions alongside your code. When new edge cases surface (emails that are too long, wrong tone for the audience), you add a row to the spreadsheet and recompile. The Signature and Module stay the same. Only the compiled prompt changes, in a direction that is measurable.</p>
-
-  <p>This is the answer to "I can just write good prompts." You can. But you cannot systematically improve them with new data. DSPy makes that process repeatable: expand the eval set, recompile, compare the metrics.</p>
+  <p>Save it as JSON and the rewritten instruction is plain text, so it diffs in a pull request and versions alongside your code. When a new edge case surfaces, you add a row to the spreadsheet and recompile: the Signature and Module stay the same, and only the compiled prompt changes. You can write good prompts by hand. What you cannot do is improve them systematically as the data grows.</p>
 
   <figure>
     <img src="/images/blog/stop-hand-writing-prompts-dspy/optimization-loop.svg" alt="Side-by-side comparison of improving prompts. Without DSPy: write, squint, edit, repeat with no metric. With DSPy: compile, measure, add data, recompile with measurable gains.">
@@ -256,7 +226,7 @@ result = email(topic="Following up on a job application", tone="formal")
 
   <h2>What DSPy buys you when a new model ships</h2>
 
-  <p>The steps buy you something that is hard to get any other way. Without DSPy, every prompt is written against one model's tendencies. Models differ in how they handle formatting, system messages, and reasoning, so "try the model that shipped last week" becomes "re-tune every prompt for it." In a system with ten LLM calls, that is ten prompts to rewrite and ten sets of outputs to re-check by eye.</p>
+  <p>Without DSPy, every prompt is written against one model's tendencies. Models differ in how they handle formatting, system messages, and reasoning, so "try the model that shipped last week" becomes "re-tune every prompt for it." With ten LLM calls, that is ten prompts to rewrite and ten sets of outputs to re-check by eye.</p>
 
   <p>With DSPy, the model is a configuration parameter, and the question of whether to switch is answered by the eval set you already have:</p>
 
@@ -271,32 +241,34 @@ compiled_email = optimizer.compile(email, trainset=eval_set)
 compiled_email.save("optimized_email_writer.json")
 </code></pre>
 
-  <p>Notice what never happens in that sequence: nobody opens a prompt. The Signature, Module, eval set, and metric all stay the same, and the score decides whether a recompile is worth running at all. Think of the Signature as capturing intent (what the call should do) and the compiled prompt as capturing implementation (how to get a specific model to do it). A new model changes the implementation, so you regenerate it rather than edit it.</p>
+  <p>Notice what never happens in that sequence: nobody opens a prompt. The Signature holds your intent; the compiled prompt holds whatever it takes to get one model to act on it, so a new model means regenerating it rather than editing it.</p>
 
   <figure>
     <img src="/images/blog/stop-hand-writing-prompts-dspy/model-switch.svg" alt="Without DSPy: re-tune each prompt manually, days to weeks. With DSPy: change config, recompile, minutes.">
     <figcaption>Without DSPy, every prompt needs manual re-tuning. With DSPy, it is a config change and a recompile.</figcaption>
   </figure>
 
-  <h2>How the steps connect</h2>
+  <h2>Where to start</h2>
 
-  <p>All of it rests on the first step. Declaring the task separates intent from implementation, and that separation is what makes modules swappable, optimization possible, and a model swap a config change. Go back to writing the prompt by hand and the rest stops working.</p>
-
-  <p>Declare, wrap, and optimize are three ideas. Running them is five concrete moves, and the order matters: you cannot tell whether an optimizer helped without the baseline you measured before it ran.</p>
+  <p>Declare, reuse, and optimize are three ideas. Running them is five concrete moves, in order:</p>
 
   <figure>
-    <img src="/images/blog/stop-hand-writing-prompts-dspy/dspy-stack.svg" alt="Five steps: declare a signature, choose a module, score a baseline against an eval set and metric, run an optimizer, and save the compiled program you call in production. A new model sends you back to the eval step.">
+    <img src="/images/blog/stop-hand-writing-prompts-dspy/dspy-stack.svg" alt="Five steps: declare a Signature, choose a module, score a baseline against an eval set and metric, run an optimizer, and save the compiled program you call in production. A new model sends you back to the eval step.">
     <figcaption>The five steps, in order. The compiled program at the end is what you call in production. A new model release sends you back to step 3, not to the prompt.</figcaption>
   </figure>
 
-  <h2>Where to start</h2>
+  <p>Install DSPy with <code>pip install dspy</code>, then pick one LLM call in an existing project, ideally the one that breaks most often. Rewrite it as a Signature, hand it to <code>dspy.ChainOfThought</code>, and run it. It is a single call site, so you can put it back if you do not like it.</p>
 
-  <p>Install DSPy with <code>pip install dspy</code>, then pick one LLM call in an existing project, ideally the one that breaks most often or the one you have re-tuned the most. Rewrite it as a Signature, wrap it in <code>dspy.ChainOfThought</code>, and run it. It is a single call site, so you can put it back if you do not like it.</p>
+  <p>If the result is promising, put together a spreadsheet of a dozen or so inputs, varied along whatever actually changes the answer, and run an optimizer. A dozen is enough to watch a score move, which is all you need to know whether this is worth more of your time. DSPy's own guidance is 30 to 300 rows for real optimization, and you get there by adding one each time something breaks, not by writing them all up front. That is where the payoff compounds: improving the system turns into a data job instead of a prompt job.</p>
 
-  <p>If the result is promising, put together a spreadsheet with 10 to 15 representative inputs, varied along whatever actually changes the answer, and run an optimizer. That is where the payoff compounds: you move from "I think this prompt is good" to a score on an eval set that you can compare before and after a change. Once that feedback loop is running, improving your system becomes about adding rows to a spreadsheet, not rewriting prompts.</p>
+  <p>The full code is in the <a href="https://github.com/tosinamuda/dspy-email-writer">companion repo</a>: both versions of the email writer side by side, a sample eval spreadsheet, and the optimization script. It also carries a Claude agent skill, <code>prompt-to-dspy</code>: point it at a codebase and it finds the f-string prompts, scores the code as it stands (inventing eval inputs if you have none), proposes a Signature and a module for each call, and scores the result against the number it started with.</p>
 
-  <p>The <a href="https://github.com/tosinamuda/dspy-email-writer">companion repo for this post</a> has all the code examples, including the without-DSPy and DSPy versions side by side, a sample eval spreadsheet, and the optimization script. It also carries a Claude agent skill, <code>prompt-to-dspy</code>, that does the first conversion for you: point it at a codebase and it finds the f-string prompts, works out the inputs, outputs, and intent of each one, proposes a Signature and a module, and lists the plumbing you can delete. Copy it into the <code>.claude/skills/</code> of whatever project you are converting rather than installing it globally, since it is a migration tool and not something you need afterwards.</p>
-
-  <p>For everything else, the <a href="https://dspy.ai/">DSPy documentation</a> is the reference. Compound AI's <a href="https://www.cmpnd.ai/blog/separating-task-from-model.html">Separating Task from Model</a> makes the architectural case underneath all of this: a task definition, the code that constrains it, and the eval that says what success means are the parts worth keeping stable, and the model is the part you should expect to replace.</p>
+  <further-reading heading="Further reading">
+    <ul>
+      <li><a href="https://dspy.ai/">DSPy documentation</a><cite>dspy.ai</cite></li>
+      <li><a href="https://www.cmpnd.ai/blog/separating-task-from-model.html">Separating Task from Model</a><cite>Compound AI</cite></li>
+      <li><a href="https://github.com/tosinamuda/dspy-email-writer">dspy-email-writer</a><cite>GitHub</cite></li>
+    </ul>
+  </further-reading>
 
 </blog-post>

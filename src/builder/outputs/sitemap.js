@@ -6,7 +6,7 @@ import { escapeXml, slugify } from "../utils.js";
 
 /** @typedef {import("../articles.js").Article} Article */
 
-const STATIC_PAGES = ["/", "/about.html", "/work.html", "/contact.html", "/blog/"];
+const STATIC_PAGES = ["/", "/about", "/work", "/contact", "/blog/"];
 
 /**
  * Write the XML sitemap.
@@ -23,7 +23,7 @@ export async function buildSitemap(publishedArticles) {
 
   const urls = [
     ...STATIC_PAGES.map((loc) => ({ loc, lastmod: now })),
-    ...[...categorySlugs].map((slug) => ({ loc: `/blog/category/${slug}.html`, lastmod: now })),
+    ...[...categorySlugs].map((slug) => ({ loc: `/blog/category/${slug}`, lastmod: now })),
     ...publishedArticles.map((p) => ({ loc: p.url, lastmod: new Date(p.date).toISOString() })),
   ];
 

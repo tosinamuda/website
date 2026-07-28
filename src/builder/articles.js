@@ -6,7 +6,7 @@
 
 import fs from "node:fs/promises";
 import path from "node:path";
-import { CONTENT_BLOG, DEFAULT_TYPE } from "./config.js";
+import { CONTENT_BLOG } from "./config.js";
 import { escapeHtml, fullDate, readingTime, shortDate, slugify } from "./utils.js";
 
 // ───────────────────────────────────────────────────────
@@ -37,16 +37,15 @@ import { escapeHtml, fullDate, readingTime, shortDate, slugify } from "./utils.j
  *
  * @typedef {Object} Article
  * @property {string} slug              e.g. "12-factor-engineering-best-practices"
- * @property {string} url               e.g. "/blog/12-factor-engineering-best-practices.html"
+ * @property {string} url               e.g. "/blog/12-factor-engineering-best-practices"
  * @property {string} title
  * @property {string} excerpt           One-sentence summary, used in listings + OG.
  * @property {string} date              ISO date "YYYY-MM-DD".
- * @property {string} type              See TYPE_ORDER in config.js.
  * @property {string[]} categories      Free-form subject tags. First is primary.
  * @property {string} body              Body HTML, with heading anchors processed.
  * @property {Heading[]} headings       Extracted h2/h3 headings.
  * @property {boolean} draft            Hidden from listings, feed, and sitemap.
- * @property {boolean} featured         Reserved for elevation (not yet rendered).
+ * @property {boolean} featured         Lifts the note into the home page's featured section.
  * @property {string=} ogImage          Optional OG image override.
  */
 
@@ -110,11 +109,10 @@ async function loadArticle(fullPath, filename) {
 
   return {
     slug,
-    url: `/blog/${slug}.html`,
+    url: `/blog/${slug}`,
     title,
     excerpt,
     date,
-    type: meta.json.type || DEFAULT_TYPE,
     categories: meta.json.categories ?? [],
     ogImage: attrs["og-image"] || meta.json.ogImage,
     draft: "draft" in attrs,
@@ -222,8 +220,11 @@ export function articleToTemplateVars(article) {
   const categoriesHtml = primary
     ? `<span class="sep">·</span>${renderTagSpan(primary)}`
     : "";
+  // Category pages are built from published notes only, so a draft's category
+  // has no page to link to. Render its tags as plain spans instead.
+  const renderTag = article.draft ? renderTagSpan : renderTagLink;
   const categoriesLinksHtml = article.categories.length
-    ? article.categories.map(renderTagLink).join(" ")
+    ? article.categories.map(renderTag).join(" ")
     : "";
   const dateTime = `<time datetime="${escapeHtml(article.date)}">${escapeHtml(fullDate(article.date))}</time>`;
 
@@ -256,5 +257,5 @@ function renderTagSpan(category) {
  * @param {string} category
  */
 function renderTagLink(category) {
-  return `<a href="/blog/category/${slugify(category)}.html" class="tag">${escapeHtml(category.toLowerCase())}</a>`;
+  return `<a href="/blog/category/${slugify(category)}" class="tag">${escapeHtml(category.toLowerCase())}</a>`;
 }

@@ -68,7 +68,7 @@ async function renderCategoryPage({ slug, name, articles, layout, publishedArtic
     ${renderOgTags({
       title: `${name} | Blog | ${site.name}`,
       description: `Essays tagged ${name}.`,
-      url: `/blog/category/${slug}.html`,
+      url: `/blog/category/${slug}`,
     })}
     ${renderWebSiteJsonLd()}`
   );

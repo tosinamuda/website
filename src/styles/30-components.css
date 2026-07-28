@@ -241,6 +241,44 @@
     margin-bottom: 0;
   }
 
+  further-reading {
+    display: block;
+    margin: var(--space-12) 0 0;
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--rule);
+  }
+  further-reading::before {
+    content: attr(heading);
+    display: block;
+    margin-bottom: var(--space-4);
+    font-family: var(--ui);
+    font-size: var(--text-xs);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  /* .prose sets list padding and item spacing; match its specificity to reset them. */
+  .prose further-reading ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .prose further-reading li {
+    margin-bottom: var(--space-3);
+    font-size: var(--text-base);
+    line-height: var(--leading-snug);
+  }
+  .prose further-reading li:last-child {
+    margin-bottom: 0;
+  }
+  further-reading cite {
+    display: block;
+    font-style: normal;
+    font-family: var(--ui);
+    font-size: var(--text-xs);
+    color: var(--ink-3);
+  }
+
   .related {
     margin-top: var(--space-16);
     padding-top: var(--space-6);

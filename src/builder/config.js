@@ -29,21 +29,11 @@ export const site = JSON.parse(
 );
 
 // ───────────────────────────────────────────────────────
-//  Note type taxonomy
+//  Home page sections
 //
-//  Notes are grouped by `type` on the home page. The order below is the
-//  order sections appear; the labels are what readers see.
+//  Two sections, in this order. Notes with `"featured": true` in their meta
+//  go in the first and are not repeated in the second.
 // ───────────────────────────────────────────────────────
 
-/** @type {readonly string[]} */
-export const TYPE_ORDER = ["ongoing-work", "learning", "essay", "note"];
-
-/** @type {Readonly<Record<string, string>>} */
-export const TYPE_LABELS = {
-  "ongoing-work": "ongoing work",
-  learning: "learning notes",
-  essay: "essays",
-  note: "notes",
-};
-
-export const DEFAULT_TYPE = "essay";
+export const FEATURED_LABEL = "featured";
+export const ESSAYS_LABEL = "essays";

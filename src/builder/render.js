@@ -4,7 +4,7 @@
 //
 //  1. Template engine — interpolate `{{vars}}` and read component partials.
 //  2. Archive rendering — produce note lists in three variants (latest-3,
-//     full chronological, by-type grouped).
+//     full chronological, grouped by featured).
 //  3. Component stamping — replace <site-header>, <site-footer>, and
 //     <blog-archive> custom elements with their server-rendered contents.
 //
@@ -12,7 +12,7 @@
 
 import fs from "node:fs/promises";
 import path from "node:path";
-import { COMPONENTS_DIR, TYPE_LABELS, TYPE_ORDER } from "./config.js";
+import { COMPONENTS_DIR, ESSAYS_LABEL, FEATURED_LABEL } from "./config.js";
 import { articleToTemplateVars } from "./articles.js";
 import { escapeHtml, shortDate } from "./utils.js";
 
@@ -83,7 +83,7 @@ const HEADER_NAV_BY_ACTIVE = {
 //  Three variants:
 //   - "latest-3":  newest 3 notes (used in promo blocks if any).
 //   - "full":      every note, newest first (used on /blog/ and category pages).
-//   - "by-type":   grouped into sections by note type (used on /).
+//   - "grouped":   featured section, then everything else (used on /).
 // ───────────────────────────────────────────────────────
 
 /**
@@ -93,8 +93,8 @@ const HEADER_NAV_BY_ACTIVE = {
  * @param {Article[]} articles
  */
 export async function renderArchive(variant, articles) {
-  if (variant === "by-type" || variant === "grouped") {
-    return renderByTypeArchive(articles);
+  if (variant === "grouped") {
+    return renderGroupedArchive(articles);
   }
 
   const template = await readComponentTemplate(`blog-archive/${variant}.html`);
@@ -106,42 +106,44 @@ export async function renderArchive(variant, articles) {
 }
 
 /**
- * Group articles by `type` and render each group as a `<section class="group">`.
- * Empty types are skipped.
+ * Render the home page archive: a "featured" section, then everything else.
+ * A featured note appears once, under featured, not again below.
  *
  * @param {Article[]} articles
  */
-async function renderByTypeArchive(articles) {
+async function renderGroupedArchive(articles) {
   const itemTpl = extractItemTemplate(
     await readComponentTemplate("blog-archive/full.html"),
     "full"
   );
 
-  /** @type {Map<string, Article[]>} */
-  const byType = new Map();
-  for (const article of articles) {
-    const key = article.type;
-    if (!byType.has(key)) byType.set(key, []);
-    byType.get(key).push(article);
-  }
+  const featured = articles.filter((a) => a.featured);
+  const rest = articles.filter((a) => !a.featured);
 
-  const orderedTypes = [
-    ...TYPE_ORDER.filter((t) => byType.has(t)),
-    ...[...byType.keys()].filter((t) => !TYPE_ORDER.includes(t)),
-  ];
+  return [
+    ...(featured.length ? [[FEATURED_LABEL, featured]] : []),
+    ...(rest.length ? [[ESSAYS_LABEL, rest]] : []),
+  ]
+    .map(([label, items]) => renderGroup(label, items, itemTpl))
+    .join("\n");
+}
 
-  return orderedTypes.map((type) => {
-    const items = byType.get(type) || [];
-    const label = TYPE_LABELS[type] || type;
-    const rows = items.map((p) => interpolate(itemTpl, articleToTemplateVars(p))).join("");
-    return `<section class="group">
+/**
+ * One labelled `<section class="group">` of note rows.
+ *
+ * @param {string} label
+ * @param {Article[]} items
+ * @param {string} itemTpl
+ */
+function renderGroup(label, items, itemTpl) {
+  const rows = items.map((p) => interpolate(itemTpl, articleToTemplateVars(p))).join("");
+  return `<section class="group">
   <div class="group-head">
     <span>${escapeHtml(label)}</span>
     <span class="count">${items.length} ${items.length === 1 ? "note" : "notes"}</span>
   </div>
   <div>${rows}</div>
 </section>`;
-  }).join("\n");
 }
 
 const itemMarkerRegex = () => /<!--%item-start%-->([\s\S]*?)<!--%item-end%-->/;
