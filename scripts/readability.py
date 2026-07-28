@@ -14,6 +14,7 @@ from __future__ import annotations
 import html
 import re
 import sys
+from collections import Counter
 from dataclasses import dataclass, field
 
 # Sentences longer than this are hard to read; longer than VERY_LONG, very hard.
@@ -206,6 +207,79 @@ def skim_spine(source: str) -> list[tuple[str, str]]:
     return spine
 
 
+# Words that follow a determiner without naming something the reader must
+# already hold: ordinals, quantifiers, and nouns unique to the reading situation.
+_NOT_A_REFERENT = {
+    "first", "second", "third", "fourth", "last", "next", "same", "only",
+    "other", "one", "two", "three", "four", "rest", "most", "best", "worst",
+    "whole", "way", "point", "moment", "time", "end", "start", "reader",
+    "article", "author", "essay", "page", "thing", "kind", "sort", "case",
+}
+
+# Determiner, then up to two modifiers, then the head noun. "that" and "this"
+# are excluded: as relativizers they produce far more noise than signal.
+# A capture that runs past the head noun ("the tool it asks") is cut here.
+_FUNCTION_WORDS = frozenset(
+    "it its they them you your he she we who which that what is are was were be "
+    "been do does did and or but of to for in on at by with from as if when while "
+    "than then so not no all any some each every this these those the a an has "
+    "have had can will would should must may".split()
+)
+
+_DEFINITE = re.compile(r"\b(the|those|these)\s+((?:[a-z-]+\s+){0,2}[a-z-]{3,})\b")
+
+
+def first_mentions(prose: str) -> list[tuple[int, str, str]]:
+    """Definite references whose head noun has not appeared earlier.
+
+    "the shortlist you are holding" tells the reader they already know about a
+    shortlist. If the word has not appeared yet they do not, so they either
+    invent one or stumble. Nothing else here sees this. Readability formulas
+    measure sentence shape, and a blind reader who knows the subject supplies
+    the missing referent silently and reports the paragraph as fine.
+
+    Reports rather than judges: some definite first uses are correct, because
+    the referent is obvious from the situation. Read the list and decide.
+    """
+    stems = [w.rstrip("s") for w in re.findall(r"[a-z][a-z-]{3,}", prose.lower())]
+    total = Counter(stems)
+
+    seen: set[str] = set()
+    out: list[tuple[int, str, str]] = []
+    for i, sentence in enumerate(split_sentences(prose), 1):
+        lowered = sentence.lower()
+        for det, phrase in _DEFINITE.findall(lowered):
+            words = phrase.split()
+            for cut, word in enumerate(words):
+                if word in _FUNCTION_WORDS:
+                    words = words[:cut]
+                    break
+            if not words:
+                continue
+            phrase, head = " ".join(words), words[-1]
+            stem = head.rstrip("s")
+            if head in _NOT_A_REFERENT or stem in _NOT_A_REFERENT or stem in seen:
+                continue
+            # A noun used once in the whole piece, behind a definite article, is
+            # the strongest signal: you pointed at something you never discuss.
+            mark = "!" if total[stem] == 1 else " "
+            out.append((i, f"{mark} {det} {phrase}", sentence.strip()))
+        for word in re.findall(r"[a-z][a-z-]{3,}", lowered):
+            seen.add(word.rstrip("s"))
+    return out
+
+
+def print_first_mentions(prose: str) -> None:
+    hits = first_mentions(prose)
+    print("\n  FIRST MENTIONS (definite reference, noun not seen before).")
+    print("  Each one asks the reader to recall something they were never given.\n")
+    if not hits:
+        print("    none")
+    for n, phrase, sentence in hits:
+        print(f"    s{n:<4} {phrase:<24} {sentence[:96]}")
+    print()
+
+
 def band(score: float) -> str:
     for limit, label in ((90, "very easy"), (80, "easy"), (70, "fairly easy"),
                          (60, "plain English"), (50, "fairly hard"), (30, "hard")):
@@ -222,13 +296,17 @@ def print_spine(source: str) -> None:
     print()
 
 
-def main(path: str, spine: bool = False) -> int:
+def main(path: str, spine: bool = False, referents: bool = False) -> int:
     source = open(path, encoding="utf-8").read()
     prose = extract_prose(source)
     r = analyse(prose)
     if spine:
         print(f"\n{path}")
         print_spine(source)
+        return 0
+    if referents:
+        print(f"\n{path}")
+        print_first_mentions(prose)
         return 0
 
     print(f"\n{path}")
@@ -275,7 +353,8 @@ def main(path: str, spine: bool = False) -> int:
 if __name__ == "__main__":
     args = [a for a in sys.argv[1:] if not a.startswith("-")]
     spine = "--spine" in sys.argv
+    referents = "--referents" in sys.argv
     if not args:
         print(__doc__)
         sys.exit(2)
-    sys.exit(max(main(p, spine) for p in args))
+    sys.exit(max(main(p, spine, referents) for p in args))

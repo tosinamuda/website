@@ -10,7 +10,8 @@
     "test": "npm run build",
     "lint:prose": "vale --no-exit content/blog",
     "lint:read": "python3 scripts/readability.py content/blog/*.html",
-    "lint:spine": "python3 scripts/readability.py --spine"
+    "lint:spine": "python3 scripts/readability.py --spine",
+    "lint:refs": "python3 scripts/readability.py --referents content/blog/*.html"
   },
   "keywords": [
     "static-site",
