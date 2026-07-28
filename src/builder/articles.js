@@ -163,9 +163,10 @@ function required(attrs, key, filename) {
 }
 
 // An excerpt is read with nothing before it: under the title on the page, and
-// under the title again in a search result. A demonstrative opener has nothing
-// to point back to in either place.
-const DANGLING_OPENER = /^(they|it|this|that|these|those|its|their|he|she)\b/i;
+// under the title again in a search result. A pronoun that points backwards has
+// nothing to land on in either place. "This" and "these" are excluded because
+// they point at the page itself, which the reader is holding.
+const DANGLING_OPENER = /^(they|it|that|those|them|its|their|he|she)\b/i;
 
 /**
  * Print a single grouped warning per file when its title or excerpt would be
