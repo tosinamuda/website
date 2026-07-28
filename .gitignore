@@ -7,6 +7,10 @@ node_modules
 # macOS noise
 .DS_Store
 
+# vale style packages (fetched by `vale sync`); config + vocab stay tracked
+.vale/*
+!.vale/config/
+
 # local Claude Code settings
 .claude
 
