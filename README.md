@@ -5,8 +5,8 @@ A static site with no dependencies and no framework: plain HTML, plain CSS, and 
 ## Stack
 
 - **Builder:** a Node script (`build.js`) over modules in `src/builder/`. No bundler.
-- **Templates:** HTML in `src/`, using the web components in `src/components/`. `<site-header>`, `<site-footer>`, and `<blog-archive>` are stamped into the output at build time so pages work without JS.
-- **Styles:** hand-written CSS modules in `src/styles/`, concatenated to `dist/assets/styles.css`.
+- **Templates:** HTML in `src/`, plus the web components in `src/components/`. The build stamps `<site-header>`, `<site-footer>`, and `<blog-archive>` into the output, so pages work without JS.
+- **Styles:** hand-written CSS modules in `src/styles/`. The build concatenates them to `dist/assets/styles.css`.
 - **Typography:** Spectral (serif) and JetBrains Mono (mono), self-hosted as WOFF2 in `public/fonts/`.
 - **Dark mode:** `color-scheme: light dark` with `light-dark()` in `10-tokens.css`, so it follows the OS. Override with `[data-mode="light|paper|dark"]` on `:root`.
 - **Notes:** plain HTML in `content/blog/` wrapped in a `<blog-post>` element. [`CONTENT.md`](./CONTENT.md) has the authoring schema.
@@ -61,6 +61,6 @@ npm run clean      # remove dist/
 
 The blog post template renders a giscus comments box at the bottom of every post. It uses the [`tosinamuda/website`](https://github.com/tosinamuda/website) repo's `General` discussion category, with `pathname` mapping (one discussion thread per post URL).
 
-For comments to actually load, the [giscus app](https://github.com/apps/giscus) must be installed on the `tosinamuda/website` repo. If the comments box shows "giscus is not installed on this repo" after deploying, install the app and refresh.
+Install the [giscus app](https://github.com/apps/giscus) on the `tosinamuda/website` repo. Without it, the box reads "giscus is not installed on this repo".
 
 If you ever change the comments repo or category, update the `data-*` attributes in `src/components/blog-post.html`.
