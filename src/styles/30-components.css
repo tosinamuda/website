@@ -193,17 +193,10 @@
     font-size: var(--text-3xl);
     line-height: var(--leading-tight);
     letter-spacing: -0.02em;
-    margin: 0 0 var(--space-4);
+    /* The excerpt is metadata only, so the title carries the gap to the body. */
+    margin: 0 0 var(--space-9);
     color: var(--ink);
     text-wrap: wrap;
-  }
-  .note-page-dek {
-    font-family: var(--body);
-    font-size: var(--text-md);
-    line-height: var(--leading-snug);
-    color: var(--ink-3);
-    margin: 0 0 var(--space-9);
-    text-wrap: pretty;
   }
   .note-page-body { font-size: var(--text-md); }
   .note-page-body p { margin: 0 0 1.1em; }
