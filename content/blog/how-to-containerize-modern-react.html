@@ -1,0 +1,405 @@
+<blog-post
+  title="How to Containerize Modern React"
+  excerpt="React ships in two deployment shapes now. Whether you need a static file server or a running Node server comes down to one question about your app."
+  date="2026-06-04"
+  draft>
+  <script type="application/json" id="meta">
+    { "type": "essay", "categories": ["Engineering", "DevOps"] }
+  </script>
+
+  <p>A container is a packaged copy of your app and everything it needs to run, so it behaves the same on your laptop as it does on a server. To put a React app in one, you write a <strong>Dockerfile</strong>: a list of steps Docker follows to produce an <strong>image</strong>, which it then runs as a container.</p>
+
+  <p>The catch with React is that there is no single right Dockerfile, because there is no single kind of React app anymore. Which Dockerfile you need comes down to one question: <strong>does any of your React run on the server at request time?</strong></p>
+
+  <ul>
+    <li><strong>No</strong> — a plain client-rendered app. You build it into static files and serve them with a web server like Nginx. There is no Node in the running container.</li>
+    <li><strong>Yes</strong> — some of your React runs on the server, the way server-side rendering and React Server Components do. Something has to execute JavaScript on every request, so the running container is a Node process.</li>
+  </ul>
+
+  <figure class="diagram">
+    <svg viewBox="0 0 520 384" role="img" aria-labelledby="figA-title" style="max-width:440px">
+      <title id="figA-title">Install and build are the same for every React app. The third step, running it, is what changes: if anything renders at request time the container runs a Node server, otherwise it serves static files with Nginx.</title>
+      <defs>
+        <marker id="dgA-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path class="d-arrowhead" d="M0,0 L10,5 L0,10 z"/>
+        </marker>
+      </defs>
+      <rect class="d-box" x="160" y="14" width="200" height="50" rx="5"/>
+      <text class="d-title" x="260" y="36" text-anchor="middle">1 · npm ci</text>
+      <text class="d-text" x="260" y="53" text-anchor="middle">install dependencies</text>
+      <line class="d-line" x1="260" y1="64" x2="260" y2="84" marker-end="url(#dgA-arrow)"/>
+      <rect class="d-box" x="160" y="86" width="200" height="50" rx="5"/>
+      <text class="d-title" x="260" y="108" text-anchor="middle">2 · npm run build</text>
+      <text class="d-text" x="260" y="125" text-anchor="middle">compile to assets</text>
+      <line class="d-line" x1="260" y1="136" x2="260" y2="158" marker-end="url(#dgA-arrow)"/>
+      <rect class="d-box-accent" x="120" y="160" width="280" height="48" rx="24"/>
+      <text class="d-title" x="260" y="189" text-anchor="middle">renders at request time?</text>
+      <path class="d-line" d="M190,208 C150,238 132,244 124,264" marker-end="url(#dgA-arrow)"/>
+      <path class="d-line" d="M330,208 C370,238 388,244 396,264" marker-end="url(#dgA-arrow)"/>
+      <text class="d-sub" x="260" y="236" text-anchor="middle">3 · run it</text>
+      <text class="d-sub" x="120" y="240" text-anchor="middle">no</text>
+      <text class="d-sub" x="400" y="240" text-anchor="middle">yes</text>
+      <rect class="d-box" x="8" y="266" width="234" height="106" rx="5"/>
+      <text class="d-title" x="125" y="294" text-anchor="middle">Client-only</text>
+      <text class="d-text" x="125" y="314" text-anchor="middle">static files served</text>
+      <text class="d-text" x="125" y="330" text-anchor="middle">by Nginx</text>
+      <text class="d-text" x="125" y="356" text-anchor="middle">listens on <tspan class="d-port">:8080</tspan></text>
+      <rect class="d-box" x="278" y="266" width="234" height="106" rx="5"/>
+      <text class="d-title" x="395" y="294" text-anchor="middle">Server-rendered</text>
+      <text class="d-text" x="395" y="314" text-anchor="middle">a Node server</text>
+      <text class="d-text" x="395" y="330" text-anchor="middle">process runs</text>
+      <text class="d-text" x="395" y="356" text-anchor="middle">listens on <tspan class="d-port">:3000</tspan></text>
+    </svg>
+    <figcaption>Install and build are the same for every React app. Step 3 — run it — is the one that changes: a static file server, or a Node process, each on its own port.</figcaption>
+  </figure>
+
+  <h2>Every React container does the same three things</h2>
+
+  <p>However it renders, a React container does three things, in order:</p>
+
+  <ol>
+    <li><strong>Install dependencies</strong> — <code>npm ci</code> (like <code>npm install</code>, but it installs exactly what <code>package-lock.json</code> pins, which is what you want in a repeatable build)</li>
+    <li><strong>Build the app</strong> — <code>npm run build</code></li>
+    <li><strong>Run it</strong> — <code>npm start</code>, or <code>node server.js</code>, or a static file server like <code>serve</code> or Nginx</li>
+  </ol>
+
+  <p>The first two steps are identical for every React app. The third is the one that changes, and it is what the rest of this post is really about: a client-only app just needs something to hand over static files, while a server-rendered app needs a live Node process. Same install, same build, different run.</p>
+
+  <p>One more idea makes the Dockerfiles readable: a Dockerfile can have more than one <strong>stage</strong>, each starting with its own <code>FROM</code> line. Earlier stages build things; the last stage is the image you actually ship and run. Anything in an earlier stage is thrown away unless you explicitly copy it forward — that is what keeps the final image small, and it is the difference between the two cases below.</p>
+
+  <h2>What "runs on the server" actually means</h2>
+
+  <p>Step 3 splits on one thing: does your app build its HTML by running code on the server for each request, or does it just ship files that the browser fills in? Two React features put work on the server, and the difference is worth seeing plainly:</p>
+
+  <ul>
+    <li><strong>Server-side rendering (SSR)</strong> builds the page's HTML on the server for each request and sends that to the browser, which then <em>hydrates</em> it into an interactive app. The component code still ships to the browser too.</li>
+    <li><strong>React Server Components (RSC)</strong> go further: some components run <em>only</em> on the server, and their code never reaches the browser at all.</li>
+  </ul>
+
+  <p>The mechanics differ, but for containerizing they mean the same thing: a JavaScript runtime has to be running when a request comes in. That is the line. If any rendering happens per request, step 3 is a Node process; if not, it is a static file server.</p>
+
+  <h2>Client-only: build static files, serve with Nginx</h2>
+
+  <p>For a client-rendered app — a plain Vite or Create React App SPA — the build output is just a folder of static files (<code>dist/</code> with Vite, <code>build/</code> with CRA). The simplest possible Dockerfile builds and serves from one image:</p>
+
+  <code-block language="dockerfile">
+    <pre><code>FROM node:22-alpine
+WORKDIR /app
+COPY . .
+RUN npm ci &amp;&amp; npm run build
+RUN npm install -g serve
+EXPOSE 3000
+CMD ["serve", "-s", "dist"]</code></pre>
+  </code-block>
+
+  <p>This works, but the final image drags along Node, every dependency, and your source — none of which a browser-served app needs. This is exactly what a second stage fixes: build in a Node stage, then copy <em>only</em> the finished static files into a tiny Nginx image and discard the toolchain.</p>
+
+  <code-block language="dockerfile">
+    <pre><code>FROM node:22-alpine AS builder
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+RUN npm run build          # Vite writes to /app/dist
+
+FROM nginxinc/nginx-unprivileged:alpine
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /app/dist /usr/share/nginx/html
+EXPOSE 8080</code></pre>
+  </code-block>
+
+  <p>The one config a single-page app needs is a fallback to <code>index.html</code>, so client-side routes resolve instead of returning 404:</p>
+
+  <code-block language="nginx">
+    <pre><code>server {
+    listen 8080;
+    location / {
+        root /usr/share/nginx/html;
+        try_files $uri /index.html;
+    }
+}</code></pre>
+  </code-block>
+
+  <p>The final image now holds HTML, CSS, JS, and Nginx — no Node, no <code>node_modules</code>, no source.</p>
+
+  <h2>Ports: how your browser reaches the container</h2>
+
+  <p>Notice the <code>EXPOSE 8080</code> in that Dockerfile. Ports are where first-time containerizing usually goes wrong, so it is worth slowing down on.</p>
+
+  <p>Inside the container, the web server listens on a port — <code>8080</code> for the Nginx image above. That port lives <em>inside</em> the container. By default, nothing on your machine can reach it.</p>
+
+  <figure class="diagram">
+    <svg viewBox="0 0 620 232" role="img" aria-labelledby="figB-title" style="max-width:600px">
+      <title id="figB-title">The browser connects to a port on your machine. docker run with the -p flag maps that host port to the port the server listens on inside the container.</title>
+      <defs>
+        <marker id="dgB-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path class="d-arrowhead" d="M0,0 L10,5 L0,10 z"/>
+        </marker>
+      </defs>
+      <rect class="d-frame" x="10" y="40" width="600" height="120" rx="6"/>
+      <text class="d-sub" x="26" y="58">your machine</text>
+      <rect class="d-box" x="30" y="76" width="130" height="64" rx="5"/>
+      <text class="d-title" x="95" y="102" text-anchor="middle">Browser</text>
+      <text class="d-text" x="95" y="122" text-anchor="middle"><tspan class="d-port">localhost:8080</tspan></text>
+      <line class="d-line" x1="160" y1="108" x2="206" y2="108" marker-end="url(#dgB-arrow)"/>
+      <rect class="d-box" x="208" y="86" width="96" height="44" rx="22"/>
+      <text class="d-port" x="256" y="113" text-anchor="middle">:8080</text>
+      <text class="d-sub" x="256" y="152" text-anchor="middle">host port</text>
+      <line class="d-line" x1="304" y1="108" x2="350" y2="108" marker-end="url(#dgB-arrow)"/>
+      <rect class="d-box-accent" x="352" y="64" width="242" height="86" rx="5"/>
+      <text class="d-sub" x="368" y="82">container</text>
+      <text class="d-title" x="473" y="106" text-anchor="middle">Nginx</text>
+      <text class="d-text" x="473" y="126" text-anchor="middle">listening on <tspan class="d-port">:8080</tspan></text>
+      <text class="d-text" x="310" y="198" text-anchor="middle">docker run -p <tspan class="d-port">8080</tspan>:<tspan class="d-port">8080</tspan></text>
+      <text class="d-sub" x="310" y="218" text-anchor="middle">host : container</text>
+    </svg>
+    <figcaption>The browser only ever talks to the host port. <code>docker run -p host:container</code> connects it to the port the server listens on inside the container.</figcaption>
+  </figure>
+
+  <p>Two flags do two different jobs, and confusing them is the usual stumbling block:</p>
+
+  <ul>
+    <li><code>EXPOSE 8080</code> in the Dockerfile is <strong>documentation</strong>. It records which port the app listens on. It does not, on its own, make the port reachable from your machine.</li>
+    <li><code>docker run -p 8080:8080</code> is what actually <strong>publishes</strong> the port. The format is <code>-p HOST:CONTAINER</code>: the left number is the port on your machine, the right number is the port inside the container.</li>
+  </ul>
+
+  <p>So to build and run the static image:</p>
+
+  <code-block language="bash">
+    <pre><code>docker build -t my-react-app .
+docker run -p 8080:8080 my-react-app</code></pre>
+  </code-block>
+
+  <p>Now open <code>http://localhost:8080</code>. Your browser always talks to the <em>host</em> port — the left number. The two numbers do not have to match: <code>-p 3000:8080</code> would serve the container's <code>8080</code> on your machine's <code>3000</code> instead, and you would visit <code>http://localhost:3000</code>.</p>
+
+  <p>One question this raises: why <code>8080</code> and not <code>80</code>? The <code>nginx-unprivileged</code> image runs as a non-root user, and non-root users cannot bind ports below <code>1024</code>, so it listens on <code>8080</code>. A Node server, in the next section, conventionally listens on <code>3000</code>.</p>
+
+  <h2>Server-rendered: run a Node process</h2>
+
+  <p>For SSR or RSC, the final image runs Node. The simplest version is again a single stage — install, build, start:</p>
+
+  <code-block language="dockerfile">
+    <pre><code>FROM node:22-alpine
+WORKDIR /app
+COPY . .
+RUN npm ci
+RUN npm run build
+ENV NODE_ENV=production
+EXPOSE 3000
+CMD ["npm", "run", "start"]</code></pre>
+  </code-block>
+
+  <p>It runs, but it ships your dev dependencies and source into production. The multi-stage version builds in one stage, then installs <em>only</em> production dependencies in a clean runtime stage and copies the build output across:</p>
+
+  <code-block language="dockerfile">
+    <pre><code>FROM node:22-alpine AS builder
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+FROM node:22-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev                      # production deps only
+COPY --from=builder /app/build ./build     # output path varies by framework
+USER node
+EXPOSE 3000
+CMD ["npm", "run", "start"]</code></pre>
+  </code-block>
+
+  <p>Same idea as before — the container listens on a port (<code>3000</code> here), and you publish it when you run:</p>
+
+  <code-block language="bash">
+    <pre><code>docker build -t my-react-app .
+docker run -p 3000:3000 my-react-app</code></pre>
+  </code-block>
+
+  <p>The build output directory and start command above are placeholders — they depend on the framework, which is the next section. One caveat first: a Node container is not the only way to run server React. Most SSR frameworks can also target edge or serverless runtimes, where there is no long-lived server and no container at all. If you are containerizing, a long-running Node process is the right model — just know it is one of several targets.</p>
+
+  <h2>By framework</h2>
+
+  <p>That split — static files or a Node process — is the whole idea. Per framework, it just comes down to knowing which build mode gives you static output and which gives you a server, so here is each one as a client image beside a server image.</p>
+
+  <h3>Next.js</h3>
+
+  <p>Next.js renders on the server by default. Set <code>output: 'standalone'</code> and the build emits a self-contained <code>.next/standalone</code> folder with only the dependencies it actually uses, started by a generated <code>server.js</code>. Set <code>output: 'export'</code> instead and you get a fully static site — back to Nginx.</p>
+
+  <div class="code-compare">
+    <div class="code-compare-col">
+      <div class="code-compare-label">Client · output: 'export'</div>
+      <code-block language="dockerfile">
+        <pre><code>FROM node:22-alpine AS builder
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+RUN npm run build      # writes /app/out
+
+FROM nginxinc/nginx-unprivileged:alpine
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /app/out /usr/share/nginx/html
+EXPOSE 8080</code></pre>
+      </code-block>
+    </div>
+    <div class="code-compare-col">
+      <div class="code-compare-label">Server · output: 'standalone'</div>
+      <code-block language="dockerfile">
+        <pre><code>FROM node:22-alpine AS builder
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+FROM node:22-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
+USER node
+EXPOSE 3000
+CMD ["node", "server.js"]</code></pre>
+      </code-block>
+    </div>
+  </div>
+
+  <h3>Vite</h3>
+
+  <p>Plain Vite is a client SPA: <code>vite build</code> writes static files to <code>dist/</code>. Adding SSR (Vite's SSR mode, or a framework built on Vite) gives you a server entry you run with Node.</p>
+
+  <div class="code-compare">
+    <div class="code-compare-col">
+      <div class="code-compare-label">Client · SPA</div>
+      <code-block language="dockerfile">
+        <pre><code>FROM node:22-alpine AS builder
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+RUN npm run build      # writes /app/dist
+
+FROM nginxinc/nginx-unprivileged:alpine
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /app/dist /usr/share/nginx/html
+EXPOSE 8080</code></pre>
+      </code-block>
+    </div>
+    <div class="code-compare-col">
+      <div class="code-compare-label">Server · SSR</div>
+      <code-block language="dockerfile">
+        <pre><code>FROM node:22-alpine AS builder
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+RUN npm run build      # client + server bundles
+
+FROM node:22-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
+COPY --from=builder /app/dist ./dist
+USER node
+EXPOSE 3000
+CMD ["node", "server.js"]</code></pre>
+      </code-block>
+    </div>
+  </div>
+
+  <h3>React Router v7 (formerly Remix)</h3>
+
+  <p>React Router's framework mode is server-rendered: the build splits into <code>build/server</code> and <code>build/client</code>, run with <code>react-router-serve</code>. Opt into SPA mode and it builds to static files in <code>build/client</code> instead.</p>
+
+  <div class="code-compare">
+    <div class="code-compare-col">
+      <div class="code-compare-label">Client · SPA mode</div>
+      <code-block language="dockerfile">
+        <pre><code>FROM node:22-alpine AS builder
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+RUN npm run build      # ssr:false → static
+
+FROM nginxinc/nginx-unprivileged:alpine
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /app/build/client /usr/share/nginx/html
+EXPOSE 8080</code></pre>
+      </code-block>
+    </div>
+    <div class="code-compare-col">
+      <div class="code-compare-label">Server · framework mode</div>
+      <code-block language="dockerfile">
+        <pre><code>FROM node:22-alpine AS builder
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+FROM node:22-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
+COPY --from=builder /app/build ./build
+USER node
+EXPOSE 3000
+CMD ["npm", "run", "start"]   # react-router-serve</code></pre>
+      </code-block>
+    </div>
+  </div>
+
+  <h3>TanStack Start</h3>
+
+  <p>TanStack Start is SSR-first and built on Vite. The build emits a Node server entry you start with <code>node</code>; it can also prerender or run in SPA mode for a fully static output. The exact output path and start command track the version and deployment preset, so confirm those rather than copying a path blindly — but the two shapes are the same as everywhere else.</p>
+
+  <div class="code-compare">
+    <div class="code-compare-col">
+      <div class="code-compare-label">Client · prerender / SPA</div>
+      <code-block language="dockerfile">
+        <pre><code>FROM node:22-alpine AS builder
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+RUN npm run build      # static client output
+
+FROM nginxinc/nginx-unprivileged:alpine
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /app/dist /usr/share/nginx/html
+EXPOSE 8080</code></pre>
+      </code-block>
+    </div>
+    <div class="code-compare-col">
+      <div class="code-compare-label">Server · SSR</div>
+      <code-block language="dockerfile">
+        <pre><code>FROM node:22-alpine AS builder
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+RUN npm run build      # server entry
+
+FROM node:22-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
+COPY --from=builder /app/.output ./.output
+USER node
+EXPOSE 3000
+CMD ["node", ".output/server/index.mjs"]</code></pre>
+      </code-block>
+    </div>
+  </div>
+
+  <h2>The one rule to carry away</h2>
+
+  <p>Before you write the final stage of a React Dockerfile, ask whether anything renders at request time. If nothing does, ship static files behind a file server and keep Node out of production. If something does, ship a Node process and give it only the build output and production dependencies. Either way, the container listens on a port, and <code>-p HOST:CONTAINER</code> is what hands that port to your browser. The first two steps are always the same; the rendering model decides the last one.</p>
+</blog-post>

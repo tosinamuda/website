@@ -1,0 +1,123 @@
+<blog-post
+  title="When Code Gets Cheap, Confidence Gets Expensive"
+  excerpt="Why I'm learning Rust and building a compiler for my phone in the age of coding agents."
+  date="2026-07-11"
+  draft>
+  <script type="application/json" id="meta">
+    { "type": "essay", "categories": ["AI", "Rust", "Engineering"] }
+  </script>
+
+  <p>The first time I ran my Rust compiler on a real iPhone, it did nothing and told me it had succeeded.</p>
+
+  <p>I had spent weeks getting an actual Rust compiler to run on a phone. In the iOS Simulator it worked perfectly: type a program, tap run, watch it compile and print its output. Then I installed the same build on a real device, typed the same program, and got back a calm, plausible lie. "Didn't compile. 0 errors." No error, no output, no crash I could point at. Just a confident nothing.</p>
+
+  <p>The bug was mundane. The small WebAssembly runtime that runs the compiler on-device defaults to a hardware bounds-check that reserves an 8&nbsp;GB guard region of memory. My Mac, running the simulator, had the address space to spare and waved it through. A real iPhone refused the reservation, the guard faulted, and the compiler died so low in the stack that the app surfaced it as a bland "no errors." One line of configuration fixed it.</p>
+
+  <p>But the lesson stuck, because it is the same lesson I keep relearning. The simulator had been telling me what I wanted to hear. The device told me the truth. An environment that says "looks fine" is not the same as one that says "this is correct," and the whole job, more and more, is living in the gap between them.</p>
+
+  <h2>What actually got cheap</h2>
+
+  <p>That gap is not a phone problem. It is the defining problem of writing software right now.</p>
+
+  <p>The newest coding models made one specific thing dramatically cheaper: producing a first draft that looks right. Point one at a task and you get back code that reads well and often runs. People compress this into "AI made writing code cheap," but that is not what happened. Producing plausible code got cheap. What did not get cheaper is everything that turns a plausible draft into software you can trust: correct requirements, integration, tests, security, observability, deployment, the debugging you do at 2am, and the plain fact of being accountable for what ships.</p>
+
+  <p>So the cost moved. It used to be expensive to produce code and, relatively, cheap to believe it, because you wrote it yourself and understood it as you went. Now it is cheap to produce and expensive to believe. Confidence is the scarce resource.</p>
+
+  <h2>Why Rust, exactly</h2>
+
+  <p>This is why I got interested in Rust again, and my reason is narrower than the one I usually hear.</p>
+
+  <p>Rust does not guarantee your program is correct. It cannot tell you your logic is right, your auth rules are sound, your distributed system behaves, or that you built the thing anyone actually asked for. What it does is move whole classes of defects out of runtime, and out of the code review where a human squints and hopes, and into the compiler, where they become errors you cannot merge past. Ownership and borrowing rule out use-after-free and a large family of aliasing bugs. The type system makes you handle the error case and the empty case instead of forgetting them. Sharing mutable state across threads without saying so becomes a compile error, not a heisenbug you chase for a week.</p>
+
+  <p>Here is a fragment a coding model might hand you:</p>
+
+  <pre><code>let config = load_config();
+let worker = thread::spawn(move || run(config)); // config moved into the thread
+save_to_disk(config);                            // ...still using it here
+</code></pre>
+
+  <p>In a lot of languages this compiles, ships, and becomes a rare production bug about who owns <code>config</code> and when. Rust rejects it before it runs: <code>error[E0382]: borrow of moved value</code>. That is not the compiler catching "bad" code in some moral sense; it is the compiler refusing to let an ownership mistake reach runtime. When I write the code, that refusal feels like friction. When a model writes the code and I am the one who has to trust it, the same refusal is doing verification work I would otherwise have to do by hand.</p>
+
+  <h2>The most honest example is Bun</h2>
+
+  <p>The most convincing version of this I have seen is not a benchmark or a tweet. It is <a href="https://bun.com/blog/bun-in-rust">Bun</a>, the JavaScript runtime, rewriting its entire codebase, more than half a million lines, from Zig to Rust.</p>
+
+  <p>The stated reason is exactly the argument above. In Zig, a whole category of bugs, use-after-free, double-free, forgetting to free on an error path, were runtime problems held back by discipline and luck. In safe Rust they are compile errors, with automatic cleanup when a value goes out of scope. Its author, Jarred Sumner, put it plainly: "Compiler errors are a better feedback loop than a style guide."</p>
+
+  <p>But Bun is interesting for a second reason, one that quietly kills a story I almost told you. They did the rewrite with AI, and not a little of it. Sumner ran roughly 50 automated Claude workflows over 11 days, at peak around 64 model instances at once, and the change that landed was over a million lines. Nobody read that diff top to bottom. Nobody could.</p>
+
+  <p>So how did they trust it? Not by reading. By building a system of checks around the generation. The compiler came first: <code>cargo check</code> produced about sixteen thousand errors, and those errors became a work queue the models chewed through. Then the existing test suite, written in TypeScript and therefore indifferent to what language the runtime is written in, had to pass 100% on every platform before anything merged. And on top of that, adversarial reviewer models whose only instruction was to assume the code was wrong and find the bug, which is how they caught things that compiled and passed anyway: a use-after-free on an async handle, a mishandled negative timestamp, an expression evaluated too early.</p>
+
+  <p>That is the honest lesson, and it is more useful than "so keep reading all the code." As generated code grows past the point any human will read it line by line, the work stops being comprehension of every detail and becomes the design of the checks that make the code trustworthy without that reading. The compiler proves what it can. Tests cover what it cannot. Review aims at the parts most likely to be wrong.</p>
+
+  <p>The bigger names point the same way without proving as much. <a href="https://rustfoundation.org/media/rust-foundation-welcomes-openai-as-platinum-member-announces-donation-to-rust-project/">OpenAI joined the Rust Foundation</a> as a platinum member with a $600,000 commitment in June 2026, and framed it as a bet on Rust "as the future of systems programming." Some of the fastest-growing tools in the Python world, <a href="https://astral.sh">Ruff and uv</a>, are written in Rust. OpenAI's president Greg Brockman <a href="https://x.com/gdb/status/2007228511363444905">tweeted</a> that Rust is "a perfect language for agents, given that if it compiles it's ~correct." I would not lean on any of these as proof, and that last line is the exact overstatement I am trying to avoid, since compiling is not the same as correct. But they are signals that serious people building agentic systems are reaching for the same property I am.</p>
+
+  <h2>The skill I am actually protecting</h2>
+
+  <p>There is a popular claim that soon you will not need to read or understand AI-generated code at all. I think it is half right in a way that matters. You will not read all of it. But someone still has to answer the questions that decide whether generated code is safe to ship: what has to stay true no matter what changes, where the risky parts are, which tests actually provide evidence, what the compiler has proven and what it has not, where untrusted input crosses a boundary, and when a green test run is hiding a problem instead of ruling one out.</p>
+
+  <p>Call it code judgment, or verification literacy. It is not line-by-line reading, which does not scale, and it is not out-typing the model, which is a race you lose. It is the ability to build justified confidence in a system you did not write by hand. That skill gets more valuable as generation gets cheaper, not less, because cheap generation produces more code that looks fine and still needs judging.</p>
+
+  <p>Rust does not own this skill. You can build excellent judgment in C, in Python, in Go. But Rust has an unusual property for practicing it: it forces me, and the model working next to me, to make assumptions explicit, about ownership, about lifetimes, about which errors can happen, before any of it runs. It is a demanding place to learn how to reason about code, which is exactly what I want such a place to be.</p>
+
+  <h2>How big the bet actually is</h2>
+
+  <p>I want to be careful about the size of this, because the honest version is smaller than the excited one.</p>
+
+  <p>Rust is not going to be my default for everything, and it should not be. I do model and data work in Python and will keep doing it there; the libraries are there and iteration speed matters more than runtime control. Rust is a bad fit for a notebook, a quick script, a throwaway prototype, a CRUD app whose bottleneck is the database. My real bet is narrower: Rust as my default for the systems-shaped work, the performance-sensitive tools, local-first software, and infrastructure where resource control and reliability earn their cost.</p>
+
+  <p>And the compiler is not an oracle. A model can write Rust that satisfies the type system and is still badly designed, or solves the wrong problem correctly. Compiling is a floor, not a ceiling. Real confidence still needs tests, sometimes fuzzing or a written-down spec, and judgment no compiler will ever have. Rust is not even alone in offering strong static guarantees; Go, Swift, C#, and OCaml all make real trades here. Rust's particular bet is a specific combination: memory safety and strong compile-time constraints, at systems performance, without a garbage collector. That combination is the thing I am buying.</p>
+
+  <h2>Why I built a compiler for my phone</h2>
+
+  <p>None of this is why I struggled to learn Rust. I struggled because I kept trying to read it.</p>
+
+  <p>I have started the Rust book more times than I will admit and finished it zero times. I would get through ownership and borrowing as ideas, put it down, and a week later have nothing in my hands. You do not learn a language by reading about it any more than you learn to lift by watching. You learn it by arguing with the borrow checker until you start winning.</p>
+
+  <p>What I needed was a tight loop I could run in the gaps of a normal day: read a concept, immediately practice it on a small problem, then play with it freely until it stops being theory. On the bus, on a break, before sleep. Which meant it had to be on my phone, and it had to work with no signal.</p>
+
+  <figure>
+    <svg viewBox="0 0 720 200" role="img" aria-label="A loop of three modes: Read, then Practice, then Play, then repeat." xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
+      <defs>
+        <marker id="rae-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0 0 L10 5 L0 10 z" fill="currentColor"></path>
+        </marker>
+      </defs>
+      <g fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="30" y="50" width="170" height="70" rx="12"></rect>
+        <rect x="275" y="50" width="170" height="70" rx="12"></rect>
+        <rect x="520" y="50" width="170" height="70" rx="12"></rect>
+        <line x1="205" y1="85" x2="270" y2="85" marker-end="url(#rae-arrow)"></line>
+        <line x1="450" y1="85" x2="515" y2="85" marker-end="url(#rae-arrow)"></line>
+        <path d="M605 120 C 605 178, 115 178, 115 122" marker-end="url(#rae-arrow)"></path>
+      </g>
+      <g fill="currentColor" text-anchor="middle" font-family="inherit">
+        <text x="115" y="82" font-size="22" font-weight="600">Read</text>
+        <text x="115" y="103" font-size="13" opacity="0.6">the Rust book</text>
+        <text x="360" y="82" font-size="22" font-weight="600">Practice</text>
+        <text x="360" y="103" font-size="13" opacity="0.6">Exercism</text>
+        <text x="605" y="82" font-size="22" font-weight="600">Play</text>
+        <text x="605" y="103" font-size="13" opacity="0.6">playground</text>
+        <text x="360" y="163" font-size="13" opacity="0.6">repeat, in the cracks of the day</text>
+      </g>
+    </svg>
+    <figcaption>The loop I wanted in my pocket: read a concept, practice it against real tests, then play until it sticks.</figcaption>
+  </figure>
+
+  <p>The obvious way to put a compiler on a phone is to not: run <code>rustc</code> on a server and ship code back and forth, the way every web playground does. I did not want a version that dies on a plane and bills me for a personal habit. I wanted the compiler on the device, and it turns out you can have it there.</p>
+
+  <p>A real <code>rustc</code>, compiled to WebAssembly, runs on the phone inside <a href="https://github.com/bytecodealliance/wasm-micro-runtime">WAMR</a>, a small WebAssembly runtime. Its machine code is compiled ahead of time and sealed so it starts fast and runs from read-only memory, which matters because iOS does not allow apps to generate code at runtime. The standard library and a curated set of prebuilt crates ship inside the app, and the whole thing runs in the WebAssembly sandbox with no network. The genuinely hard part, getting <code>rustc</code> to run as WebAssembly at all, is not mine: it stands on <a href="https://github.com/oligamiq">oligamiq's</a> rubrc and rust_wasm and on WAMR. What I built is the layer around it: the on-device engine, and a learning loop that puts the <a href="https://doc.rust-lang.org/book/">Rust book</a>, the <a href="https://exercism.org/tracks/rust">Exercism exercises</a>, and a real playground in one place. I called it <strong>Syntactic</strong>. It is not a full toolchain in your pocket; it is a curated environment for learning, which is all I wanted it to be. It is <a href="https://github.com/getlatentic/syntactic-ios">open source</a>, and on its way to the App Store.</p>
+
+  <p>Fittingly for a bet about coding in the agentic era, I built a lot of Syntactic fast, with a coding model doing the typing, the same kind of model that rewrote Bun. Which is how I ended up on a real device, staring at a compiler that swore it had succeeded and had done nothing at all. The model wrote plausible code. The device was the adversarial reviewer that refused to pretend it worked.</p>
+
+  <h2>The bet, stated small</h2>
+
+  <p>So here is the wager, as small as it honestly is.</p>
+
+  <p>I am not betting that Rust wins, or that AI writes most code by some date, or that everyone becomes a Rust programmer. I do not know those things, and neither does anyone tweeting confidently about them. I am betting something narrower: that as producing code gets cheaper, the value moves to whatever makes mistakes harder to hide. Strict languages. Good tests. Real specifications. And people who can still tell whether the machine's confident output is actually right.</p>
+
+  <p>Learning Rust is how I practice that, and it is a bet that pays off even if I am wrong about the market. Worst case, Rust never becomes the language of the agentic era and I have spent my bus rides getting sharper about ownership, lifetimes, error handling, and concurrency, which makes me better in every language I touch. Best case, I am early.</p>
+
+  <p>Rust still cannot tell me whether I am building the right thing. But it makes me, and the model typing beside me, say out loud what we are assuming before any of it runs. When code was expensive to write, that friction was a tax. Now that code is cheap to write and expensive to trust, it looks a lot more like leverage.</p>
+
+</blog-post>

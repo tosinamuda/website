@@ -1,0 +1,151 @@
+<blog-post
+  title="Generative UI and the Future of the Web"
+  excerpt="A USA.gov-style prototype shows how MCP Apps can turn chat intent into approved, server-backed service workspaces."
+  date="2026-05-17"
+  draft>
+  <script type="application/json" id="meta">
+    { "type": "learning", "categories": ["AI", "Engineering"] }
+  </script>
+
+<p>The promise of generative UI is not that every website becomes a chatbot. It is that the interface itself can become responsive to what a user is trying to do. For most of the web, personalization has meant changing content inside a fixed layout: recommendations, search results, dashboards, feed ranking. The menus, forms, and flows are still chosen in advance by the product team.</p>
+
+<p>Generative UI changes that center of gravity. The site still owns the approved components and actions, but the user can influence which interface appears by stating their goal. A user should not have to know whether they need a form, a checklist, a calculator, a table, a status tracker, or a plain answer before the site can help them.</p>
+
+<p>I used a USA.gov-style portal as the case study because it has the exact shape that makes normal web navigation strain: many services, many user intents, and a user who usually arrives with a task rather than a desire to browse a taxonomy.</p>
+
+<p>The prototype is local and unofficial. It does not submit filings, renew passports, or contact government agencies. It stores prototype sessions and receipts locally. The point was to teach and test one architecture question: can a normal website use MCP Apps as its own generative UI layer?</p>
+
+<h2>Why generative UI matters</h2>
+
+<p>A fixed website asks the user to adapt to the information architecture. A generative UI experience lets the user express intent and lets the site choose the safest useful surface for that intent.</p>
+
+<p>That does not mean the user designs pixels with a prompt. It means the user can determine the kind of UI they need by describing the task. "I need to renew my passport" should lead to a renewal workspace. "What documents do I need?" should lead to an answer. "Show me the status of my request" might lead to a status panel. The user is not choosing from a menu of routes. They are describing the job, and the site is selecting the interface.</p>
+
+<p>This is what makes the pattern bigger than chat. Chat is one possible surface. A generated workspace is another. The product shift is that the website can move between those surfaces at runtime without giving up control over what is allowed to run.</p>
+
+<h2>Before: service discovery</h2>
+
+<p>The baseline is a conventional USA.gov-style homepage. It has topics, links, a large service-discovery hero, and a button that sends the user into the generative experience.</p>
+
+<figure>
+  <img src="/images/blog/generative-ui-future-of-the-web/usagov-before-service-directory.png" alt="A conventional USA.gov-style homepage with topic navigation, a Try Ask USA.gov button, and a hero that says Making government services easier to find.">
+  <figcaption>Figure 1: the conventional service-discovery surface. The site is organized, but the user still has to find the right path.</figcaption>
+</figure>
+
+<p>This is still useful. Fixed navigation is good for browsing, comparison, and broad discovery. But it does not solve the direct-intent case. If the user already knows they need to renew a passport, the site should not force them to reverse-engineer the navigation hierarchy first.</p>
+
+<h2>After: state the task</h2>
+
+<p>The generative surface is <code>/experience</code>. Instead of starting with the sitemap, the user starts with intent. The three supported prototype workflows are federal tax return, passport renewal, and benefits eligibility.</p>
+
+<figure>
+  <img src="/images/blog/generative-ui-future-of-the-web/ask-usagov-chat.png" alt="The Ask USA.gov research preview with a message box and quick actions for filing a federal tax return, renewing a passport, and checking benefits eligibility.">
+  <figcaption>Figure 2: Ask USA.gov is the generative entry point. Informational questions stay as chat; supported service requests can produce a workspace.</figcaption>
+</figure>
+
+<p>This is the first teaching point: generative UI does not mean every prompt opens an interface. A question like "what is the 1099 filing deadline?" should stay in the transcript. A request like "I need to renew my passport" can produce a task-specific workspace. Unsupported requests should not produce UI just because the system has a renderer.</p>
+
+<h2>The generated workspace</h2>
+
+<p>When the agent chooses a supported service tool, the tool creates a persisted session and returns UI metadata. The browser then attaches a workspace card to the same assistant turn, and the user can open the full <code>/app</code> workspace.</p>
+
+<figure>
+  <img src="/images/blog/generative-ui-future-of-the-web/generated-service-workspace.png" alt="A USA.gov service workspace for filing a federal tax return, with a stepper, form fields, validation actions, and a summary panel.">
+  <figcaption>Figure 3: the generated workspace is not model-written JavaScript. It is an approved service component connected to backend validation and actions.</figcaption>
+</figure>
+
+<p>From the user's point of view, the UI was generated because it appeared in response to their task. From the system's point of view, nothing unsafe was invented at runtime. The model selected from registered tools and approved UI resources.</p>
+
+<h2>The runtime path</h2>
+
+<p>The local demo uses FastAPI, FastMCP, Google ADK, A2A, OpenRouter through ADK <code>LiteLlm</code>, Postgres, and vanilla web components. The important part is not the brand names. The important part is the ownership boundary.</p>
+
+<code-block language="text">
+<pre><code>/experience
+  browser A2A client
+    -> ADK LlmAgent
+    -> McpToolset
+    -> FastMCP server at /mcp
+    -> start_tax_return | start_passport_renewal | start_benefits_eligibility
+    -> ToolResult with structuredContent, _meta.ui.resourceUri, and app_url
+    -> transcript renders trace, markdown answer, and workspace card
+    -> /app renders the approved service workspace</code></pre>
+</code-block>
+
+<p>Before a workspace exists, the agent only sees the three start tools. That matters. The first decision is not "which field should I edit?" The first decision is "does this user need a service workspace at all?"</p>
+
+<p>If the answer is no, the assistant returns normal text. If the answer is yes, the model calls a start tool. The tool creates server state and returns the UI contract the browser needs to render the workspace.</p>
+
+<h2>Beyond ChatGPT apps</h2>
+
+<p><a href="https://blog.modelcontextprotocol.io/posts/2026-01-26-mcp-apps/">MCP Apps</a> are often described as a way to make your app available inside hosts like ChatGPT, Claude, VS Code, or other MCP Apps-compatible clients. <a href="https://developers.openai.com/apps-sdk">OpenAI's Apps SDK</a> is one implementation path for that distribution model.</p>
+
+<p>That platform-hosted model is useful, but it is not the only interesting future. The USA.gov experiment tests the inverse pattern: the website is the host. The site runs the agent, exposes MCP tools, declares approved UI resources, and renders the selected workspace inside its own shell.</p>
+
+<p>For your own website, this means MCP Apps is not just a distribution format for external AI products. It can become an internal interface contract. Your website can expose a set of capabilities, let the model choose the right one for the user's intent, and render the corresponding UI inside your product experience.</p>
+
+<p>The user is not choosing between pages named by your navigation. They are choosing by goal. The site translates that goal into an approved interface.</p>
+
+<p>The minimum shape looks like this:</p>
+
+<code-block language="python">
+<pre><code>mcp = FastMCP("USA.gov Service Portal")
+SERVICE_UI_URI = "ui://service-task/app.html"
+
+@mcp.resource(
+    SERVICE_UI_URI,
+    mime_type=UI_MIME_TYPE,
+    app=AppConfig(...),
+)
+def service_task_ui() -> str:
+    return approved_service_workspace_html()
+
+@mcp.tool(app=AppConfig(resource_uri=SERVICE_UI_URI))
+async def start_tax_return(tax_year: int = 2024) -> ToolResult:
+    session = await create_persisted_tax_session(tax_year)
+    return ToolResult(
+        content=[...],
+        structured_content={
+            "service_type": "tax_return",
+            "session_id": session.id,
+            "app_url": f"/app?service_type=tax_return&amp;session_id={session.id}",
+        },
+        meta={"ui": {"resourceUri": SERVICE_UI_URI}},
+    )</code></pre>
+</code-block>
+
+<p>The code is simplified, but the contract is the point. The tool does not return "some UI vibes." It returns structured state, a known UI resource, and a URL the host can render. The host uses that metadata as the gate for showing generated UI.</p>
+
+<p>That is the difference from simply embedding a ChatGPT app. The website is not outsourcing the whole experience to an external host. It is using the same protocol shape to let its own users move from intent to task-specific UI inside the site they are already using.</p>
+
+<h2>What makes it safe enough to teach</h2>
+
+<p>The model is not the executor of record. It chooses whether to call a tool and which tool fits the request. The deterministic layer owns the service behavior: start, get, set, validate, calculate, prepare, screen, submit, and receipt retrieval.</p>
+
+<ul>
+  <li>The site owns the component registry and the allowed UI resources.</li>
+  <li>The server owns validation, persistence, authorization, and action semantics.</li>
+  <li>The workspace owns form edits and button actions through the tool lane.</li>
+  <li>The transcript owns explanation, trace, and the generated workspace card.</li>
+  <li>The model owns routing and language, not arbitrary code execution.</li>
+</ul>
+
+<p>That separation is what makes the pattern teachable. If a reader copies only the chat box, they get another chatbot. If they copy only the iframe, they get UI plumbing. The useful pattern is the contract between intent, tool result, UI resource, and server-owned action.</p>
+
+<h2>Common mistakes</h2>
+
+<p>The first mistake is opening UI too eagerly. The prototype only opens a workspace when the tool result contains MCP Apps UI metadata and an app URL. Normal answers and non-UI tool results stay in the transcript.</p>
+
+<p>The second mistake is calling any iframe "MCP Apps." The local <code>/app</code> route supports REST behavior for ergonomics and tests, but MCP-hosted interactions should use the MCP Apps bridge and tool lane. A richer host should use an explicit MCP Apps renderer or bridge instead of relabeling bespoke iframe plumbing as standard hosting.</p>
+
+<p>The third mistake is routing every click back through the chat model. Once the workspace exists, form edits and submit buttons should use deterministic tools. The user can still ask questions in chat, but ordinary form interaction should not require a language-model round trip.</p>
+
+<h2>What to take from the case study</h2>
+
+<p>The future of the web is not a model writing every interface from scratch. That would be brittle and unsafe. The more practical future is a web of registered capabilities: tools, resources, components, actions, and state contracts. The model helps select and coordinate them. The site remains responsible for what actually runs.</p>
+
+<p>USA.gov is a useful teaching example because the problem is not visual novelty. The problem is getting a user from intent to the right service surface without making them navigate the entire service catalog. MCP Apps gives a protocol shape for that handoff. The case study shows the rest of the engineering work needed to make the handoff real.</p>
+
+<p>That is why generative UI matters. It lets a website stop treating navigation as the only way users can express what they want. The user can state the job. The site can answer with the right surface: sometimes text, sometimes a form, sometimes a workflow, sometimes nothing more than a link. The important change is that the interface becomes selected by intent, not only by prewritten navigation.</p>
+
+</blog-post>
