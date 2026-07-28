@@ -12,6 +12,10 @@
     font-feature-settings: "ss01", "ss02";
   }
 
+  /* Spectral ships 400, 500 and 600. The default `bold` asks for 700, which the
+     browser then fakes by smearing the 600 glyphs wider. Ask for the real face. */
+  strong, b { font-weight: 600; }
+
   a { color: var(--accent); text-decoration: none; }
   a:hover { text-decoration: underline; text-underline-offset: 3px; }
 
