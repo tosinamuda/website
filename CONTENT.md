@@ -85,6 +85,64 @@ the reader holding a promise.
 **Stay under 160 characters.** Truncation takes the tail, which is usually the
 clause that earns the click.
 
+## Referential grounding
+
+Most clarity faults in a draft are not long sentences. They are words that point
+at something the reader has not been given. No script catches these, because the
+judgement is semantic. Read for them.
+
+### Terms
+
+| Term | Meaning |
+| --- | --- |
+| **Antecedent** | the earlier expression a later word points back to |
+| **Anaphor** | the pointing word: a pronoun (*it*, *they*) or a definite noun phrase (*the shortlist*) |
+| **Definite** / **indefinite** | *the* claims the reader can already identify the referent; *a* / *an* introduces it |
+| **Bridging reference** | a definite licensed by a frame already introduced, not by prior mention. *An agent is a loop … call **the model*** is fine, because a loop that calls an LLM implies a model |
+| **Accommodation** | what a reader does when the referent is missing: silently invents one. This is why a reviewer who knows the subject does not report the fault |
+
+### Rules
+
+**R1. First mention indefinite, later mentions definite.** Introduce a referent
+with *a*, *an*, a numeral, or a name. Switch to *the* only once it exists on the
+page.
+
+- No: `Neither can be answered from the shortlist you are holding.`
+- Yes: `Ask around and you will have a shortlist within the hour: DSPy, LangGraph …`
+
+**R2. A definite on first mention needs a licence.** There are three, and nothing
+else counts: prior mention; situational uniqueness (*the reader*, *the browser*);
+bridging from a frame already introduced. `the model` after *an agent is a loop*
+is licensed. `the shortlist` after *two questions arrive* is not, because nothing
+introduced a list.
+
+**R3. Every anaphor must survive its own question.** Ask the question the anaphor
+answers: *the shortlist — which shortlist? they — which they?* If the answer is
+not above it on the page, it is not grounded.
+
+- No: `They all overlap in what they can do.`
+- Yes: `Agent frameworks overlap almost completely.`
+
+**R4. Do not pronominalise across a paragraph break.** Repeat the noun. *It*,
+*they*, *this*, *that* opening a paragraph reach back further than a reader
+holds, and they are invisible in a listing or a search result.
+
+**R5. Given before new.** Open a sentence with what the reader already has and
+close on what is new. A sentence that opens on new information and ends on old
+information is inverted, and it reads as a non sequitur even when every fact in
+it is correct.
+
+### How to run the pass
+
+Read the draft once for this alone. Do not edit while doing it. At every *the*,
+*it*, *they*, *this*, *that* and *those*, say out loud what it refers to. Where
+you cannot, or where you have to reach back more than one paragraph, mark it.
+
+`npm run lint:refs` prints definite noun phrases whose head noun has not appeared
+yet. It is a reading aid, not a check: most of its output is licensed bridging
+under R2, and it cannot tell the licensed from the broken. Use it to shorten the
+manual pass, never in place of it.
+
 ## Featured
 
 The home page has two sections: **featured**, then **essays**. A note with `"featured": true` appears in the first and is not repeated in the second. Everything else lands in essays, newest first.

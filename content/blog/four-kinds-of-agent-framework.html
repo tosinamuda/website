@@ -98,7 +98,7 @@
 
   <p>Three approaches, and what separates them is <em>when</em> they act. <a href="https://docs.boundaryml.com/home">BAML</a> acts at the boundary, and is a language rather than a framework: prompts become typed functions it compiles into a client you import. <a href="https://mellea.ai/">Mellea</a> acts at runtime, retrying whatever fails a requirement you attached. <a href="https://dspy.ai/">DSPy</a> acts before runtime, rewriting the instructions against a scoring function until the score goes up.</p>
 
-  <p>They combine, and the entry fee rises in that order. A type is free, a requirement you can check is cheap, and a function that scores an answer is usually the real project.</p>
+  <p>BAML, Mellea and DSPy combine, and the entry fee rises in that order. A type is free, a requirement you can check is cheap, and a function that scores an answer is usually the real project.</p>
 
   <p>In code, the loop does not move. One tool inside it stops carrying a prompt:</p>
 
@@ -118,7 +118,7 @@ extract = dspy.ChainOfThought(ExtractInvoice)
 
   <h2>Orchestration frameworks</h2>
 
-  <p>These give you the loop: control flow, state, and what happens when a step fails. <strong>They do not give you tools.</strong> That is the sharp line between this kind and the next. Every capability is one you wrote. That is right when your tools are three calls into your own API, and wrong when the agent must work in a repository.</p>
+  <p>Orchestration frameworks give you the loop: control flow, state, and what happens when a step fails. <strong>They do not give you tools.</strong> That is the sharp line between this kind and the next. Every capability is one you wrote. That is right when your tools are three calls into your own API, and wrong when the agent must work in a repository.</p>
 
   <p>Two forks decide which one you want, and neither is about the brand.</p>
 
