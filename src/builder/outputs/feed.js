@@ -3,6 +3,7 @@
 import { site } from "../config.js";
 import { writeFile } from "../fs-helpers.js";
 import { escapeXml } from "../utils.js";
+import { toPortableHtml } from "../syndication.js";
 
 /** @typedef {import("../articles.js").Article} Article */
 
@@ -43,7 +44,7 @@ ${entries}
 function entryXml(article, base) {
   const url = base + article.url;
   const isoDate = new Date(article.date).toISOString();
-  const content = escapeXml(`<p>${article.excerpt}</p>` + article.body);
+  const content = escapeXml(`<p>${article.excerpt}</p>` + toPortableHtml(article.body));
 
   return `  <entry>
     <title>${escapeXml(article.title)}</title>
