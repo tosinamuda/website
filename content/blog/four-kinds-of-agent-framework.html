@@ -94,13 +94,11 @@
 
   <p>What you hand these is the prompt. You keep the program and declare what a good answer looks like. The tool takes over the wording, the parsing, and how many attempts it makes. That last part is why "one model call" is the wrong name for the category: sampling and repair loops fire as many as they need.</p>
 
-  <p>The failure is specific: the steps were right, the tools worked, and the model still returned prose where you needed JSON. Control flow above this cannot fix it. Three approaches, differing in <em>when</em> they act.</p>
+  <p>The failure is specific: the steps were right, the tools worked, and the model still returned prose where you needed JSON. Control flow above this cannot fix it.</p>
 
-  <p><strong><a href="https://docs.boundaryml.com/home">BAML</a> fixes it at the boundary.</strong> It is not a framework. It is a language: you write each prompt as a typed function in a <code>.baml</code> file, and a compiler turns the folder into a client library your program imports. Calling the model becomes calling that function. It optimises nothing and judges nothing, which makes it the cheapest to adopt.</p>
+  <p>Three approaches, and what separates them is <em>when</em> they act. <a href="https://docs.boundaryml.com/home">BAML</a> acts at the boundary, and is a language rather than a framework: prompts become typed functions it compiles into a client you import. <a href="https://mellea.ai/">Mellea</a> acts at runtime, retrying whatever fails a requirement you attached. <a href="https://dspy.ai/">DSPy</a> acts before runtime, rewriting the instructions against a scoring function until the score goes up.</p>
 
-  <p><strong><a href="https://mellea.ai/">Mellea</a> fixes it at runtime.</strong> Built at IBM Research, it lets you attach requirements to a generation. They go into the prompt, then get checked afterwards, and anything failing is retried with the reason attached. Use it for constraints you can check but not score: tone, policy, whether a claim is supported by its source.</p>
-
-  <p><strong><a href="https://dspy.ai/">DSPy</a> fixes it before runtime.</strong> You declare inputs and outputs, write a function that scores an answer, and hand it examples. An optimizer rewrites the instructions until the score goes up. The entry fee is that scoring function, and writing it is usually the real project.</p>
+  <p>They combine, and the entry fee rises in that order. A type is free, a requirement you can check is cheap, and a function that scores an answer is usually the real project.</p>
 
   <p>In code, the loop does not move. One tool inside it stops carrying a prompt:</p>
 
@@ -116,15 +114,17 @@ extract = dspy.ChainOfThought(ExtractInvoice)
 
   <p>No wording, no JSON instructions, no parsing. <code>extract</code> goes into the <code>tools</code> dictionary and <code>run()</code> is untouched. <a href="/blog/stop-hand-writing-prompts-dspy">What declaring and optimizing looks like in full</a> is its own subject.</p>
 
-  <p>They combine: BAML for the shape, Mellea for the constraints, DSPy for the accuracy. <a href="https://axllm.dev/">Ax</a> carries DSPy to TypeScript. <strong>LangChain</strong> used to belong here, but <a href="https://www.langchain.com/blog/langchain-langgraph-1dot0">since 1.0</a> it is an agent API on the LangGraph runtime, which makes it an orchestration framework.</p>
+  <p>One correction to the common map, because it moves a tool between categories: <strong>LangChain</strong> used to belong here, but <a href="https://www.langchain.com/blog/langchain-langgraph-1dot0">since 1.0</a> it is an agent API on the LangGraph runtime, which makes it an orchestration framework.</p>
 
   <h2>Orchestration frameworks</h2>
 
   <p>These give you the loop: control flow, state, and what happens when a step fails. <strong>They do not give you tools.</strong> That is the sharp line between this category and the next. LangGraph ships nothing that can touch your filesystem; Strands ships nothing that can run a shell command. Every capability is one you wrote, which is right when your tools are three calls into your own API and wrong when the agent must work in a repository.</p>
 
-  <p>Two forks live inside this category. The first: <strong>either your code decides the next step, or the model does.</strong> <a href="https://strandsagents.com/">AWS Strands</a> is the clearest model-driven statement, where the model decides whether to call a tool, keep reasoning, or answer. LangGraph states the opposite, with nodes, edges, explicit state and checkpoints. CrewAI ships both, <strong>Crews</strong> where agents work out who goes next and <strong>Flows</strong> where you pin the order down. This is not taste: if you can draw the flowchart, write the flowchart. Model-driven control costs more tokens and latency, and makes it much harder to work out afterwards why the agent did what it did.</p>
+  <p>Two forks decide which one you want, and neither is about the brand.</p>
 
-  <p>The second fork: <strong>what does it cost you when a run dies halfway?</strong> If the answer is "nothing, we rerun it," retries are fine. If the run takes an hour or waits on a human approval, it has to survive a crash and resume, which means saving progress outside the process. LangGraph does that with checkpoints. <a href="https://pydantic.dev/docs/ai/integrations/durable_execution/overview/">Pydantic AI</a> goes further and runs the agent on a workflow engine such as Temporal, the kind of thing that already survives restarts in payroll and billing systems. That is what I would look at hardest for anything long-running.</p>
+  <p><strong>Either your code picks the next step, or the model does.</strong> <a href="https://strandsagents.com/">Strands</a> takes the model side, LangGraph the explicit side, and CrewAI ships both. This is not taste. If you can draw the flowchart, write the flowchart: letting the model decide costs tokens and latency, and makes it much harder to work out afterwards why the agent did what it did.</p>
+
+  <p><strong>What does it cost you when a run dies halfway?</strong> If the answer is "nothing, we rerun it," retries are fine. If the run takes an hour or waits on a human approval, it has to save its progress outside the process. That is either checkpointing or a real workflow engine underneath, which is the route <a href="https://pydantic.dev/docs/ai/integrations/durable_execution/overview/">Pydantic AI</a> takes. It is what I would look at hardest for anything long-running.</p>
 
   <p>In code, the <code>for</code> loop and the message list are gone. You declare the steps and the framework runs them:</p>
 
@@ -166,13 +166,7 @@ async for message in query(
 
   <p>Compare that with the first snippet. Reading files, editing them and running the tests are tools you no longer wrote, and neither is the system prompt that decides when to use which. What is left yours is the sentence, the three tools you permitted, and the directory it may touch.</p>
 
-  <p>Most of the others are the same bargain from a different vendor. Three are not:</p>
-
-  <ul>
-    <li><a href="https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/rpc.md">pi</a> is the one to read rather than adopt: a small system prompt and four tools make it legible.</li>
-    <li><a href="https://docs.langchain.com/oss/python/deepagents/overview">deepagents</a> packages the pattern as a library, so you can run it against any model.</li>
-    <li><strong>Managed Agents</strong> is the category as a service. Anthropic runs the loop and the sandbox; everything else here runs on your machine.</li>
-  </ul>
+  <p>Most of them are the same bargain from a different vendor, so the choice is usually whichever model you already pay for. Two exceptions are worth knowing: <a href="https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/rpc.md">pi</a> is small enough to read rather than adopt, and Managed Agents is this category as a service, where the loop and the sandbox are somebody else's machine instead of yours.</p>
 
   <p>I have paid what this category charges. Building a generative UI agent for IBM Think 2026, I needed a coding agent to go from a visitor's idea to a running app inside two minutes, live. The agent was Bob, IBM's, and it had no SDK, so the integration point was <code>bob -p "your prompt"</code> as a subprocess. It supplied the model and the tools; I supplied the task and a deterministic build step around it. <a href="/blog/building-a-generative-ui-agent-for-bob-with-bob-by-bob">The full build is here</a>.</p>
 
@@ -244,7 +238,9 @@ async for message in query(
 
   <p>One kind alone is the common case. A classification service is a generation-level tool and your own code. A CI job that fixes failing tests is a harness in a shell script, because the harness already owns the loop.</p>
 
-  <p>Two pairings earn a second dependency. <strong>Orchestration plus generation-level</strong>, when the run has known steps but one must be accurate: a document pipeline whose extraction step is a DSPy program. <a href="/blog/my-preferred-agent-stack-adk-dspy-a2a">The pairing I reach for</a> puts a DSPy module behind every step, which buys a score per step instead of one for the run. <strong>Orchestration plus a harness</strong>, when repo work is one step of something larger: a migration across two hundred services needs a queue, restart survival and an approval gate, while reading each repository is harness work invoked per service. Do not invert that one. An orchestrator <em>inside</em> a harness loop, supervising an agent already supervising itself, buys overhead and nothing else.</p>
+  <p>Two pairings earn a second dependency. <strong>Orchestration plus generation-level</strong>, when the run has known steps but one of them must be accurate: a document pipeline whose extraction step is a DSPy program. <a href="/blog/my-preferred-agent-stack-adk-dspy-a2a">The pairing I reach for</a> goes further and puts a module behind every step, which buys a score per step instead of one for the whole run.</p>
+
+  <p><strong>Orchestration plus a harness</strong>, when repo work is one step of something larger. A migration across two hundred services needs a queue, restart survival and an approval gate, while reading each repository is harness work invoked per service. Do not invert that one: an orchestrator <em>inside</em> a harness loop, supervising an agent that already supervises itself, buys overhead and nothing else.</p>
 
   <h2>Should you write your own?</h2>
 
