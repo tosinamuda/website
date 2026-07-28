@@ -11,7 +11,7 @@
 
   <p>Neither can be answered from the shortlist you are holding. It probably has DSPy, LangGraph, the Claude Agent SDK and Bedrock AgentCore on it, and no two of those four do the same job. You cannot rank a list of things that are not alternatives. Sort it first and both questions get much easier.</p>
 
-  <p>They all sit around the same thing, so name it once. An agent is a loop: assemble some context, call the model, run the tool it asks for, add the result, and go round again until the task is done or the budget runs out. A tool is one of your own functions the model may ask for by name.</p>
+  <p>They all sit around the same thing, so name it once. An agent is a loop. Call the model, run the tool it asks for, add the result, and go round again. It stops when the task is done or the budget runs out. A tool is one of your own functions the model may ask for by name.</p>
 
   <p>Written out, the whole thing is this:</p>
 
@@ -40,7 +40,7 @@
     raise RuntimeError("step budget exhausted")
 </code></pre>
 
-  <p>Twenty lines. Add streaming, retries and a real token budget and it reaches about forty, which is still not the hard part. Keep it on screen, because each category below is a claim about which of these lines stop being yours. What separates the four kinds is <strong>which part of it you keep, and which part you hand over</strong>.</p>
+  <p>Twenty lines, or about forty once you add streaming and a real token budget. Keep it on screen. Each category below is a claim about which of these lines stop being yours, and that is what separates the four: <strong>which part you keep, and which part you hand over</strong>.</p>
 
   <figure class="af-visual">
     <div class="af-units-wrapper">
@@ -88,13 +88,13 @@
     <p class="af-caption">Four kinds, sorted by what you keep and what you give up.</p>
   </figure>
 
-  <p>Comparing capabilities gets you nowhere, because they overlap almost completely. Any of them can call any other, since asking for a tool is a function call and nothing more. What sorts them is what you stop being responsible for, which gives the rule that makes a shortlist tractable: <strong>two tools compete only if you would be handing them the same responsibility.</strong> DSPy against Mellea is a real decision. DSPy against LangGraph is a category error.</p>
+  <p>Capability sorts nothing, because they overlap almost completely and any of them can call any other. What sorts them is what you stop being responsible for, and that gives the rule: <strong>two tools compete only if you would hand them the same responsibility.</strong> DSPy against Mellea is a real decision. DSPy against LangGraph is a category error.</p>
 
   <h2>Generation-level tools</h2>
 
-  <p>What you hand these is the prompt. You keep the program and declare what a good answer looks like. The tool takes over the wording, the parsing, and how many attempts it makes. That last part is why "one model call" is the wrong name for the category: sampling and repair loops fire as many as they need.</p>
+  <p>What you hand these is the prompt. You keep the program and declare what a good answer looks like. The tool takes over the wording, the parsing, and how many attempts it makes. That last part is why "one model call" is the wrong name: sampling and repair loops fire as many as they need.</p>
 
-  <p>The failure is specific: the steps were right, the tools worked, and the model still returned prose where you needed JSON. Control flow above this cannot fix it.</p>
+  <p>The failure they address is specific. The steps were right, the tools worked, and the model still returned prose where you needed JSON. No control flow above this can fix it.</p>
 
   <p>Three approaches, and what separates them is <em>when</em> they act. <a href="https://docs.boundaryml.com/home">BAML</a> acts at the boundary, and is a language rather than a framework: prompts become typed functions it compiles into a client you import. <a href="https://mellea.ai/">Mellea</a> acts at runtime, retrying whatever fails a requirement you attached. <a href="https://dspy.ai/">DSPy</a> acts before runtime, rewriting the instructions against a scoring function until the score goes up.</p>
 
@@ -118,13 +118,13 @@ extract = dspy.ChainOfThought(ExtractInvoice)
 
   <h2>Orchestration frameworks</h2>
 
-  <p>These give you the loop: control flow, state, and what happens when a step fails. <strong>They do not give you tools.</strong> That is the sharp line between this category and the next. LangGraph ships nothing that can touch your filesystem; Strands ships nothing that can run a shell command. Every capability is one you wrote, which is right when your tools are three calls into your own API and wrong when the agent must work in a repository.</p>
+  <p>These give you the loop: control flow, state, and what happens when a step fails. <strong>They do not give you tools.</strong> That is the sharp line between this kind and the next. Every capability is one you wrote. That is right when your tools are three calls into your own API, and wrong when the agent must work in a repository.</p>
 
   <p>Two forks decide which one you want, and neither is about the brand.</p>
 
-  <p><strong>Either your code picks the next step, or the model does.</strong> <a href="https://strandsagents.com/">Strands</a> takes the model side, LangGraph the explicit side, and CrewAI ships both. This is not taste. If you can draw the flowchart, write the flowchart: letting the model decide costs tokens and latency, and makes it much harder to work out afterwards why the agent did what it did.</p>
+  <p><strong>Either your code picks the next step, or the model does.</strong> <a href="https://strandsagents.com/">Strands</a> takes the model side, LangGraph the explicit side, and CrewAI ships both. This is not taste. If you can draw the flowchart, write the flowchart. Letting the model decide costs tokens and latency, and hides why the agent did what it did.</p>
 
-  <p><strong>What does it cost you when a run dies halfway?</strong> If the answer is "nothing, we rerun it," retries are fine. If the run takes an hour or waits on a human approval, it has to save its progress outside the process. That is either checkpointing or a real workflow engine underneath, which is the route <a href="https://pydantic.dev/docs/ai/integrations/durable_execution/overview/">Pydantic AI</a> takes. It is what I would look at hardest for anything long-running.</p>
+  <p><strong>What does it cost you when a run dies halfway?</strong> If the answer is "nothing, we rerun it," retries are fine. If the run takes an hour or waits on an approval, it has to save progress outside the process. That means checkpointing, or a real workflow engine underneath as <a href="https://pydantic.dev/docs/ai/integrations/durable_execution/overview/">Pydantic AI</a> does. That is what I would look at hardest for anything long-running.</p>
 
   <p>In code, the <code>for</code> loop and the message list are gone. You declare the steps and the framework runs them:</p>
 
@@ -139,15 +139,15 @@ app = graph.compile(checkpointer=InMemorySaver())
 app.invoke({"ticket": ticket}, {"configurable": {"thread_id": "42"}})
 </code></pre>
 
-  <p><code>fetch_policy</code> and <code>draft_reply</code> are still your functions, and the tools they call are still yours to write. What you handed over is <code>range(MAX_STEPS)</code>, the growing <code>messages</code> list, and what happens when step two dies: swap the saver for a database and the run resumes on the same <code>thread_id</code>.</p>
+  <p>Those two are still your functions, and their tools are still yours to write. What you handed over is <code>range(MAX_STEPS)</code>, the growing <code>messages</code> list, and what happens when step two dies. Swap the saver for a database and the run resumes on the same <code>thread_id</code>.</p>
 
-  <p>Language is the next filter, and it deletes most of the list on its own. Nearly everything here is Python first, TypeScript sometimes, and nothing else. One warning about the exception: Google ADK spans four languages, but it is also the front door to Google's runtime, so adopting it quietly picks that too.</p>
+  <p>Language deletes most of the shortlist on its own, because nearly everything here is Python first and TypeScript sometimes. Watch one trap: Google ADK spans four languages, but it is also the front door to Google's runtime, so adopting it quietly picks that too.</p>
 
   <h2>Prebuilt harnesses</h2>
 
-  <p>The word needs pinning down. "Harness" generally means everything around the model, so by that definition every orchestration framework is one. This category is narrower: <strong>a harness somebody already built, that you run from your own code</strong>. It arrives able to act in a real environment, reading and writing files, running shell commands, working inside a sandbox, and speaking the Model Context Protocol (MCP) to whatever else you connect. It brings what keeps a long session alive too: permission gates, session resume, and summarising the conversation once it outgrows the context window.</p>
+  <p>The word needs pinning down, because by the loose definition every orchestration framework is one. This category is narrower: <strong>a harness somebody already built, that you run from your own code</strong>. Where the previous kind hands you the loop empty, this one hands it full. It arrives with file access, a shell and a sandbox, plus the permission gates and session resume that keep a long run alive.</p>
 
-  <p>Where the previous category hands you the loop empty, this one hands it full. You are driving an agent, not building one, usually as a subprocess on your own machine. What you give up is the inside: the tools, the system prompt and the context strategy are theirs. You keep the task, the permissions, and whatever hooks they expose.</p>
+  <p>You are driving an agent, not building one. What you give up is the inside: the tools, the system prompt and the context strategy are theirs. You keep the task, the permissions, and whatever hooks they expose.</p>
 
   <p>In code there is no loop left to see, and no <code>tools</code> dictionary either:</p>
 
@@ -164,21 +164,21 @@ async for message in query(
     print(message)
 </code></pre>
 
-  <p>Compare that with the first snippet. Reading files, editing them and running the tests are tools you no longer wrote, and neither is the system prompt that decides when to use which. What is left yours is the sentence, the three tools you permitted, and the directory it may touch.</p>
+  <p>Compare that with the first snippet. You no longer wrote the tools that read and edit files, nor the system prompt that picks between them. What stays yours is the sentence, the three tools you permitted, and the directory it may touch.</p>
 
-  <p>Most of them are the same bargain from a different vendor, so the choice is usually whichever model you already pay for. Two exceptions are worth knowing: <a href="https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/rpc.md">pi</a> is small enough to read rather than adopt, and Managed Agents is this category as a service, where the loop and the sandbox are somebody else's machine instead of yours.</p>
+  <p>Most are the same bargain from a different vendor, so the choice is usually whichever model you already pay for. One is worth singling out: <a href="https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/rpc.md">pi</a> is small enough to read rather than adopt.</p>
 
-  <p>I have paid what this category charges. Building a generative UI agent for IBM Think 2026, I needed a coding agent to go from a visitor's idea to a running app inside two minutes, live. The agent was Bob, IBM's, and it had no SDK, so the integration point was <code>bob -p "your prompt"</code> as a subprocess. It supplied the model and the tools; I supplied the task and a deterministic build step around it. <a href="/blog/building-a-generative-ui-agent-for-bob-with-bob-by-bob">The full build is here</a>.</p>
+  <p>I have paid what this category charges. Building a generative UI agent for IBM Think 2026, I needed to go from a visitor's idea to a running app in two minutes, live. The agent was Bob, IBM's, and it had no SDK, so the integration point was <code>bob -p "your prompt"</code> as a subprocess. It supplied the model and the tools. I supplied the task and a deterministic build step around it. <a href="/blog/building-a-generative-ui-agent-for-bob-with-bob-by-bob">The full build is here</a>.</p>
 
   <p>You inherit two things: opinions you did not choose, and a product roadmap. Google <a href="https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli/">retired Gemini CLI</a> in May 2026 and stopped serving requests on 18 June. That is a fast cycle to be downstream of.</p>
 
   <h2>Enterprise agent platforms</h2>
 
-  <p>Platforms orchestrate too, so capability would put them on top of the previous category rather than beside it. What makes them a different purchase is the perimeter wrapped around the orchestration: which identity an agent acted under, credentials handed over without handing over secrets, what it may touch, what it did, and where memory, evaluation and deployment live. What you do not buy is better reasoning.</p>
+  <p>Platforms orchestrate too, so capability alone would stack them on the previous kind rather than set them beside it. What you actually buy is the perimeter around the orchestration: which identity the agent acted under, what it may touch, what it did, and where memory and deployment live. You do not buy better reasoning.</p>
 
-  <p>The split inside the category matters more than the brand. <strong>Business-user surfaces</strong> let a domain expert compose the agent, usually drag-and-drop with a developer kit underneath, and every large vendor sells one over its own data. <strong>Developer runtimes</strong> assume you already wrote the agent and need somewhere accountable to run it. They sell runtime, memory, identity and monitoring as separate services, and do not care which framework wrote the agent.</p>
+  <p>The split inside the category matters more than the brand. <strong>Business-user surfaces</strong> let a domain expert compose the agent, and every large vendor sells one over its own data. <strong>Developer runtimes</strong> assume you wrote the agent already and need somewhere accountable to run it.</p>
 
-  <p>You need this category when the sentences blocking your launch start with "who approved," "who can see," or "what happens when it is wrong." If none of those has been said to you yet, you do not need it.</p>
+  <p>You need this kind when the sentences blocking your launch start with "who approved," "who can see," or "what happens when it is wrong." Until one of those is said to you, you do not.</p>
 
   <h2>Which one do you need?</h2>
 
@@ -232,25 +232,23 @@ async for message in query(
     <p class="af-caption">Sort by symptom, not by popularity.</p>
   </figure>
 
-  <p>Reaching for the wrong kind fails predictably. Answer an unreliable extraction step with a second agent that double-checks the first, and you have added another unreliable generation plus the job of coordinating the pair. A second pass only helps when the checker looks for something the first step did not.</p>
+  <p>Reaching for the wrong kind fails predictably. Answer an unreliable extraction step with a second agent that checks the first. You have added another unreliable generation, and the job of coordinating the pair. A second pass helps only when the checker looks for something the first step did not.</p>
 
   <h2>Combinations worth running</h2>
 
   <p>One kind alone is the common case. A classification service is a generation-level tool and your own code. A CI job that fixes failing tests is a harness in a shell script, because the harness already owns the loop.</p>
 
-  <p>Two pairings earn a second dependency. <strong>Orchestration plus generation-level</strong>, when the run has known steps but one of them must be accurate: a document pipeline whose extraction step is a DSPy program. <a href="/blog/my-preferred-agent-stack-adk-dspy-a2a">The pairing I reach for</a> goes further and puts a module behind every step, which buys a score per step instead of one for the whole run.</p>
+  <p>Two pairings earn a second dependency. <strong>Orchestration plus generation-level</strong>, when the run has known steps but one of them must be accurate: a document pipeline whose extraction step is a DSPy program. <a href="/blog/my-preferred-agent-stack-adk-dspy-a2a">The pairing I reach for</a> goes further. It puts a module behind every step, which buys a score per step instead of one for the run.</p>
 
   <p><strong>Orchestration plus a harness</strong>, when repo work is one step of something larger. A migration across two hundred services needs a queue, restart survival and an approval gate, while reading each repository is harness work invoked per service. Do not invert that one: an orchestrator <em>inside</em> a harness loop, supervising an agent that already supervises itself, buys overhead and nothing else.</p>
 
   <h2>Should you write your own?</h2>
 
-  <p>Write that loop yourself the first time. It is a day of work, and afterwards none of the frameworks look like magic. What it does not buy is production readiness, and the trap is durability: a hand-rolled way of saving progress is often worse than none, because it looks like it works until the process dies at the wrong moment.</p>
+  <p>Write that loop yourself the first time. It is a day of work, and afterwards none of the frameworks look like magic. What it does not buy is production readiness. The trap is durability: a hand-rolled way of saving progress is often worse than none, because it looks like it works until the process dies at the wrong moment.</p>
 
-  <p>Keep it hand-written for as long as four things stay true. The output is easy to check. The path is a fixed sequence you can draw. Your tools are a handful of calls into your own API. Nobody outside your team has to approve what it does. Each of those four going false points at one of the four categories, in that order. You are noticing which responsibility you no longer want.</p>
+  <p>Keep it hand-written while four things stay true. The output is easy to check. The path is a fixed sequence you can draw. Your tools are a handful of calls into your own API. Nobody outside your team approves what it does. Each one going false points at a category, in that order.</p>
 
-  <p>You will still get one of these wrong. Three protocols now cover the points where the kinds meet: MCP for how an agent reaches a tool, <a href="https://www.linuxfoundation.org/press/a2a-protocol-surpasses-150-organizations-lands-in-major-cloud-platforms-and-sees-enterprise-production-use-in-first-year">A2A</a> for how one agent calls another across a vendor boundary, and <a href="https://agentclientprotocol.com/get-started/introduction">ACP</a> for how an editor talks to a coding agent. Pick tools that speak them and a wrong choice stays a swap.</p>
-
-  <p>The framework names on this page will churn. Two of them changed identity while I was writing it. What you can hand over will not.</p>
+  <p>You will still get a choice wrong, so prefer tools that speak the standard protocols: MCP to reach a tool, <a href="https://www.linuxfoundation.org/press/a2a-protocol-surpasses-150-organizations-lands-in-major-cloud-platforms-and-sees-enterprise-production-use-in-first-year">A2A</a> to call another agent, <a href="https://agentclientprotocol.com/get-started/introduction">ACP</a> to talk to an editor. Then a wrong choice stays a swap. The names on this page will churn, and two changed identity while I was writing it. What you can hand over will not.</p>
 
   <further-reading heading="Further reading">
     <ul>

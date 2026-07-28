@@ -44,7 +44,7 @@ class JudgeCoverage(dspy.Signature):
     products: list[Product] = dspy.InputField()  # goes in
     good_enough: bool = dspy.OutputField()       # comes back
 
-# What counts as a right answer. This is the thing you are optimising against.
+# What counts as a right answer. This is the thing you are optimizing against.
 def score(example, prediction):
     return prediction.good_enough == example.expected
 </code></pre>
