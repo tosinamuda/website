@@ -42,7 +42,7 @@ Gemini
 GEPA
 Granite
 hackathon
-harness(es)?
+[Hh]arness(es)?
 JSON
 JSONL
 JudgeCandidateCoverage
