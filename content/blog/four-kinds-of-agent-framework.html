@@ -139,9 +139,9 @@ app = graph.compile(checkpointer=InMemorySaver())
 app.invoke({"ticket": ticket}, {"configurable": {"thread_id": "42"}})
 </code></pre>
 
-  <p>Those two are still your functions, and their tools are still yours to write. What you handed over is <code>range(MAX_STEPS)</code>, the growing <code>messages</code> list, and what happens when step two dies. Swap the saver for a database and the run resumes on the same <code>thread_id</code>.</p>
+  <p><code>fetch_policy</code> and <code>draft_reply</code> are still your functions, and their tools are still yours to write. What you handed over is <code>range(MAX_STEPS)</code>, the growing <code>messages</code> list, and what happens when step two dies. Swap the saver for a database and the run resumes on the same <code>thread_id</code>.</p>
 
-  <p>Language deletes most of the shortlist on its own, because nearly everything here is Python first and TypeScript sometimes. Watch one trap: Google ADK spans four languages, but it is also the front door to Google's runtime, so adopting it quietly picks that too.</p>
+  <p>Language deletes most of the shortlist before you compare anything, because nearly everything here is Python first and TypeScript sometimes. Google ADK is the exception at four languages, but it is also the front door to Google's runtime, so adopting it quietly picks that too.</p>
 
   <h2>Prebuilt harnesses</h2>
 
@@ -164,11 +164,11 @@ async for message in query(
     print(message)
 </code></pre>
 
-  <p>Compare that with the first snippet. You no longer wrote the tools that read and edit files, nor the system prompt that picks between them. What stays yours is the sentence, the three tools you permitted, and the directory it may touch.</p>
+  <p>Set that against the first snippet. You no longer wrote the tools that read and edit files, nor the system prompt that picks between them. What stays yours is the sentence, the three tools you permitted, and the directory it may touch.</p>
 
-  <p>Most are the same bargain from a different vendor, so the choice is usually whichever model you already pay for. One is worth singling out: <a href="https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/rpc.md">pi</a> is small enough to read rather than adopt.</p>
+  <p>Harnesses are mostly the same bargain from a different vendor, so the choice is usually whichever model you already pay for. One is worth singling out: the coding agent <a href="https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/rpc.md">pi</a> is small enough to read rather than adopt.</p>
 
-  <p>I have paid what this category charges. Building a generative UI agent for IBM Think 2026, I needed to go from a visitor's idea to a running app in two minutes, live. The agent was Bob, IBM's, and it had no SDK, so the integration point was <code>bob -p "your prompt"</code> as a subprocess. It supplied the model and the tools. I supplied the task and a deterministic build step around it. <a href="/blog/building-a-generative-ui-agent-for-bob-with-bob-by-bob">The full build is here</a>.</p>
+  <p>I have paid what this category charges. Building a generative UI agent for IBM Think 2026, I needed to go from a visitor's idea to a running app in two minutes, live. The agent was Bob, IBM's coding agent, and it had no SDK, so the integration point was <code>bob -p "your prompt"</code> as a subprocess. It supplied the model and the tools. I supplied the task and a deterministic build step around it. <a href="/blog/building-a-generative-ui-agent-for-bob-with-bob-by-bob">The full build is here</a>.</p>
 
   <p>You inherit two things: opinions you did not choose, and a product roadmap. Google <a href="https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli/">retired Gemini CLI</a> in May 2026 and stopped serving requests on 18 June. That is a fast cycle to be downstream of.</p>
 
@@ -232,21 +232,15 @@ async for message in query(
     <p class="af-caption">Sort by symptom, not by popularity.</p>
   </figure>
 
-  <p>Reaching for the wrong kind fails predictably. Answer an unreliable extraction step with a second agent that checks the first. You have added another unreliable generation, and the job of coordinating the pair. A second pass helps only when the checker looks for something the first step did not.</p>
+  <p>Reaching for the wrong kind fails predictably. Answer an unreliable extraction step with a second agent that checks it at runtime. You have added another unreliable generation, plus the job of coordinating the pair. Scoring that step offline against examples is the fix; a second opinion at runtime is not.</p>
 
-  <h2>Combinations worth running</h2>
-
-  <p>One kind alone is the common case. A classification service is a generation-level tool and your own code. A CI job that fixes failing tests is a harness in a shell script, because the harness already owns the loop.</p>
-
-  <p>Two pairings earn a second dependency. <strong>Orchestration plus generation-level</strong>, when the run has known steps but one of them must be accurate: a document pipeline whose extraction step is a DSPy program. <a href="/blog/my-preferred-agent-stack-adk-dspy-a2a">The pairing I reach for</a> goes further. It puts a module behind every step, which buys a score per step instead of one for the run.</p>
-
-  <p><strong>Orchestration plus a harness</strong>, when repo work is one step of something larger. A migration across two hundred services needs a queue, restart survival and an approval gate, while reading each repository is harness work invoked per service. Do not invert that one: an orchestrator <em>inside</em> a harness loop, supervising an agent that already supervises itself, buys overhead and nothing else.</p>
+  <p>Most systems need one kind. When a second is genuinely worth it, it is almost always orchestration plus a generation-level tool: the steps are known, and one of them has to be accurate. <a href="/blog/my-preferred-agent-stack-adk-dspy-a2a">That is the pairing I reach for</a>.</p>
 
   <h2>Should you write your own?</h2>
 
   <p>Write that loop yourself the first time. It is a day of work, and afterwards none of the frameworks look like magic. What it does not buy is production readiness. The trap is durability: a hand-rolled way of saving progress is often worse than none, because it looks like it works until the process dies at the wrong moment.</p>
 
-  <p>Keep it hand-written while four things stay true. The output is easy to check. The path is a fixed sequence you can draw. Your tools are a handful of calls into your own API. Nobody outside your team approves what it does. Each one going false points at a category, in that order.</p>
+  <p>Keep it hand-written while four things stay true. The output is easy to check. The path is a fixed sequence you can draw. Your tools are a handful of calls into your own API. Nobody outside your team approves what it does. Each one going false points at the matching kind above, in that order.</p>
 
   <p>You will still get a choice wrong, so prefer tools that speak the standard protocols: MCP to reach a tool, <a href="https://www.linuxfoundation.org/press/a2a-protocol-surpasses-150-organizations-lands-in-major-cloud-platforms-and-sees-enterprise-production-use-in-first-year">A2A</a> to call another agent, <a href="https://agentclientprotocol.com/get-started/introduction">ACP</a> to talk to an editor. Then a wrong choice stays a swap. The names on this page will churn, and two changed identity while I was writing it. What you can hand over will not.</p>
 
