@@ -9,7 +9,7 @@
 
   <p>You are starting a project that needs an LLM-based agent somewhere in the architecture. Two questions arrive together: which framework should I use, and should I write my own instead?</p>
 
-  <p>Answer neither one yet. The shortlist is the problem. Someone will put DSPy, LangGraph, the Claude Agent SDK and Bedrock AgentCore on the same list, and those four do not do the same job. Choosing between them decides nothing.</p>
+  <p>Neither can be answered from the shortlist you are holding. It probably has DSPy, LangGraph, the Claude Agent SDK and Bedrock AgentCore on it, and no two of those four do the same job. You cannot rank a list of things that are not alternatives. Sort it first and both questions get much easier.</p>
 
   <p>They all sit around the same thing, so name it once. An agent is a loop: assemble some context, call the model, run the tool it asks for, add the result, and go round again until the task is done or the budget runs out. A tool is one of your own functions the model may ask for by name.</p>
 
@@ -96,7 +96,7 @@
 
   <p>The failure is specific: the steps were right, the tools worked, and the model still returned prose where you needed JSON. Control flow above this cannot fix it. Three approaches, differing in <em>when</em> they act.</p>
 
-  <p><strong><a href="https://docs.boundaryml.com/home">BAML</a> fixes it at the boundary.</strong> Every prompt becomes a function with a typed input and return value, written in a small language that compiles into client code. It optimises nothing and judges nothing, which makes it the cheapest to adopt.</p>
+  <p><strong><a href="https://docs.boundaryml.com/home">BAML</a> fixes it at the boundary.</strong> It is not a framework. It is a language: you write each prompt as a typed function in a <code>.baml</code> file, and a compiler turns the folder into a client library your program imports. Calling the model becomes calling that function. It optimises nothing and judges nothing, which makes it the cheapest to adopt.</p>
 
   <p><strong><a href="https://mellea.ai/">Mellea</a> fixes it at runtime.</strong> Built at IBM Research, it lets you attach requirements to a generation. They go into the prompt, then get checked afterwards, and anything failing is retried with the reason attached. Use it for constraints you can check but not score: tone, policy, whether a claim is supported by its source.</p>
 
@@ -124,7 +124,7 @@ extract = dspy.ChainOfThought(ExtractInvoice)
 
   <p>Two forks live inside this category. The first: <strong>either your code decides the next step, or the model does.</strong> <a href="https://strandsagents.com/">AWS Strands</a> is the clearest model-driven statement, where the model decides whether to call a tool, keep reasoning, or answer. LangGraph states the opposite, with nodes, edges, explicit state and checkpoints. CrewAI ships both, <strong>Crews</strong> where agents work out who goes next and <strong>Flows</strong> where you pin the order down. This is not taste: if you can draw the flowchart, write the flowchart. Model-driven control costs more tokens and latency, and makes it much harder to work out afterwards why the agent did what it did.</p>
 
-  <p>The second fork: <strong>what does it cost you when a run dies halfway?</strong> If the answer is "nothing, we rerun it," retries are fine. If the run takes an hour or waits on a human approval, it has to survive a crash and resume, which means saving progress outside the process. LangGraph does that with checkpoints. <a href="https://pydantic.dev/docs/ai/integrations/durable_execution/overview/">Pydantic AI</a> runs agents on Temporal, DBOS, Prefect or Restate, engines that already run long business processes and record every completed step. That is what I would look at hardest for anything long-running.</p>
+  <p>The second fork: <strong>what does it cost you when a run dies halfway?</strong> If the answer is "nothing, we rerun it," retries are fine. If the run takes an hour or waits on a human approval, it has to survive a crash and resume, which means saving progress outside the process. LangGraph does that with checkpoints. <a href="https://pydantic.dev/docs/ai/integrations/durable_execution/overview/">Pydantic AI</a> goes further and runs the agent on a workflow engine such as Temporal, the kind of thing that already survives restarts in payroll and billing systems. That is what I would look at hardest for anything long-running.</p>
 
   <p>In code, the <code>for</code> loop and the message list are gone. You declare the steps and the framework runs them:</p>
 
@@ -141,7 +141,7 @@ app.invoke({"ticket": ticket}, {"configurable": {"thread_id": "42"}})
 
   <p><code>fetch_policy</code> and <code>draft_reply</code> are still your functions, and the tools they call are still yours to write. What you handed over is <code>range(MAX_STEPS)</code>, the growing <code>messages</code> list, and what happens when step two dies: swap the saver for a database and the run resumes on the same <code>thread_id</code>.</p>
 
-  <p>Language is the next filter, and it deletes most of the list. Nearly all of it is Python; TypeScript has Mastra and the Vercel AI SDK; Rust has <a href="https://lib.rs/crates/rig-core">Rig</a>. Google ADK spans four languages but is also the front door to Google's runtime, so adopting it quietly picks that too.</p>
+  <p>Language is the next filter, and it deletes most of the list on its own. Nearly everything here is Python first, TypeScript sometimes, and nothing else. One warning about the exception: Google ADK spans four languages, but it is also the front door to Google's runtime, so adopting it quietly picks that too.</p>
 
   <h2>Prebuilt harnesses</h2>
 
@@ -182,7 +182,9 @@ async for message in query(
 
   <p>Platforms orchestrate too, so capability would put them on top of the previous category rather than beside it. What makes them a different purchase is the perimeter wrapped around the orchestration: which identity an agent acted under, credentials handed over without handing over secrets, what it may touch, what it did, and where memory, evaluation and deployment live. What you do not buy is better reasoning.</p>
 
-  <p>The split inside the category matters more than the brand. <strong>Business-user surfaces</strong> let a domain expert compose the agent: IBM <a href="https://www.ibm.com/products/watsonx-orchestrate/ai-agent-builder">watsonx Orchestrate</a> pairs drag-and-drop with a developer kit underneath, and Copilot Studio and Agentforce 360 hold the same position over their own data. <strong>Developer runtimes</strong> assume you wrote the agent and need somewhere accountable to run it: Bedrock AgentCore offers runtime, memory, gateway, identity and monitoring as separate services, and does not care which framework wrote the agent. You need this category when the sentences blocking your launch start with "who approved," "who can see," or "what happens when it is wrong."</p>
+  <p>The split inside the category matters more than the brand. <strong>Business-user surfaces</strong> let a domain expert compose the agent, usually drag-and-drop with a developer kit underneath, and every large vendor sells one over its own data. <strong>Developer runtimes</strong> assume you already wrote the agent and need somewhere accountable to run it. They sell runtime, memory, identity and monitoring as separate services, and do not care which framework wrote the agent.</p>
+
+  <p>You need this category when the sentences blocking your launch start with "who approved," "who can see," or "what happens when it is wrong." If none of those has been said to you yet, you do not need it.</p>
 
   <h2>Which one do you need?</h2>
 
