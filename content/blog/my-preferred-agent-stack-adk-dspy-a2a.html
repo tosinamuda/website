@@ -18,9 +18,11 @@
 
   <p>Two names before I use them.</p>
 
-  <p><strong>DSPy</strong> solves the prompt. You never write one. You say what a step takes in and gives back, you write a function that scores an answer, and it searches for the wording that scores best against your test cases. It is a Stanford project.</p>
+  <p><strong>DSPy</strong> solves the prompt. You never write one. You say what a step takes in and gives back, you write a function that scores an answer, and it searches for the wording that scores best against your test cases. It is a Stanford project. <a href="/blog/stop-hand-writing-prompts-dspy">The mechanics are written up separately</a>, and this piece assumes only the summary above.</p>
 
   <p>An <strong>orchestrator</strong> solves the wiring. You describe your steps and how they connect. It runs them in order, keeps the shared state, and streams progress back to whoever called it, so none of that plumbing is yours to write. I use <strong>Google ADK</strong>, now at version 2, and the rest of this uses it for the examples. Nothing in the argument depends on that choice: LangGraph, Temporal, or your own <code>asyncio</code> code all give you the same thing, and the reasoning below survives swapping any of them in.</p>
+
+  <p>The two names sit in different categories, which is why this pairs them rather than picking between them. <a href="/blog/four-kinds-of-agent-framework">The wider map of what competes with what</a> sorts the field by which responsibility you hand over.</p>
 
   <p>An orchestrator on its own gets you most of the way, and it does evaluate. ADK ships an eval framework with thirteen built-in metrics: whether the final response matches, whether the agent called the right tools in the right order, task success across a conversation, safety, hallucination. Worth running, and I would not skip it.</p>
 
