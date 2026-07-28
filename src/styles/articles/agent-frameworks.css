@@ -1,0 +1,161 @@
+@layer components {
+/* Agent framework landscape essay */
+.af-visual {
+  margin: 36px 0;
+  overflow-x: auto;
+}
+.af-caption {
+  color: var(--ink-3);
+  font-family: var(--body);
+  font-size: 14px;
+  font-style: italic;
+  line-height: 1.4;
+  margin: 14px 0 0;
+  text-align: center;
+}
+.af-table {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-collapse: collapse;
+  font-family: var(--body);
+  font-size: 14px;
+  min-width: 620px;
+  width: 100%;
+}
+.af-table th,
+.af-table td {
+  border-bottom: 1px solid var(--rule);
+  border-right: 1px solid var(--rule);
+  line-height: 1.45;
+  padding: 11px 12px;
+  text-align: left;
+  vertical-align: top;
+}
+.af-table th:last-child,
+.af-table td:last-child { border-right: 0; }
+.af-table thead th {
+  background: var(--rule-2);
+  color: var(--ink);
+  font-family: var(--ui);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.af-table tbody th {
+  background: var(--rule-2);
+  color: var(--ink);
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.af-table tbody tr:last-child td,
+.af-table tbody tr:last-child th { border-bottom: 0; }
+
+/* Roster table, collapsed by default so it reads as reference not argument */
+.af-roster { margin: 28px 0; }
+.af-roster > summary {
+  color: var(--accent);
+  cursor: pointer;
+  font-family: var(--ui);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  padding: 10px 0;
+  text-transform: uppercase;
+}
+.af-roster > summary:hover { text-decoration: underline; }
+.af-roster .af-visual { margin-top: 8px; }
+
+/* Four kinds, sorted by the unit of work each answers for */
+.af-units-wrapper {
+  background: var(--rule-2);
+  border: 1px solid var(--rule);
+  min-width: 520px;
+  padding: 20px;
+}
+.af-units {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr 1fr;
+}
+.af-unit {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 14px 16px;
+}
+.af-unit-name {
+  color: var(--ink);
+  display: block;
+  font-family: var(--display);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.3;
+  margin-bottom: 10px;
+}
+.af-unit-label {
+  color: var(--ink-3);
+  display: block;
+  font-family: var(--ui);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  margin-bottom: 3px;
+  text-transform: uppercase;
+}
+.af-unit-controls {
+  color: var(--accent);
+  display: block;
+  font-size: 13.5px;
+  line-height: 1.4;
+  margin-bottom: 9px;
+}
+.af-unit-hands {
+  color: var(--ink);
+  display: block;
+  font-size: 13.5px;
+  line-height: 1.4;
+  margin-bottom: 10px;
+}
+.af-unit-eg {
+  border-top: 1px dashed var(--rule);
+  color: var(--ink-2);
+  display: block;
+  font-size: 12.5px;
+  line-height: 1.45;
+  padding-top: 9px;
+}
+.af-nest {
+  border-top: 1px solid var(--rule);
+  margin-top: 16px;
+  padding-top: 14px;
+}
+.af-nest-note {
+  color: var(--ink-3);
+  font-family: var(--ui);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  margin: 0 0 10px;
+  text-transform: uppercase;
+}
+.af-nest-row {
+  color: var(--ink-2);
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 0;
+}
+.af-nest-row + .af-nest-row { margin-top: 4px; }
+
+@media (max-width: 640px) {
+  .af-table {
+    font-size: 12.5px;
+    min-width: 560px;
+  }
+  .af-table th,
+  .af-table td { padding: 9px 8px; }
+  .af-units-wrapper {
+    min-width: 0;
+    padding: 14px;
+  }
+  .af-units { grid-template-columns: 1fr; }
+  .af-nest-row { font-size: 11px; }
+}
+}
