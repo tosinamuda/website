@@ -48,17 +48,17 @@
         <div class="af-unit">
           <span class="af-unit-name">Generation-level tools</span>
           <span class="af-unit-label">You keep</span>
-          <span class="af-unit-controls">The program, the output types, and what counts as good</span>
+          <span class="af-unit-controls">The application, the task definition, and what counts as good</span>
           <span class="af-unit-label">You hand over</span>
-          <span class="af-unit-hands">How the prompt is written and how many attempts it takes</span>
+          <span class="af-unit-hands">Some combination of prompt construction, parsing, validation, repair, and optimization</span>
           <span class="af-unit-eg">DSPy, Mellea, BAML, Ax</span>
         </div>
         <div class="af-unit">
           <span class="af-unit-name">Orchestration frameworks</span>
           <span class="af-unit-label">You keep</span>
-          <span class="af-unit-controls">Every tool, and whether you or the model picks the next step</span>
+          <span class="af-unit-controls">Which capabilities the agent has, and whether you or the model picks the next step</span>
           <span class="af-unit-label">You hand over</span>
-          <span class="af-unit-hands">Execution, state, and what happens after a failure</span>
+          <span class="af-unit-hands">Loop execution, state, persistence, and failure handling</span>
           <span class="af-unit-eg">LangGraph, Strands, OpenAI Agents SDK, Pydantic AI, CrewAI, ADK, Mastra, Rig, Microsoft Agent Framework, BeeAI</span>
         </div>
         <div class="af-unit">
@@ -79,7 +79,7 @@
         </div>
       </div>
       <div class="af-nest">
-        <p class="af-nest-note">Any of them can call any other</p>
+        <p class="af-nest-note">They compose, and not in one direction only</p>
         <p class="af-nest-row">orchestrator → tool → harness</p>
         <p class="af-nest-row">harness → tool → DSPy program</p>
         <p class="af-nest-row">DSPy program → tool → platform agent</p>
@@ -90,15 +90,15 @@
 
   <p>These are not layers in a fixed stack. Each names the responsibility a tool mainly takes over, and one system can use several at once.</p>
 
-  <p>Feature lists sort nothing. They overlap enough to make comparison useless, and any of these tools can call any other. What sorts them is the responsibility you stop carrying, and that gives the rule: <strong>two tools compete only if you would hand them the same responsibility.</strong> Comparing DSPy with Mellea is worth doing. Comparing DSPy with LangGraph is a category error.</p>
+  <p>Feature lists do not tell you which category you need, because these tools overlap and often compose. What sorts them is the responsibility you stop carrying, and that gives the rule: <strong>two tools compete only if you would hand them the same responsibility.</strong> Comparing DSPy with Mellea is worth doing. Comparing DSPy with LangGraph is a category error.</p>
 
   <h2>Generation-level tools</h2>
 
-  <p>What you hand these is the prompt. You keep the program and declare what a good answer looks like. The tool takes over the wording, the parsing, and how many attempts it makes. That last part is why "one model call" is the wrong name: sampling and repair loops fire as many as they need.</p>
+  <p>These tools turn a hand-rolled model call into a declared interface. You keep the program and say what a good answer looks like. The tool takes over some combination of prompt construction, parsing, validation, repair and optimization. "One model call" is the wrong name for the category too, because sampling and repair loops fire as many as they need.</p>
 
   <p>The failure they address is specific. The steps were right, the tools worked, and the model still returned prose where you needed JSON. More orchestration will not fix it, because a step that keeps breaking its contract has to be fixed at the step.</p>
 
-  <p>Three approaches, and what separates them is <em>when</em> they act. <a href="https://docs.boundaryml.com/home">BAML</a> acts at the boundary, and is a language rather than a framework: prompts become typed functions it compiles into a client you import. <a href="https://mellea.ai/">Mellea</a> acts at runtime, retrying whatever fails a requirement you attached. <a href="https://dspy.ai/">DSPy</a> acts before runtime, rewriting the instructions against a scoring function until the score goes up.</p>
+  <p>Three approaches, and what separates them is <em>when</em> they act. <a href="https://docs.boundaryml.com/home">BAML</a> acts at the boundary, and is a language rather than a framework: you write the prompt inside a typed function, and its compiler generates the client your program imports. <a href="https://mellea.ai/">Mellea</a> acts at runtime, retrying whatever fails a requirement you attached. <a href="https://dspy.ai/">DSPy</a> acts before runtime, rewriting the instructions against a scoring function until the score goes up.</p>
 
   <p>BAML, Mellea and DSPy combine, and the entry fee rises in that order. A type is free, a requirement you can check is cheap, and a function that scores an answer is usually the real project.</p>
 
@@ -114,7 +114,7 @@
 extract = dspy.ChainOfThought(ExtractInvoice)
 </code></pre>
 
-  <p>No formatting instructions and no parsing code. The docstring becomes the instruction DSPy sends, and the field types are the contract it enforces. Wrap <code>extract</code> in a plain function and <code>run()</code> calls it like any other tool. <a href="/blog/stop-hand-writing-prompts-dspy">What declaring and optimizing looks like in full</a> is its own subject.</p>
+  <p>No formatting instructions and no parsing code. The docstring becomes the instruction DSPy sends, and the field types tell it what to coerce the result into. Wrap <code>extract</code> in a plain function and <code>run()</code> calls it like any other tool. <a href="/blog/stop-hand-writing-prompts-dspy">What declaring and optimizing looks like in full</a> is its own subject.</p>
 
   <p>One name causes more confusion than the rest. <a href="https://www.langchain.com/blog/langchain-langgraph-1dot0">Since 1.0</a>, <strong>LangChain</strong> is a high-level agent API running on the LangGraph runtime, so it belongs with orchestration rather than here.</p>
 
@@ -124,7 +124,7 @@ extract = dspy.ChainOfThought(ExtractInvoice)
 
   <p>Two forks decide which one you want, and neither is about the brand.</p>
 
-  <p><strong>Either your code picks the next step, or the model does.</strong> <a href="https://strandsagents.com/">Strands</a> takes the model side, LangGraph the explicit side, and CrewAI ships both. This is not taste. If you can draw the flowchart, write the flowchart. Letting the model decide costs tokens and latency, and hides why the agent did what it did.</p>
+  <p><strong>Either your code picks the next step, or the model does.</strong> <a href="https://strandsagents.com/">Strands</a> starts from a model-driven loop. LangGraph starts from an explicit state graph but can mix deterministic and model-driven nodes. CrewAI separates autonomous Crews from structured Flows. This is not taste. If you can draw the flowchart, write the flowchart. Letting the model decide costs tokens and latency, and hides why the agent did what it did.</p>
 
   <p><strong>What does it cost you when a run dies halfway?</strong> If the answer is "nothing, we rerun it," retries are fine. If the run takes an hour or waits on an approval, it has to save progress outside the process. That means checkpointing, or a real workflow engine underneath as <a href="https://pydantic.dev/docs/ai/integrations/durable_execution/overview/">Pydantic AI</a> does. That is what I would look at hardest for anything long-running.</p>
 
@@ -194,9 +194,14 @@ async for message in query(
       </thead>
       <tbody>
         <tr>
-          <td>Output is unparseable or breaks a rule you can state</td>
+          <td>Output does not match a schema</td>
           <th scope="row">Generation</th>
-          <td>BAML for the shape, Mellea for the rule</td>
+          <td>The provider's structured output first, then BAML for a typed, portable interface</td>
+        </tr>
+        <tr>
+          <td>Output breaks a rule you can check but not score</td>
+          <th scope="row">Generation</th>
+          <td>Mellea, or your own validator and repair loop</td>
         </tr>
         <tr>
           <td>Output is right eight times out of ten and you can score it</td>
@@ -233,7 +238,7 @@ async for message in query(
     <p class="af-caption">Sort by symptom, not by popularity.</p>
   </figure>
 
-  <p>Reaching for the wrong kind fails predictably. Answer an unreliable extraction step with a second agent that checks it at runtime. You have added another unreliable generation, plus the job of coordinating the pair. Scoring that step offline against examples is the fix; a second opinion at runtime is not.</p>
+  <p>Reaching for the wrong kind fails predictably. Answer an unreliable extraction step by adding a second agent to check it at runtime, and you have added a second unreliable generation. You now coordinate the pair as well. Start with the provider's structured output or a deterministic validator, then score the step offline against examples. Add runtime verification when it checks something independently or enforces a policy.</p>
 
   <p>A prototype usually needs one kind. Production systems often combine several, and each addition should answer a failure you have actually seen. The pairing I reach for is orchestration plus a generation-level tool, when the steps are known and one of them has to be accurate. <a href="/blog/my-preferred-agent-stack-adk-dspy-a2a">That is the pairing I reach for</a>.</p>
 
@@ -241,11 +246,11 @@ async for message in query(
 
   <p>Write that loop yourself the first time. It is a day of work, and afterwards none of the frameworks look like magic. What it does not buy is production readiness. The trap is durability: a hand-rolled way of saving progress is often worse than none, because it looks like it works until the process dies at the wrong moment.</p>
 
-  <p>Keep it hand-written while four things stay true. The output is easy to check. The path is a fixed sequence you can draw. Your tools are a handful of calls into your own API. Nobody outside your team approves what it does. Each one going false points at the matching kind above, in that order.</p>
+  <p>Keep it hand-written while four things stay true. The output contract is simple enough to enforce yourself. The path is a fixed sequence you can draw. Your tools are a handful of calls into your own API. Nobody outside your team approves what it does. When one of those stops being true, it names the responsibility to hand over next.</p>
 
   <p>You will still get a choice wrong, so prefer tools that speak the standard protocols: MCP to reach a tool, <a href="https://www.linuxfoundation.org/press/a2a-protocol-surpasses-150-organizations-lands-in-major-cloud-platforms-and-sees-enterprise-production-use-in-first-year">A2A</a> to call another agent, <a href="https://agentclientprotocol.com/get-started/introduction">ACP</a> to talk to an editor. Then replacing one costs less, though no protocol erases the differences in state, permissions and error handling.</p>
 
-  <p>Which leaves the two questions you arrived with. <strong>Which framework?</strong> Whichever one sits in the kind your symptom points at, because inside a kind the field is short and the choice is cheap. <strong>Should you write your own?</strong> Yes, once, and keep it until one of those four conditions goes false.</p>
+  <p>Which leaves the two questions you arrived with. <strong>Which framework?</strong> Start with the category matching the responsibility your system can no longer carry. Compare inside it on ecosystem fit, extensibility, operational maturity and exit cost. <strong>Should you write your own?</strong> Yes, once, and keep it until one of those four conditions goes false.</p>
 
   <p>The names on this page will churn, and two were renamed while I was writing it. What you can hand over will not.</p>
 

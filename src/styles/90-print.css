@@ -5,9 +5,37 @@
   site-header, site-footer { display: none !important; }
   .back { display: none; }
   a { color: black; text-decoration: underline; }
-  a[href^="http"]::after {
-    content: " (" attr(href) ")";
-    font-size: 0.85em;
-    color: #555;
+
+  /* Code lines are wider than a printed page and cannot scroll on paper, so
+     wrap them instead of letting the right-hand side fall off the sheet. */
+  pre, code {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    overflow: visible;
+    border: 1px solid #ccc;
   }
+  pre { break-inside: avoid; }
+
+  /* Auto layout gives the last column whatever is left, which on paper is
+     often nothing. Fixed layout divides the width before the text is measured. */
+  table { table-layout: fixed; width: 100%; break-inside: auto; }
+  td, th { overflow-wrap: anywhere; }
+  thead { display: table-header-group; }
+  tr { break-inside: avoid; }
+
+  /* Keep small diagrams whole, but a table taller than a page must be allowed
+     to break, or the browser drops the overflow instead of paginating it. */
+  figure { break-inside: avoid; }
+  .af-visual:has(table) { break-inside: auto; }
+
+  /* A horizontal scroll container cannot scroll on paper, so whatever sits
+     past its edge is simply lost. Release the container and the min-width
+     that forces the table wider than the page. */
+  .af-visual { overflow: visible; }
+  .af-table { min-width: 0; }
+  h2, h3 { break-after: avoid; }
+
+  /* A URL after every link doubles the length of a paragraph and breaks it
+     mid-sentence. The further-reading list still names each source. */
+  a[href]::after { content: none; }
 }
