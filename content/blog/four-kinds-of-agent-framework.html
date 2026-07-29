@@ -101,7 +101,7 @@
 
   <p>The failure sits inside a generation step. The model may return the wrong structure, break a requirement you can validate, or vary in quality across examples. More orchestration will not repair the generation itself.</p>
 
-  <p>Three approaches, and what separates them is <em>when</em> they act. <a href="https://docs.boundaryml.com/home">BAML</a> acts at the boundary, and is a language rather than a framework: you write the prompt inside a typed function, and its compiler generates the client your program imports. <a href="https://mellea.ai/">Mellea</a> acts at runtime, retrying whatever fails a requirement you attached. <a href="https://dspy.ai/">DSPy</a> acts before runtime, searching with examples and a metric for better instructions, better demonstrations, or both.</p>
+  <p>Three approaches, and what separates them is <em>when</em> they act. <a href="https://docs.boundaryml.com/home">BAML</a> acts at the boundary, and is a language rather than a framework: you write the prompt inside a typed function, and its compiler generates the client your program imports. <a href="https://mellea.ai/">Mellea</a> acts at runtime, retrying whatever fails a requirement you attached. <a href="https://dspy.ai/">DSPy</a> acts before deployment: its optimizer searches with examples and a metric for better instructions, better demonstrations, or both.</p>
 
   <p>BAML, Mellea and DSPy combine, and the cost usually rises in that order. Declaring a type is often straightforward, a reliable validator takes more work, and a scoring function can become a project of its own.</p>
 
@@ -152,7 +152,7 @@ app.invoke({"ticket": ticket}, config)
 
   <p>The word needs pinning down, because by the loose definition every orchestration framework is one. This category is narrower: <strong>a prebuilt harness that you invoke from your own code</strong>. Where the previous kind hands you the loop empty, this one hands it full. It arrives with file access, a shell and a sandbox, plus the permission gates and session resumption that keep a long run alive.</p>
 
-  <p>You are driving an agent, not building one. You inherit its tools, system prompt, and context strategy. Most of it can be extended or overridden, but you did not write it and you do not maintain it. You keep the task, the permissions, and whatever hooks they expose.</p>
+  <p>You are driving an agent, not building one. You inherit its tools, system prompt, and context strategy. Most of it can be extended or overridden, but you did not write it and you do not maintain it. You keep the task, the permissions, and whatever hooks it exposes.</p>
 
   <p>In code there is no loop left to see, and no <code>tools</code> dictionary either:</p>
 
