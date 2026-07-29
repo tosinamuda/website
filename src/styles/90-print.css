@@ -5,13 +5,9 @@
   site-header, site-footer { display: none !important; }
   .back { display: none; }
 
-  /* The note header carries screen furniture: category tags, reading time and
-     the date. On paper the title should lead. The draft marker is a ::before on
-     this element, so hide the children rather than the container, or a draft
-     circulating as a PDF loses the one label that says it is unfinished. */
-  .note-page-meta > * { display: none; }
-  .note-page-meta { border-bottom: 0; padding-bottom: 0; margin-bottom: 0; }
-  blog-post:not([draft]) .note-page-meta { display: none; }
+  /* The note header carries screen furniture: the draft marker, category tags,
+     reading time and the date. On paper the title leads. */
+  .note-page-meta { display: none; }
 
   /* Page margin already provides the top space; the screen padding doubles it. */
   .wrap { padding-top: 0; }
