@@ -12,8 +12,10 @@
     white-space: pre-wrap;
     overflow-wrap: anywhere;
     overflow: visible;
-    border: 1px solid #ccc;
   }
+  /* On the block only. Bordering <code> boxes every wrapped line and every
+     inline span in the prose. */
+  pre { border: 1px solid #ccc; }
   pre { break-inside: avoid; }
 
   /* Auto layout gives the last column whatever is left, which on paper is
