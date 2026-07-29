@@ -7,9 +7,9 @@
     { "categories": ["AI", "Engineering"] }
   </script>
 
-  <p>You are starting a project that needs an LLM-based agent somewhere in the architecture. Two questions arrive together: which framework should I use, and should I write my own instead?</p>
+  <p>When you start a project that needs an LLM-based agent, two questions arrive together: which framework should I use, or should I write my own?</p>
 
-  <p>Ask around and you will have a shortlist within the hour: DSPy, LangGraph, the Claude Agent SDK, Bedrock AgentCore. No two of those four do the same job, so neither question has an answer yet. You cannot rank a list of things that are not alternatives. Sort it first and both questions get much easier.</p>
+  <p>Ask around and you will have a shortlist within the hour: DSPy, LangGraph, the Claude Agent SDK, Bedrock AgentCore. The list looks like the answer to both: pick one, or find that nothing fits and write your own. It settles neither, because no two of those four do the same job, and you cannot rank things that are not alternatives. Sort the list first and both questions get much easier.</p>
 
   <p>Sorting starts with the one thing all four of them wrap, so name it once. An agent is a loop. Call the model, run the tool it asks for, add the result, and go round again. It stops when the task is done or the budget runs out. A tool is one of your own functions the model may ask for by name.</p>
 
