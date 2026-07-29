@@ -4,7 +4,15 @@
   body { background: white !important; color: black; }
   site-header, site-footer { display: none !important; }
   .back { display: none; }
+
+  /* Site furniture that cannot work on paper: a related-notes list nobody can
+     click, and a comment widget that prints as an empty form. */
+  .related, .comments { display: none; }
+
   a { color: black; text-decoration: underline; }
+  /* Every heading wraps its text in an anchor for deep links, so the rule
+     above would underline every heading in the document. */
+  .heading-link { text-decoration: none; color: inherit; }
 
   /* Code lines are wider than a printed page and cannot scroll on paper, so
      wrap them instead of letting the right-hand side fall off the sheet. */
