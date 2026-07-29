@@ -11,7 +11,7 @@
 
   <p>Ask around and you will hear DSPy, LangGraph, the Claude Agent SDK, Amazon Bedrock AgentCore. Those four belong to different categories and take over different parts of the work. Knowing which is which lets you pick one, combine two, or decide a small custom implementation is enough.</p>
 
-  <p>Start with their common reference point. At its simplest, a tool-using agent is a loop. Call the model, run the tool it asks for, add the result, and go round again. It stops when the task is done or the budget runs out. A tool is any capability the model can name: your own function, a hosted service, an MCP server, another agent.</p>
+  <p>Start with their common reference point. At its simplest, a tool-using agent is a model running inside a loop. The loop calls the model, runs whatever tool it requests, adds the result, and goes round again. It stops when the task is done or the budget runs out. A tool is any callable capability exposed to the model: your own function, a hosted service, an MCP server, another agent.</p>
 
   <p>Written out, the whole thing is this:</p>
 
@@ -121,7 +121,7 @@ extract = dspy.ChainOfThought(ExtractInvoice)
 
   <h2>Orchestration frameworks</h2>
 
-  <p>Orchestration frameworks give you the loop: control flow, state, and what happens when a step fails. <strong>What they do not hand you is an assembled environment.</strong> Some ship hosted tools or sandboxes, but you still wire up the capabilities your application needs. That is the right trade when your tools are a few calls into your own API. It is the wrong one when the agent must work in a repository.</p>
+  <p>Orchestration frameworks give you the loop: control flow, state, and what happens when a step fails. <strong>What they do not hand you is an assembled environment.</strong> Some ship hosted tools, but you still wire up what your application needs. That is the right trade when your tools are a few calls into your own API. It is the wrong one when the agent must work in a repository.</p>
 
   <p>Two forks decide which one you want. <strong>Either your code picks the next step, or the model does.</strong> <a href="https://strandsagents.com/">Strands</a> starts model-driven, LangGraph from a state graph that can hold both, CrewAI from autonomous Crews beside structured Flows. If you can draw the flowchart, write the flowchart. Letting the model decide costs tokens and latency, and hides why the agent did what it did.</p>
 
@@ -167,7 +167,7 @@ async for message in query(prompt=task, options=options):
 
   <p>Harnesses look alike from outside, and the model you already pay for narrows the list. They differ underneath in sandboxing, permissions, which tools ship, and how much you can replace. The coding agent <a href="https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/rpc.md">pi</a> is small enough to read rather than adopt.</p>
 
-  <p>I have paid what that bargain costs. Building a generative UI agent for IBM Think 2026, I needed a visitor's idea running as an app in two minutes, live. Bob, IBM's coding agent, had no SDK, so I drove <code>bob -p "your prompt"</code> as a subprocess. It supplied the model and the tools. I supplied the task and a deterministic build step. <a href="/blog/building-a-generative-ui-agent-for-bob-with-bob-by-bob">The full build is here</a>.</p>
+  <p>I have paid what that bargain costs. Building a generative UI agent for IBM Think 2026, I needed a visitor's idea running as an app in two minutes, live. Bob, IBM's coding agent, had no SDK, so I drove <code>bob -p "your prompt"</code> as a subprocess. It supplied the model and the tools; I supplied the task. <a href="/blog/building-a-generative-ui-agent-for-bob-with-bob-by-bob">The full build is here</a>.</p>
 
   <p>You also inherit somebody else's product roadmap. Google <a href="https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli/">retired Gemini CLI</a> in May 2026 and stopped serving requests on 18 June. That is a fast cycle to be downstream of.</p>
 
