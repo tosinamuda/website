@@ -11,7 +11,7 @@
 
   <p>Depending on who you ask, you might hear names such as DSPy, LangGraph, the Claude Agent SDK, and Amazon Bedrock AgentCore. But these tools belong to different categories, take over different parts of the work, and solve different kinds of problems. Knowing those distinctions will help you choose the right framework, combine several tools, or decide that a small custom implementation is enough.</p>
 
-  <p>Sorting starts with the one thing all four of them wrap, so name it once. An agent is a loop. Call the model, run the tool it asks for, add the result, and go round again. It stops when the task is done or the budget runs out. A tool is any capability the model can ask for by name: one of your functions, a hosted service, an MCP server, or another agent.</p>
+  <p>Sorting starts with the one thing all four of them wrap, so name it once. At its simplest, a tool-using agent is a loop. Call the model, run the tool it asks for, add the result, and go round again. It stops when the task is done or the budget runs out. A tool is any capability the model can ask for by name: one of your functions, a hosted service, an MCP server, or another agent.</p>
 
   <p>Written out, the whole thing is this:</p>
 
@@ -88,6 +88,8 @@
     <p class="af-caption">Four kinds, sorted by what you keep and what you give up.</p>
   </figure>
 
+  <p>These are not layers in a fixed stack. Each names the responsibility a tool mainly takes over, and one system can use several at once.</p>
+
   <p>Feature lists sort nothing. They overlap enough to make comparison useless, and any of these tools can call any other. What sorts them is the responsibility you stop carrying, and that gives the rule: <strong>two tools compete only if you would hand them the same responsibility.</strong> Comparing DSPy with Mellea is worth doing. Comparing DSPy with LangGraph is a category error.</p>
 
   <h2>Generation-level tools</h2>
@@ -114,7 +116,7 @@ extract = dspy.ChainOfThought(ExtractInvoice)
 
   <p>No formatting instructions and no parsing code. The docstring becomes the instruction DSPy sends, and the field types are the contract it enforces. Wrap <code>extract</code> in a plain function and <code>run()</code> calls it like any other tool. <a href="/blog/stop-hand-writing-prompts-dspy">What declaring and optimizing looks like in full</a> is its own subject.</p>
 
-  <p>One correction to the common map, because it moves a tool between categories: <strong>LangChain</strong> used to belong here, but <a href="https://www.langchain.com/blog/langchain-langgraph-1dot0">since 1.0</a> it is an agent API on the LangGraph runtime, which makes it an orchestration framework.</p>
+  <p>One name causes more confusion than the rest. <a href="https://www.langchain.com/blog/langchain-langgraph-1dot0">Since 1.0</a>, <strong>LangChain</strong> is a high-level agent API running on the LangGraph runtime, so it belongs with orchestration rather than here.</p>
 
   <h2>Orchestration frameworks</h2>
 
@@ -165,7 +167,7 @@ async for message in query(
 
   <p>Set that against the first snippet. You no longer wrote the tools that read and edit files, nor the system prompt that picks between them. What stays yours is the sentence, the three tools you permitted, and the directory it may touch.</p>
 
-  <p>Harnesses are mostly the same bargain from a different vendor, so the choice is usually whichever model you already pay for. One is worth singling out: the coding agent <a href="https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/rpc.md">pi</a> is small enough to read rather than adopt.</p>
+  <p>Harnesses look alike from outside, and the model you already pay for narrows the list quickly. They differ underneath in sandboxing, permissions, which tools ship, and how much of the loop you can replace. One is worth singling out: the coding agent <a href="https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/rpc.md">pi</a> is small enough to read rather than adopt.</p>
 
   <p>That bargain is easiest to judge from the inside, and I have paid what this category charges. Building a generative UI agent for IBM Think 2026, I needed to go from a visitor's idea to a running app in two minutes, live. The agent was Bob, IBM's coding agent, and it had no SDK, so the integration point was <code>bob -p "your prompt"</code> as a subprocess. It supplied the model and the tools. I supplied the task and a deterministic build step around it. <a href="/blog/building-a-generative-ui-agent-for-bob-with-bob-by-bob">The full build is here</a>.</p>
 
@@ -177,7 +179,7 @@ async for message in query(
 
   <p>The split inside the category matters more than the brand. <strong>Business-user surfaces</strong> let a domain expert compose the agent, and every large vendor sells one over its own data. <strong>Developer runtimes</strong> assume you wrote the agent already and need somewhere accountable to run it.</p>
 
-  <p>You need this kind when the sentences blocking your launch start with "who approved," "who can see," or "what happens when it is wrong." Until one of those is said to you, you do not.</p>
+  <p>You need this kind when the sentences blocking your launch start with "who approved," "who can see," or "what happens when it is wrong." Those are the loudest signals. Managed deployment, data residency and central governance can bring you here before anyone says them.</p>
 
   <h2>Which one do you need?</h2>
 
@@ -233,7 +235,7 @@ async for message in query(
 
   <p>Reaching for the wrong kind fails predictably. Answer an unreliable extraction step with a second agent that checks it at runtime. You have added another unreliable generation, plus the job of coordinating the pair. Scoring that step offline against examples is the fix; a second opinion at runtime is not.</p>
 
-  <p>Most systems need one kind. When a second is genuinely worth it, it is almost always orchestration plus a generation-level tool: the steps are known, and one of them has to be accurate. <a href="/blog/my-preferred-agent-stack-adk-dspy-a2a">That is the pairing I reach for</a>.</p>
+  <p>A prototype usually needs one kind. Production systems often combine several, and each addition should answer a failure you have actually seen. The pairing I reach for is orchestration plus a generation-level tool, when the steps are known and one of them has to be accurate. <a href="/blog/my-preferred-agent-stack-adk-dspy-a2a">That is the pairing I reach for</a>.</p>
 
   <h2>Should you write your own?</h2>
 
@@ -241,7 +243,7 @@ async for message in query(
 
   <p>Keep it hand-written while four things stay true. The output is easy to check. The path is a fixed sequence you can draw. Your tools are a handful of calls into your own API. Nobody outside your team approves what it does. Each one going false points at the matching kind above, in that order.</p>
 
-  <p>You will still get a choice wrong, so prefer tools that speak the standard protocols: MCP to reach a tool, <a href="https://www.linuxfoundation.org/press/a2a-protocol-surpasses-150-organizations-lands-in-major-cloud-platforms-and-sees-enterprise-production-use-in-first-year">A2A</a> to call another agent, <a href="https://agentclientprotocol.com/get-started/introduction">ACP</a> to talk to an editor. Then a wrong choice stays a swap rather than a rewrite.</p>
+  <p>You will still get a choice wrong, so prefer tools that speak the standard protocols: MCP to reach a tool, <a href="https://www.linuxfoundation.org/press/a2a-protocol-surpasses-150-organizations-lands-in-major-cloud-platforms-and-sees-enterprise-production-use-in-first-year">A2A</a> to call another agent, <a href="https://agentclientprotocol.com/get-started/introduction">ACP</a> to talk to an editor. Then replacing one costs less, though no protocol erases the differences in state, permissions and error handling.</p>
 
   <p>Which leaves the two questions you arrived with. <strong>Which framework?</strong> Whichever one sits in the kind your symptom points at, because inside a kind the field is short and the choice is cheap. <strong>Should you write your own?</strong> Yes, once, and keep it until one of those four conditions goes false.</p>
 
