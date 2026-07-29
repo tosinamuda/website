@@ -35,7 +35,7 @@
 
   /* Keep small diagrams whole, but a table taller than a page must be allowed
      to break, or the browser drops the overflow instead of paginating it. */
-  figure { break-inside: avoid; }
+  figure, call-out { break-inside: avoid; }
   .af-visual:has(table) { break-inside: auto; }
 
   /* A horizontal scroll container cannot scroll on paper, so whatever sits

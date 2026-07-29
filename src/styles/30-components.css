@@ -203,44 +203,16 @@
   .note-page-body ul { padding-left: var(--space-5); }
   .note-page-body li { margin-bottom: var(--space-2); }
 
-  source-note {
-    display: block;
-    margin: var(--space-12) 0 0;
-    padding: var(--space-5) var(--space-6);
-    border: 1px solid var(--rule);
-    border-left: 3px solid var(--accent);
-    background: color-mix(in srgb, var(--accent) 4%, transparent);
-    color: var(--ink-2);
-    font-size: var(--text-base);
-    line-height: var(--leading-relaxed);
-  }
-  source-note::before {
-    content: attr(heading);
-    display: block;
-    margin-bottom: var(--space-3);
-    font-family: var(--ui);
-    font-size: var(--text-xs);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--accent);
-  }
-  source-note:not([heading])::before {
-    content: attr(label);
-  }
-  source-note p {
-    margin: 0 0 1em;
-  }
-  source-note p:last-child {
-    margin-bottom: 0;
-  }
-
-  further-reading {
+  call-out {
     display: block;
     margin: var(--space-12) 0 0;
     padding-top: var(--space-5);
     border-top: 1px solid var(--rule);
+    color: var(--ink-2);
+    font-size: var(--text-base);
+    line-height: var(--leading-relaxed);
   }
-  further-reading::before {
+  call-out::before {
     content: attr(heading);
     display: block;
     margin-bottom: var(--space-4);
@@ -250,21 +222,27 @@
     text-transform: uppercase;
     color: var(--ink-3);
   }
-  /* .prose sets list padding and item spacing; match its specificity to reset them. */
-  .prose further-reading ul {
+  call-out:not([heading])::before { content: "Note"; }
+  call-out p { margin: 0 0 var(--space-3); }
+  call-out p:last-child { margin-bottom: 0; }
+
+  /* Citation lists only. A disclaimer holding a list should keep prose
+     bullets, so this is scoped by role rather than applied to every call-out.
+     .prose sets list padding and item spacing; match its specificity to reset. */
+  .prose call-out[role="doc-bibliography"] ul {
     margin: 0;
     padding: 0;
     list-style: none;
   }
-  .prose further-reading li {
+  .prose call-out[role="doc-bibliography"] li {
     margin-bottom: var(--space-3);
     font-size: var(--text-base);
     line-height: var(--leading-snug);
   }
-  .prose further-reading li:last-child {
+  .prose call-out[role="doc-bibliography"] li:last-child {
     margin-bottom: 0;
   }
-  further-reading cite {
+  call-out cite {
     display: block;
     font-style: normal;
     font-family: var(--ui);
