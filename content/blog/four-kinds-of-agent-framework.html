@@ -11,7 +11,7 @@
 
   <p>Depending on who you ask, you might hear names such as DSPy, LangGraph, the Claude Agent SDK, and Amazon Bedrock AgentCore. But these tools belong to different categories, take over different parts of the work, and solve different kinds of problems. Knowing those distinctions will help you choose the right framework, combine several tools, or decide that a small custom implementation is enough.</p>
 
-  <p>Sorting starts with the one thing all four of them wrap, so name it once. An agent is a loop. Call the model, run the tool it asks for, add the result, and go round again. It stops when the task is done or the budget runs out. A tool is one of your own functions the model may ask for by name.</p>
+  <p>Sorting starts with the one thing all four of them wrap, so name it once. An agent is a loop. Call the model, run the tool it asks for, add the result, and go round again. It stops when the task is done or the budget runs out. A tool is any capability the model can ask for by name: one of your functions, a hosted service, an MCP server, or another agent.</p>
 
   <p>Written out, the whole thing is this:</p>
 
@@ -40,7 +40,7 @@
     raise RuntimeError("step budget exhausted")
 </code></pre>
 
-  <p>Twenty lines, or about forty once you add streaming and a real token budget. Keep it on screen. Each category below is a claim about which of these lines stop being yours, and that is what separates the four: <strong>which part you keep, and which part you hand over</strong>.</p>
+  <p>Twenty lines, or about forty once you add streaming and a real token budget. Keep it on screen. Three of the categories below take a different part of this away from you, and the fourth wraps the whole thing. That is what separates them: <strong>which part you keep, and which part you hand over</strong>.</p>
 
   <figure class="af-visual">
     <div class="af-units-wrapper">
@@ -88,13 +88,13 @@
     <p class="af-caption">Four kinds, sorted by what you keep and what you give up.</p>
   </figure>
 
-  <p>Capability sorts nothing, because they overlap almost completely and any of them can call any other. What sorts them is what you stop being responsible for, and that gives the rule: <strong>two tools compete only if you would hand them the same responsibility.</strong> DSPy against Mellea is a real decision. DSPy against LangGraph is a category error.</p>
+  <p>Feature lists sort nothing. They overlap enough to make comparison useless, and any of these tools can call any other. What sorts them is the responsibility you stop carrying, and that gives the rule: <strong>two tools compete only if you would hand them the same responsibility.</strong> Comparing DSPy with Mellea is worth doing. Comparing DSPy with LangGraph is a category error.</p>
 
   <h2>Generation-level tools</h2>
 
   <p>What you hand these is the prompt. You keep the program and declare what a good answer looks like. The tool takes over the wording, the parsing, and how many attempts it makes. That last part is why "one model call" is the wrong name: sampling and repair loops fire as many as they need.</p>
 
-  <p>The failure they address is specific. The steps were right, the tools worked, and the model still returned prose where you needed JSON. No control flow above this can fix it.</p>
+  <p>The failure they address is specific. The steps were right, the tools worked, and the model still returned prose where you needed JSON. More orchestration will not fix it, because a step that keeps breaking its contract has to be fixed at the step.</p>
 
   <p>Three approaches, and what separates them is <em>when</em> they act. <a href="https://docs.boundaryml.com/home">BAML</a> acts at the boundary, and is a language rather than a framework: prompts become typed functions it compiles into a client you import. <a href="https://mellea.ai/">Mellea</a> acts at runtime, retrying whatever fails a requirement you attached. <a href="https://dspy.ai/">DSPy</a> acts before runtime, rewriting the instructions against a scoring function until the score goes up.</p>
 
@@ -112,13 +112,13 @@
 extract = dspy.ChainOfThought(ExtractInvoice)
 </code></pre>
 
-  <p>No wording, no JSON instructions, no parsing. <code>extract</code> goes into the <code>tools</code> dictionary and <code>run()</code> is untouched. <a href="/blog/stop-hand-writing-prompts-dspy">What declaring and optimizing looks like in full</a> is its own subject.</p>
+  <p>No formatting instructions and no parsing code. The docstring becomes the instruction DSPy sends, and the field types are the contract it enforces. Wrap <code>extract</code> in a plain function and <code>run()</code> calls it like any other tool. <a href="/blog/stop-hand-writing-prompts-dspy">What declaring and optimizing looks like in full</a> is its own subject.</p>
 
   <p>One correction to the common map, because it moves a tool between categories: <strong>LangChain</strong> used to belong here, but <a href="https://www.langchain.com/blog/langchain-langgraph-1dot0">since 1.0</a> it is an agent API on the LangGraph runtime, which makes it an orchestration framework.</p>
 
   <h2>Orchestration frameworks</h2>
 
-  <p>Orchestration frameworks give you the loop: control flow, state, and what happens when a step fails. <strong>They do not give you tools.</strong> That is the sharp line between this kind and the next. Every capability is one you wrote. That is right when your tools are three calls into your own API, and wrong when the agent must work in a repository.</p>
+  <p>Orchestration frameworks give you the loop: control flow, state, and what happens when a step fails. <strong>What they do not give you is a working environment.</strong> Some ship tool libraries, but you still choose, configure and wire every capability the agent has. That is the line between this kind and the next. That is the right trade when your tools are three calls into your own API. It is the wrong one when the agent must work in a repository.</p>
 
   <p>Two forks decide which one you want, and neither is about the brand.</p>
 
@@ -146,7 +146,7 @@ app.invoke({"ticket": ticket}, {"configurable": {"thread_id": "42"}})
 
   <p>The word needs pinning down, because by the loose definition every orchestration framework is one. This category is narrower: <strong>a harness somebody already built, that you run from your own code</strong>. Where the previous kind hands you the loop empty, this one hands it full. It arrives with file access, a shell and a sandbox, plus the permission gates and session resume that keep a long run alive.</p>
 
-  <p>You are driving an agent, not building one. What you give up is the inside: the tools, the system prompt and the context strategy are theirs. You keep the task, the permissions, and whatever hooks they expose.</p>
+  <p>You are driving an agent, not building one. You inherit their tools, their system prompt and their context strategy. Most of it can be extended or overridden, but you did not write it and you do not maintain it. You keep the task, the permissions, and whatever hooks they expose.</p>
 
   <p>In code there is no loop left to see, and no <code>tools</code> dictionary either:</p>
 
@@ -245,7 +245,7 @@ async for message in query(
 
   <p>Which leaves the two questions you arrived with. <strong>Which framework?</strong> Whichever one sits in the kind your symptom points at, because inside a kind the field is short and the choice is cheap. <strong>Should you write your own?</strong> Yes, once, and keep it until one of those four conditions goes false.</p>
 
-  <p>The names on this page will churn, and two changed identity while I was writing it. What you can hand over will not.</p>
+  <p>The names on this page will churn, and two were renamed while I was writing it. What you can hand over will not.</p>
 
   <further-reading heading="Further reading">
     <ul>
