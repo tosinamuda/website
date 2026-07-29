@@ -97,7 +97,7 @@
 
   <h2>Generation-level tools</h2>
 
-  <p>These tools turn a hand-rolled model call into a declared interface. You keep the program and say what a good answer looks like. The tool takes over some combination of prompt construction, parsing, validation, repair and optimization. "One model call" is too narrow a name for the category. Some of these tools add validation and repair at runtime, and others do their work before deployment.</p>
+  <p>These tools turn a hand-rolled model call into a declared interface. You keep the program and say what a good answer looks like. Each one takes over some combination of prompt construction, parsing, validation, repair and optimization. "One model call" is too narrow a name for the category, because the work does not always happen at runtime.</p>
 
   <p>The failure sits inside a generation step. The model may return the wrong structure, break a requirement you can validate, or vary in quality across examples. More orchestration will not repair the generation itself.</p>
 
@@ -129,7 +129,7 @@ extract = dspy.ChainOfThought(ExtractInvoice)
 
   <p><strong>Either your code picks the next step, or the model does.</strong> <a href="https://strandsagents.com/">Strands</a> starts from a model-driven loop. LangGraph starts from an explicit state graph but can mix deterministic and model-driven nodes. CrewAI separates autonomous Crews from structured Flows. This is not merely a matter of taste. If you can draw the flowchart, write the flowchart. Letting the model decide costs tokens and latency, and hides why the agent did what it did.</p>
 
-  <p><strong>What does it cost you when a run dies halfway?</strong> If the answer is "nothing, we rerun it," retries are fine. If the run takes an hour or waits on an approval, it has to save progress outside the process. That means checkpointing, or a real workflow engine underneath as <a href="https://pydantic.dev/docs/ai/integrations/durable_execution/overview/">Pydantic AI</a> does. That is what I would look at hardest for anything long-running.</p>
+  <p><strong>What does it cost you when a run dies halfway?</strong> If the answer is "nothing, we rerun it," retries are fine. If the run takes an hour or waits on an approval, it has to save progress outside the process. That means checkpointing, or a real workflow engine underneath. <a href="https://pydantic.dev/docs/ai/integrations/durable_execution/overview/">Pydantic AI</a> takes the second route. That is what I would look at hardest for anything long-running.</p>
 
   <p>In code, the <code>for</code> loop and the message list are gone. You declare the steps and the framework runs them:</p>
 
@@ -147,12 +147,11 @@ app.invoke({"ticket": ticket}, config)
 
   <p><code>fetch_policy</code> and <code>draft_reply</code> are still your functions, and their tools are still yours to write. What you handed over is <code>range(MAX_STEPS)</code>, the growing <code>messages</code> list, and what happens when step two dies. Swap the saver for a database and the run resumes on the same <code>thread_id</code>.</p>
 
-
   <h2>Prebuilt harnesses</h2>
 
-  <p>The word needs pinning down, because by the loose definition every orchestration framework is one. This category is narrower: <strong>a prebuilt harness that you invoke from your own code</strong>. Where the previous kind hands you the loop empty, this one hands it full. It arrives with file access, a shell and a sandbox, plus the permission gates and session resumption that keep a long run alive.</p>
+  <p>The word needs pinning down. Used loosely it means everything around the model, which would make every orchestration framework one. This category is narrower: <strong>a prebuilt harness that you invoke from your own code</strong>. Where the previous kind hands you the loop empty, this one hands it full. It arrives with file access, a shell and a sandbox, plus the permission gates and session resumption that keep a long run alive.</p>
 
-  <p>You are driving an agent, not building one. You inherit its tools, system prompt, and context strategy. Most of it can be extended or overridden, but you did not write it and you do not maintain it. You keep the task, the permissions, and whatever hooks it exposes.</p>
+  <p>You are driving an agent, not building one. That is the bargain: you inherit its tools, system prompt, and context strategy. Most of it can be extended or overridden, but you did not write it and you do not maintain it. You keep the task, the permissions, and whatever hooks it exposes.</p>
 
   <p>In code there is no loop left to see, and no <code>tools</code> dictionary either:</p>
 
@@ -243,7 +242,7 @@ async for message in query(prompt=task, options=options):
 
   <p>Reaching for the wrong kind fails predictably. Answer an unreliable extraction step by adding a second agent to check it at runtime, and you have added a second unreliable generation. You now coordinate the pair as well. Start with the provider's structured output or a deterministic validator, then score the step offline against examples. Add runtime verification when it checks something independently or enforces a policy.</p>
 
-  <p>A prototype usually needs one kind. Production systems often combine several, and each addition should answer a failure you have actually seen. <a href="/blog/my-preferred-agent-stack-adk-dspy-a2a">The pairing I reach for</a> is orchestration plus a generation-level tool, when the steps are known and one of them has to be accurate.</p>
+  <p>A prototype usually needs one kind. Production systems often combine several, and each addition should answer a failure you have seen. <a href="/blog/my-preferred-agent-stack-adk-dspy-a2a">The pairing I reach for</a> is orchestration plus a generation-level tool, when the steps are known and one of them has to be accurate.</p>
 
   <h2>Should you write your own?</h2>
 
