@@ -121,7 +121,7 @@ extract = dspy.ChainOfThought(ExtractInvoice)
 
   <h2>Orchestration frameworks</h2>
 
-  <p>Orchestration frameworks give you the loop: control flow, state, and what happens when a step fails. <strong>What they do not hand you is an assembled environment.</strong> Some ship hosted tools, but you still wire up what your application needs. That is the right trade when your tools are a few calls into your own API. It is the wrong one when the agent must work in a repository.</p>
+  <p>Orchestration frameworks give you the loop: control flow, state and failure handling. <strong>What they do not hand you is an assembled environment.</strong> Some ship hosted tools, but you still wire up what your application needs. That is the right trade when your tools are a few calls into your own API. It is the wrong one when the agent must work in a repository.</p>
 
   <p>Two forks decide which one you want. <strong>Either your code picks the next step, or the model does.</strong> <a href="https://strandsagents.com/">Strands</a> starts model-driven. LangGraph starts from a state graph that can hold both. CrewAI keeps autonomous Crews and structured Flows apart. If you can draw the flowchart, write the flowchart. Letting the model decide costs tokens and latency, and hides why the agent did what it did.</p>
 
@@ -165,7 +165,7 @@ async for message in query(prompt=task, options=options):
 
   <p>Compare that with the first snippet. You wrote neither the tools that read and edit files nor the system prompt that chooses between them. Yours are the sentence, the three permitted tools, and the directory it may touch.</p>
 
-  <p>Harnesses look alike from outside, and the model you already pay for narrows the list. They differ underneath in sandboxing, permissions, which tools ship, and how much you can replace. The coding agent <a href="https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/rpc.md">pi</a> is small enough to read rather than adopt.</p>
+  <p>Harnesses look alike from outside, and the model you already pay for narrows the list. They differ underneath in sandboxing, permissions, which tools ship, and how much you can override. The coding agent <a href="https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/rpc.md">pi</a> is small enough to read rather than adopt.</p>
 
   <p>I have paid what that bargain costs. Building a generative UI agent for IBM Think 2026, I needed a visitor's idea running as an app in two minutes, live. Bob, IBM's coding agent, had no SDK, so I drove <code>bob -p "your prompt"</code> as a subprocess. It supplied the model and the tools; I supplied the task. <a href="/blog/building-a-generative-ui-agent-for-bob-with-bob-by-bob">The full build is here</a>.</p>
 
@@ -173,9 +173,9 @@ async for message in query(prompt=task, options=options):
 
   <h2>Enterprise agent platforms</h2>
 
-  <p>What you buy here is the perimeter around the orchestration: which identity the agent acts under, what it may access, what it does, and where it runs. Better reasoning is not what this category sells. Platforms do orchestrate, which is why capability alone would stack them on the previous kind rather than set them beside it.</p>
+  <p>What you buy here is the perimeter around the orchestration: identity, authorization, audit, and where the agent runs. Better reasoning is not what this category sells. Platforms do orchestrate, which is why capability alone would stack them on the previous kind rather than set them beside it.</p>
 
-  <p>The split inside the category matters more than the brand. <strong>Business-user surfaces</strong> let a domain expert compose the agent, wired into a vendor's own data. <strong>Developer runtimes</strong> assume you wrote it already and need somewhere accountable to run it.</p>
+  <p>The split inside the category matters more than the brand. <strong>Business-user surfaces</strong> let a domain expert compose the agent, wired into a vendor's own data. <strong>Developer runtimes</strong> assume you wrote it already and need it running somewhere governed.</p>
 
   <p>You need this kind when the sentences blocking your launch start with "who approved," "who can see," or "what happens when it is wrong." Managed deployment, data residency and governance can bring you here first.</p>
 
@@ -242,7 +242,7 @@ async for message in query(prompt=task, options=options):
 
   <h2>Should you write your own?</h2>
 
-  <p>Write that loop yourself the first time. It is small enough to build as an exercise, and afterwards no framework looks like magic. What it does not buy is durability: a hand-rolled way of saving progress is often worse than none, because it looks like it works until the process dies.</p>
+  <p>Write that loop yourself the first time. It is small enough to build as an exercise, and afterwards no framework looks like magic. What it does not buy is durability: a hand-rolled checkpointer is often worse than none, because it looks like it works until the process dies.</p>
 
   <p>Keep it hand-written while four things stay true. The output contract is simple enough to enforce yourself. The path is a fixed sequence you can draw. Your tools are a few calls into your own API. Nobody outside your team approves what it does. When one stops being true, it points to what you hand over next.</p>
 

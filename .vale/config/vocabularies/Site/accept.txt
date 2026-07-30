@@ -21,6 +21,7 @@ BobShell
 BootstrapFewShot
 breakpoint
 ChainOfThought
+checkpointer
 checkpointing
 CodeAct
 codebase
