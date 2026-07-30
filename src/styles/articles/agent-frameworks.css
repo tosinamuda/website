@@ -50,61 +50,6 @@
   line-height: 1.45;
 }
 
-/* A concrete call graph showing how the categories can work together */
-.af-compose {
-  background: var(--rule-2);
-  border: 1px solid var(--rule);
-  padding: 20px;
-}
-.af-compose-layer {
-  background: var(--paper);
-  border: 1px solid var(--rule);
-  display: grid;
-  gap: 4px;
-  padding: 13px 16px;
-}
-.af-compose-name {
-  color: var(--ink);
-  font-family: var(--display);
-  font-size: 16px;
-  font-weight: 500;
-}
-.af-compose-role {
-  color: var(--ink-2);
-  font-size: 13.5px;
-  line-height: 1.4;
-}
-.af-compose-connector {
-  color: var(--ink-3);
-  font-family: var(--ui);
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  padding: 8px 16px;
-  text-transform: uppercase;
-}
-.af-compose-workers {
-  display: grid;
-  gap: 8px;
-  grid-template-columns: repeat(3, 1fr);
-}
-.af-compose-worker {
-  background: var(--paper);
-  border: 1px solid var(--rule);
-  display: grid;
-  gap: 5px;
-  padding: 12px;
-}
-.af-compose-worker strong {
-  color: var(--ink);
-  font-family: var(--ui);
-  font-size: 12px;
-}
-.af-compose-worker span {
-  color: var(--ink-2);
-  font-size: 12.5px;
-  line-height: 1.4;
-}
-
 @media (max-width: 640px) {
   .af-boundary-row--head { display: none; }
   .af-boundary-row {
@@ -129,7 +74,5 @@
     margin-bottom: 3px;
     text-transform: uppercase;
   }
-  .af-compose { padding: 14px; }
-  .af-compose-workers { grid-template-columns: 1fr; }
-}
+    }
 }

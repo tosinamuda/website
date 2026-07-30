@@ -150,32 +150,52 @@ result = coding_agent.run(task)</code></pre>
 
   <h2>How the categories compose</h2>
 
-  <p>Each boundary can expose a callable interface: a function, tool, API, command-line interface, or MCP server. An orchestrator can call a generation program, agent harness, or platform-hosted agent during a larger run.</p>
-
-  <p>For example, you can register a DSPy program as a tool in Strands or Google ADK. The orchestrator decides when to call it and what to do with its result. DSPy manages the ticket-routing operation and its evaluation.</p>
+  <p>Different categories are not alternatives, and they are not a stack either. Each boundary can expose a callable interface: a function, a tool, an API, a command-line program, or an MCP server. Once it does, any kind can sit inside any other.</p>
 
   <figure class="af-visual">
-    <div class="af-compose">
-      <div class="af-compose-layer">
-        <span class="af-compose-name">Enterprise platform</span>
-        <span class="af-compose-role">hosts, authorises, and observes the deployment</span>
+    <div class="af-boundary-map" role="table" aria-label="Ways the categories call one another">
+      <div class="af-boundary-row af-boundary-row--head" role="row">
+        <span role="columnheader">Caller</span>
+        <span role="columnheader">How it reaches the other</span>
+        <span role="columnheader">Callee</span>
       </div>
-      <div class="af-compose-connector">contains or reaches</div>
-      <div class="af-compose-layer">
-        <span class="af-compose-name">Strands or Google ADK</span>
-        <span class="af-compose-role">coordinates the job, state, retries, and approvals</span>
+      <div class="af-boundary-row" role="row">
+        <strong role="rowheader">Orchestration</strong>
+        <span role="cell" data-label="How it reaches the other">registers it as a tool in a step</span>
+        <span role="cell" data-label="Callee">a generation program</span>
       </div>
-      <div class="af-compose-connector">invokes as tools</div>
-      <div class="af-compose-workers">
-        <div class="af-compose-worker"><strong>DSPy program</strong><span>owns a tested routing operation</span></div>
-        <div class="af-compose-worker"><strong>Agent harness</strong><span>edits files and runs commands</span></div>
-        <div class="af-compose-worker"><strong>Hosted agent</strong><span>provides a reachable managed capability</span></div>
+      <div class="af-boundary-row" role="row">
+        <strong role="rowheader">Agent harness</strong>
+        <span role="cell" data-label="How it reaches the other">runs it as a skill or a script</span>
+        <span role="cell" data-label="Callee">a generation program</span>
+      </div>
+      <div class="af-boundary-row" role="row">
+        <strong role="rowheader">Agent harness</strong>
+        <span role="cell" data-label="How it reaches the other">calls it over MCP</span>
+        <span role="cell" data-label="Callee">a generation program</span>
+      </div>
+      <div class="af-boundary-row" role="row">
+        <strong role="rowheader">Generation program</strong>
+        <span role="cell" data-label="How it reaches the other">calls it as one of its tools</span>
+        <span role="cell" data-label="Callee">an agent harness</span>
+      </div>
+      <div class="af-boundary-row" role="row">
+        <strong role="rowheader">Generation program</strong>
+        <span role="cell" data-label="How it reaches the other">uses it as the layer that acts</span>
+        <span role="cell" data-label="Callee">an agent harness</span>
+      </div>
+      <div class="af-boundary-row" role="row">
+        <strong role="rowheader">Orchestration</strong>
+        <span role="cell" data-label="How it reaches the other">invokes it as one step of a run</span>
+        <span role="cell" data-label="Callee">an agent harness</span>
       </div>
     </div>
-    <p class="af-caption">One possible composition.</p>
+    <p class="af-caption">Composition runs in more than one direction.</p>
   </figure>
 
-  <p>Read the diagram as a call graph. The orchestrator could be application code, the harness could call DSPy directly, and the platform could host only the harness. Framework names and feature lists will change. Adopt a boundary when its ready-made functionality is worth the control you hand over.</p>
+  <p>Read the middle column, then read rows three and four together. A harness can run a generation program, and a generation program can call a harness. Neither owns the other, so no fixed order exists to draw. A platform is the exception: it wraps whatever runs rather than waiting to be called.</p>
+
+  <p>Framework names and feature lists will change. Adopt a boundary when its ready-made functionality is worth the responsibility you hand over.</p>
 
   <call-out role="doc-bibliography" heading="Further reading">
     <ul>
