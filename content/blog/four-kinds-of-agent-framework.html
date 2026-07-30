@@ -59,23 +59,19 @@
 
   <p>Features overlap, so a checklist will not classify the tool. A generation program can contain a small agent loop. An orchestrator can include memory or a default agent. A harness can coordinate subagents. Classify the part you ask the tool to own in your system.</p>
 
-  <p>The short Python sketches below show that boundary. The generation and orchestration examples use real libraries. The others use generic interfaces.</p>
+  <p>The short Python sketches below show that boundary. Three of them use a real library. Building your own has no library to name, and the platform example stands for products that differ in how you call them.</p>
 
   <h2>Building your own</h2>
 
   <p>Without an agent framework, you start with the model client and any tool-calling primitives you choose. You write the loop and decide how every tool call works.</p>
 
-  <pre><code>while True:
-    reply = model(
-        messages,
-        tools=tools,
-    )
-    if not reply.tool_calls:
-        return reply.text
-    results = run_tools(
-        reply.tool_calls
-    )
-    messages += results</code></pre>
+  <pre><code>def run(task):
+    messages = [task]
+    while True:
+        reply = model(messages, tools=tools)
+        if not reply.tool_calls:
+            return reply.text
+        messages += run_tools(reply.tool_calls)</code></pre>
 
   <p>This sketch leaves out stop conditions, persistence, memory, context compaction, permissions, and observability. Those decisions remain visible and changeable because they remain in your code. Their design, testing, operation, and upgrades also belong to you.</p>
 
@@ -130,13 +126,21 @@ app = builder.compile(
 
   <p>A prebuilt harness gives you a working agent. The model connection, loop, standard tools, permissions, sessions, and context handling are already wired together. A coding harness can often inspect a repository, edit files, and run commands on its first task.</p>
 
-  <pre><code>task = (
-    "Fix issue #418. "
-    "Run tests and show the diff."
+  <pre><code>options = ClaudeAgentOptions(
+    allowed_tools=["Read", "Edit", "Bash"],
+    permission_mode="acceptEdits",
+    mcp_servers={"tickets": ticket_server},
 )
-result = coding_agent.run(task)</code></pre>
+
+async for message in query(
+    prompt="Fix issue #418, then run the tests.",
+    options=options,
+):
+    print(message)</code></pre>
 
   <p>You supply the task, access, and extensions. Instructions, skills, hooks, custom functions, and MCP servers let you adapt the agent. You work through the extension points the harness exposes.</p>
+
+  <p>A harness offers more than one way in. You import it as a library, or run it as a command that takes one prompt and exits. You can also keep it alive as a process that exchanges JSON messages over its standard streams. Editors use that last mode to embed an agent they did not build.</p>
 
   <p>Choose a harness when the job depends on acting in an environment and you want that capability ready-made. The <a href="https://code.claude.com/docs/en/agent-sdk/overview">Claude Agent SDK</a>, Codex SDK, OpenCode, and deepagents expose working agents through libraries, command-line interfaces, or servers.</p>
 
