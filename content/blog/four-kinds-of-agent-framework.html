@@ -85,10 +85,9 @@
 
   <p>I use <em>generation programming</em> for one model-driven operation inside a larger program. Suppose a support system must assign each ticket to a team. The ticket goes in; one valid team name must come out.</p>
 
-  <pre><code>route_ticket = dspy.ChainOfThought(
-    "ticket -> team: "
-    "Literal['billing', 'technical', 'account']"
-)
+  <pre><code>Team = Literal["billing", "technical", "account"]
+
+route_ticket = dspy.ChainOfThought("ticket -> team: Team")
 
 def routing_accuracy(example, prediction, trace=None):
     return prediction.team == example.team
