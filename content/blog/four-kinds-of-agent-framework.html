@@ -73,7 +73,9 @@
             return reply.text
         messages += run_tools(reply.tool_calls)</code></pre>
 
-  <p>This sketch leaves out stop conditions, persistence, memory, context compaction, permissions, and observability. Those decisions remain visible and changeable because they remain in your code. Their design, testing, operation, and upgrades also belong to you.</p>
+  <p>The loop stops when the model returns no tool call. You can instead give it a tool that reports the final answer, and stop when it calls that tool. The second policy becomes necessary when you require a tool call on every turn, because the model then cannot answer in plain text.</p>
+
+  <p>This sketch also leaves out a step limit, persistence, memory, context compaction, permissions, and observability. Those decisions remain visible and changeable because they remain in your code. Their design, testing, operation, and upgrades also belong to you.</p>
 
   <p>Build the agent yourself when you need full control and a framework would constrain an important choice. The system can be simple or complex. Complexity sets the engineering cost; the need for control sets the choice.</p>
 
