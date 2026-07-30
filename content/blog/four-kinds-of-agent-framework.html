@@ -152,48 +152,7 @@ result = coding_agent.run(task)</code></pre>
 
   <p>Different categories are not alternatives, and they are not a stack either. Each boundary can expose a callable interface: a function, a tool, an API, a command-line program, or an MCP server. Once it does, any kind can sit inside any other.</p>
 
-  <figure class="af-visual">
-    <div class="af-boundary-map" role="table" aria-label="Ways the categories call one another">
-      <div class="af-boundary-row af-boundary-row--head" role="row">
-        <span role="columnheader">Caller</span>
-        <span role="columnheader">How it reaches the other</span>
-        <span role="columnheader">Callee</span>
-      </div>
-      <div class="af-boundary-row" role="row">
-        <strong role="rowheader">Orchestration</strong>
-        <span role="cell" data-label="How it reaches the other">registers it as a tool in a step</span>
-        <span role="cell" data-label="Callee">a generation program</span>
-      </div>
-      <div class="af-boundary-row" role="row">
-        <strong role="rowheader">Agent harness</strong>
-        <span role="cell" data-label="How it reaches the other">runs it as a skill or a script</span>
-        <span role="cell" data-label="Callee">a generation program</span>
-      </div>
-      <div class="af-boundary-row" role="row">
-        <strong role="rowheader">Agent harness</strong>
-        <span role="cell" data-label="How it reaches the other">calls it over MCP</span>
-        <span role="cell" data-label="Callee">a generation program</span>
-      </div>
-      <div class="af-boundary-row" role="row">
-        <strong role="rowheader">Generation program</strong>
-        <span role="cell" data-label="How it reaches the other">calls it as one of its tools</span>
-        <span role="cell" data-label="Callee">an agent harness</span>
-      </div>
-      <div class="af-boundary-row" role="row">
-        <strong role="rowheader">Generation program</strong>
-        <span role="cell" data-label="How it reaches the other">uses it as the layer that acts</span>
-        <span role="cell" data-label="Callee">an agent harness</span>
-      </div>
-      <div class="af-boundary-row" role="row">
-        <strong role="rowheader">Orchestration</strong>
-        <span role="cell" data-label="How it reaches the other">invokes it as one step of a run</span>
-        <span role="cell" data-label="Callee">an agent harness</span>
-      </div>
-    </div>
-    <p class="af-caption">Composition runs in more than one direction.</p>
-  </figure>
-
-  <p>Read the middle column, then read rows three and four together. A harness can run a generation program, and a generation program can call a harness. Neither owns the other, so no fixed order exists to draw. A platform is the exception: it wraps whatever runs rather than waiting to be called.</p>
+  <p>Orchestration registers a generation program as a tool, or invokes a harness as one step of a run. A harness runs a generation program as a skill, as a script, or over MCP. A generation program calls a harness as one of its tools, or uses one as the layer that acts. Those last two are the same pair pointing opposite ways, which is why there is no fixed order to draw. A platform is the exception, because it wraps whatever runs rather than waiting to be called.</p>
 
   <p>Framework names and feature lists will change. Adopt a boundary when its ready-made functionality is worth the responsibility you hand over.</p>
 
