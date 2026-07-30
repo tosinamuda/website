@@ -1,0 +1,61 @@
+@layer components {
+/* Agent framework landscape essay */
+.af-visual {
+  margin: 36px 0;
+}
+/* Only the rows scroll. A caption inside the scroll container is as wide as the
+   table, so on a narrow screen the sentence describing the table runs off it. */
+.af-scroll {
+  overflow-x: auto;
+}
+/* The caption reads before the rows, so the space belongs underneath it. The
+   element selector keeps this ahead of the site-wide `.prose figcaption` font. */
+.prose figcaption.af-caption {
+  color: var(--ink-3);
+  font-family: var(--body);
+  font-size: 14px;
+  font-style: italic;
+  line-height: 1.4;
+  margin: 0 0 10px;
+  text-align: center;
+}
+
+/* Comparison table */
+.af-table {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-collapse: collapse;
+  font-family: var(--body);
+  font-size: 14px;
+  min-width: 620px;
+  width: 100%;
+}
+.af-table th,
+.af-table td {
+  border-bottom: 1px solid var(--rule);
+  border-right: 1px solid var(--rule);
+  line-height: 1.45;
+  padding: 11px 12px;
+  text-align: left;
+  vertical-align: top;
+}
+.af-table th:last-child,
+.af-table td:last-child { border-right: 0; }
+.af-table thead th {
+  background: var(--rule-2);
+  color: var(--ink);
+  font-family: var(--ui);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.af-table tbody th {
+  background: var(--rule-2);
+  color: var(--ink);
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.af-table tbody tr:last-child td,
+.af-table tbody tr:last-child th { border-bottom: 0; }
+}

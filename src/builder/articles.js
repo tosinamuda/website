@@ -162,9 +162,16 @@ function required(attrs, key, filename) {
   return attrs[key];
 }
 
+// An excerpt is read with nothing before it: under the title on the page, and
+// under the title again in a search result. A pronoun that points backwards has
+// nothing to land on in either place. "This" and "these" are excluded because
+// they point at the page itself, which the reader is holding.
+const DANGLING_OPENER = /^(they|it|that|those|them|its|their|he|she)\b/i;
+
 /**
- * Print a single grouped warning per file when its title or excerpt is long
- * enough to be truncated by search engines or social cards.
+ * Print a single grouped warning per file when its title or excerpt would be
+ * truncated by search engines and social cards, or reads as a continuation of
+ * the title rather than a standalone sentence.
  *
  * @param {Article} article
  */
@@ -175,6 +182,10 @@ function warnOnLongMeta(article) {
   if (article.excerpt.length > 160) issues.push(`excerpt ${article.excerpt.length} (>160)`);
   if (issues.length) {
     console.warn(`  ⚠ ${article.slug}.html: ${issues.join(", ")} chars — SERP/OG truncation likely`);
+  }
+  const opener = article.excerpt.match(DANGLING_OPENER);
+  if (opener) {
+    console.warn(`  ⚠ ${article.slug}.html: excerpt opens on "${opener[0]}" — name the subject instead`);
   }
 }
 

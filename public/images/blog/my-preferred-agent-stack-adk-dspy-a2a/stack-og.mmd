@@ -1,0 +1,25 @@
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "fontFamily": "ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif",
+    "fontSize": "15px",
+    "primaryColor": "#F5F4EE",
+    "primaryTextColor": "#141414",
+    "primaryBorderColor": "#5B3FB8",
+    "lineColor": "#6b6b66",
+    "edgeLabelBackground": "transparent",
+    "background": "transparent"
+  }
+}}%%
+flowchart LR
+    Client([External agent / browser])
+    A2A["<b>Concern 3 · A2A Protocol</b><br/><span style='color:#6b6b66'>interop without plumbing</span><br/>agent-card · SSE streaming"]
+    ADK["<b>Concern 1 · Google ADK 2.0</b><br/><span style='color:#6b6b66'>structure &amp; orchestration</span><br/>LLM agents · pipelines · routes<br/>multi-agent · native A2A"]
+    DSPy["<b>Concern 2 · DSPy</b><br/><span style='color:#6b6b66'>per-component quality</span><br/>prompt optimization · typed signatures · primitives"]
+    LiteLLM["<b>LiteLLM</b><br/><span style='color:#6b6b66'>shared model + env substrate</span>"]
+
+    Client --> A2A --> ADK --> DSPy --> LiteLLM
+    LiteLLM --> OpenAI[(OpenAI)]
+    LiteLLM --> Anthropic[(Anthropic)]
+    LiteLLM --> OpenRouter[(OpenRouter)]
+    LiteLLM --> Ollama[(Ollama / local)]

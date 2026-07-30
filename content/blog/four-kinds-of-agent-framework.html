@@ -1,0 +1,183 @@
+<blog-post
+  title="Four Kinds of Agent Frameworks, and When to Use Each"
+  excerpt="Agent frameworks differ in what comes ready-made and what stays under your control. This essay compares four kinds, and building your own."
+  date="2026-07-27"
+  draft>
+  <script type="application/json" id="meta">
+    { "categories": ["AI", "Engineering"] }
+  </script>
+
+  <p>Agent tools differ most in the part of the system they supply. Some help you define and improve one model-driven operation, such as routing a support ticket. Others run a sequence of steps or agents. A prebuilt harness can already work in a repository, shell, or browser. A platform adds the controls needed to operate agents in production.</p>
+
+  <p>Each ready-made part also brings its own design choices. Ask what you want ready-made, which behaviour must remain under your control, and whether the extension points fit your application.</p>
+
+  <p>I group the choices into generation programming tools, orchestration frameworks, prebuilt agent harnesses, and enterprise agent platforms. Building the agent yourself is the fifth option.</p>
+
+  <p>These labels describe how you adopt a product in one system. A product can cross boundaries when you use it in different ways. The names in this essay are examples; the list is intentionally incomplete.</p>
+
+  <figure class="af-visual">
+    <figcaption class="af-caption">Each row moves a different responsibility out of your application code.</figcaption>
+    <div class="af-scroll" role="region" aria-label="What each option supplies and what stays yours" tabindex="0">
+    <table class="af-table">
+      <thead>
+        <tr>
+          <th scope="col">Option</th>
+          <th scope="col">Comes ready-made</th>
+          <th scope="col">What stays your responsibility</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">Build your own</th>
+          <td>Only the model or client primitives you choose</td>
+          <td>The loop, tools, memory, context, permissions, and operations</td>
+        </tr>
+        <tr>
+          <th scope="row">Generation programming</th>
+          <td>A model-driven operation you can specify, evaluate, and improve</td>
+          <td>When it runs, the wider workflow, tools, memory, and context</td>
+        </tr>
+        <tr>
+          <th scope="row">Orchestration</th>
+          <td>Execution across steps: loop or graph, routing, state, and recovery</td>
+          <td>The models, tools, agents, control flow, and context policy</td>
+        </tr>
+        <tr>
+          <th scope="row">Agent harness</th>
+          <td>A working agent with a model connection, loop, tools, and sessions</td>
+          <td>The task, permissions, skills, hooks, custom tools, and MCP servers</td>
+        </tr>
+        <tr>
+          <th scope="row">Platform</th>
+          <td>Hosting, identity, security, policy enforcement, and observability</td>
+          <td>Agent behaviour, business tools, policies, and lower-level components</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </figure>
+
+  <p>Features overlap, so a checklist will not classify the tool. A generation program can contain a small agent loop. An orchestrator can include memory or a default agent. A harness can coordinate subagents. Classify the part you ask the tool to own in your system.</p>
+
+  <p>The short Python sketches below show that boundary. Three of them use a real library. Building your own has no library to name, and the platform example stands for products that differ in how you call them.</p>
+
+  <h2>Building your own</h2>
+
+  <p>Without an agent framework, you start with the model client and any tool-calling primitives you choose. You write the loop and decide how every tool call works.</p>
+
+  <pre><code>def run(task):
+    messages = [task]
+    while True:
+        reply = model(messages, tools=tools)
+        if not reply.tool_calls:
+            return reply.text
+        messages += run_tools(reply.tool_calls)</code></pre>
+
+  <p>The loop stops when the model returns no tool call. You can instead give it a tool that reports the final answer, and stop when it calls that tool. The second policy becomes necessary when you require a tool call on every turn, because the model then cannot answer in plain text.</p>
+
+  <p>This sketch also leaves out a step limit, persistence, memory, context compaction, permissions, and observability. Those decisions remain visible and changeable because they remain in your code. Their design, testing, operation, and upgrades also belong to you.</p>
+
+  <p>Build the agent yourself when you need full control and a framework would constrain an important choice. The system can be simple or complex. Complexity sets the engineering cost; the need for control sets the choice.</p>
+
+  <h2>Generation programming tools</h2>
+
+  <p>I use <em>generation programming</em> for one model-driven operation inside a larger program. Suppose a support system must decide whether a ticket is urgent. The ticket goes in; one true or false answer must come out.</p>
+
+  <pre><code>triage = dspy.Predict("ticket -> urgent: bool")
+
+def triage_accuracy(example, prediction, trace=None):
+    return prediction.urgent == example.urgent
+
+score = dspy.Evaluate(
+    devset=labelled_tickets,
+    metric=triage_accuracy,
+)(triage)</code></pre>
+
+  <p>A generation programming tool makes that operation manageable. You control its prompt, input, output, examples, requirements, and quality measure. You can then test, optimise, or repair it. The implementation can make more than one model call or run a small agent loop. It still owns one defined job: judging urgency.</p>
+
+  <p>You decide when <code>triage</code> runs and what happens to its answer. You also supply any domain tools, memory, session state, and context policy used by the wider application.</p>
+
+  <p>Choose this boundary when you can split the work into model-driven operations that you can test separately. Consider a document pipeline that always loads, extracts, and stores an invoice. Malformed output points to the extraction operation. Changing the workflow will not make that output valid.</p>
+
+  <p><a href="https://dspy.ai/">DSPy</a> uses signatures and modules to define programs, then metrics and optimisers to improve them. <a href="https://mellea.ai/">Mellea</a> attaches requirements to a generation, checks the result at runtime, and can repair a failure.</p>
+
+  <h2>Orchestration frameworks</h2>
+
+  <p>An orchestration framework runs a sequence of steps or agents. It supplies the loop or graph. Depending on the framework, it also handles routing, shared state, retries, checkpoints, and approval.</p>
+
+  <pre><code>builder = StateGraph(Run)
+builder.add_node("triage", triage_step)
+builder.add_node("patch", coding_agent)
+builder.add_node("deploy", deploy)
+builder.add_edge(START, "triage")
+builder.add_edge("triage", "patch")
+builder.add_edge("patch", "deploy")
+
+app = builder.compile(
+    checkpointer=InMemorySaver(),
+    interrupt_before=["deploy"],
+)</code></pre>
+
+  <p>You provide the three step functions, and <code>triage_step</code> wraps the program from the previous section. The framework connects the steps, carries state between them, saves a checkpoint at each one, and holds the run before deployment until a person approves. You choose the models, tools, agents, control flow, and context policy. Some frameworks also supply memory or default tools.</p>
+
+  <p>Choose orchestration when coordination is the hard part. This includes multi-step runs, work that must survive interruption, and flows that mix fixed code with model decisions. A generation program or agent harness can become one callable step in that run.</p>
+
+  <p><a href="https://docs.langchain.com/oss/python/langgraph/overview">LangGraph</a>, <a href="https://strandsagents.com/">Strands</a>, <a href="https://adk.dev/">Google ADK</a>, CrewAI, and Pydantic AI offer different balances between explicit workflows and model-directed agents.</p>
+
+  <h2>Prebuilt agent harnesses</h2>
+
+  <p>A prebuilt harness gives you a working agent. The model connection, loop, standard tools, permissions, sessions, and context handling are already wired together. A coding harness can often inspect a repository, edit files, and run commands on its first task.</p>
+
+  <pre><code>options = ClaudeAgentOptions(
+    allowed_tools=["Read", "Edit", "Bash"],
+    permission_mode="acceptEdits",
+    mcp_servers={"tickets": ticket_server},
+)
+
+async for message in query(
+    prompt="Fix issue #418, then run the tests.",
+    options=options,
+):
+    print(message)</code></pre>
+
+  <p>You supply the task, access, and extensions. Instructions, skills, hooks, custom functions, and MCP servers let you adapt the agent. You work through the extension points the harness exposes.</p>
+
+  <p>A harness offers more than one way in. You import it as a library, or run it as a command that takes one prompt and exits. You can also keep it alive as a process that exchanges JSON messages over its standard streams. Editors use that last mode to embed an agent they did not build.</p>
+
+  <p>Choose a harness when the job depends on acting in an environment and you want that capability ready-made. The <a href="https://code.claude.com/docs/en/agent-sdk/overview">Claude Agent SDK</a>, Codex SDK, OpenCode, and deepagents expose working agents through libraries, command-line interfaces, or servers.</p>
+
+  <h2>Enterprise agent platforms</h2>
+
+  <p>An enterprise agent platform supplies the managed environment around an agent. It may provide hosting, identity, access control, secrets, security enforcement, audit trails, observability, evaluation, and deployment.</p>
+
+  <pre><code>platform.deploy(
+    coding_agent,
+    identity="repo-agent",
+    policy=repository_policy,
+    audit=True,
+)</code></pre>
+
+  <p>You still define the agent's behaviour, business tools, and policies. The platform gives those choices an accountable place to run. It can host an orchestrated agent, expose a harness as a service, or connect to a component through an API or MCP server.</p>
+
+  <p>Choose a platform when governance, security, observability, or managed cloud operation determines whether the agent can ship. <a href="https://aws.amazon.com/bedrock/agentcore/">Bedrock AgentCore</a> accepts agents built with different frameworks and models. IBM watsonx Orchestrate, Copilot Studio, and Agentforce provide agent-building surfaces around enterprise data and controls.</p>
+
+  <h2>How the categories compose</h2>
+
+  <p>Different categories are not alternatives, and they are not a stack either. Each boundary can expose a callable interface: a function, a tool, an API, a command-line program, or an MCP server. Once it does, any kind can sit inside any other.</p>
+
+  <p>Orchestration registers a generation program as a tool, or invokes a harness as one step of a run. A harness runs a generation program as a skill, as a script, or over MCP. A generation program calls a harness as one of its tools, or uses one as the layer that acts. Those last two are the same pair pointing opposite ways, which is why there is no fixed order to draw. A platform is the exception, because it wraps whatever runs rather than waiting to be called.</p>
+
+  <p>Framework names and feature lists will change. Adopt a boundary when its ready-made functionality is worth the responsibility you hand over.</p>
+
+  <call-out role="doc-bibliography" heading="Further reading">
+    <ul>
+      <li><a href="/blog/llm-agents-gentle-introduction">LLM Agents: A Gentle Introduction</a><cite>this site</cite></li>
+      <li><a href="https://docs.mellea.ai/concepts/architecture-vs-agents">Mellea: Architecture vs Agents</a><cite>Mellea docs</cite></li>
+      <li><a href="https://www.anthropic.com/engineering/building-effective-agents">Building Effective Agents</a><cite>Anthropic</cite></li>
+    </ul>
+  </call-out>
+
+  <call-out heading="Disclaimer">
+    <p>The views in this essay are personal. They do not represent IBM or any of my employers.</p>
+  </call-out>
+</blog-post>

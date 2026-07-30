@@ -1,0 +1,164 @@
+<blog-post
+  title="A Case for Agents You Can Evaluate and Optimize"
+  excerpt="An agent built as one prompt gives one number for the whole system. When it drops, you are guessing which part moved. Build every step to be scored alone."
+  date="2026-05-27"
+  og-image="/images/blog/my-preferred-agent-stack-adk-dspy-a2a/stack-og.png"
+  draft>
+  <script type="application/json" id="meta">
+    { "categories": ["AI", "Engineering"] }
+  </script>
+
+  <p>An agent built as one prompt has one score. You can tell whether it got better or worse and nothing else. When it gets worse, every part of it is equally suspect: the retrieval, the wording, the model you switched last week, the example you added on Friday.</p>
+
+  <p>This is a case for building them the other way, so that every step can be scored and improved on its own. Design for it from the first commit: it decides how you cut the system up, and cutting it up again later means rewriting it.</p>
+
+  <p>If your agent is one prompt and one call, none of this applies. You do not have a measurement problem, you have a prompt. Keep it that way.</p>
+
+  <p>It starts to matter when an agent grows a second and third model call that depend on each other: something retrieves, something judges whether what came back is usable, something writes the answer. That is where "is it any good?" stops having a single answer.</p>
+
+  <p>Two names before I use them.</p>
+
+  <p><strong>DSPy</strong> solves the prompt. You never write one. You say what a step takes in and gives back, you write a function that scores an answer, and it searches for the wording that scores best against your test cases. It is a Stanford project. <a href="/blog/stop-hand-writing-prompts-dspy">The mechanics are written up separately</a>, and this piece assumes only the summary above.</p>
+
+  <p>An <strong>orchestrator</strong> solves the wiring. You describe your steps and how they connect. It runs them in order, keeps the shared state, and streams progress back to whoever called it, so none of that plumbing is yours to write. I use <strong>Google ADK</strong>, now at version 2, and the rest of this uses it for the examples. Nothing in the argument depends on that choice: LangGraph, Temporal, or your own <code>asyncio</code> code all give you the same thing, and the reasoning below survives swapping any of them in.</p>
+
+  <p>The two names sit in different categories, which is why this pairs them rather than picking between them. <a href="/blog/four-kinds-of-agent-framework">The wider map of what competes with what</a> sorts the field by which responsibility you hand over.</p>
+
+  <p>An orchestrator on its own gets you most of the way, and it does evaluate. ADK ships an eval framework with thirteen built-in metrics: whether the final response matches, whether the agent called the right tools in the right order, task success across a conversation, safety, hallucination. Worth running, and I would not skip it.</p>
+
+  <p>Every one of those is scoped to <strong>the run</strong>. Did the agent end up in the right place, and did it take a sensible route there. What none of them says is which step to fix. When the trajectory score falls from 0.9 to 0.7 you know the run got worse, not that the coverage judge started approving thin candidate sets.</p>
+
+  <p>That separates the steps for debugging but not for measurement, and those are different cuts. You can tell which node was running when it went wrong. You cannot tell which node got worse.</p>
+
+  <p>Put a DSPy module behind a step and that step gets its own eval set and its own metric, scored on its own without running the agent at all. The same metric then drives an optimizer, so a bad number turns into a rewritten prompt rather than a bug report. You want both kinds: the orchestrator's eval tells you the system regressed, the per-step one tells you where.</p>
+
+  <p>The decision that makes an agent measurable is this: <strong>break it into small components, and put a DSPy module behind each one.</strong> Each becomes a step with declared inputs and outputs, a scoring function, and a handful of test cases.</p>
+
+  <p>In code:</p>
+
+  <pre><code># What the step takes in and what it gives back. Nothing else.
+class JudgeCoverage(dspy.Signature):
+    """Decide whether these products can answer the request."""
+
+    request: str = dspy.InputField()             # goes in
+    products: list[Product] = dspy.InputField()  # goes in
+    good_enough: bool = dspy.OutputField()       # comes back
+
+# What counts as a right answer. This is the thing you are optimizing against.
+def score(example, prediction):
+    return prediction.good_enough == example.expected
+</code></pre>
+
+  <p>No prompt anywhere. DSPy writes it, and rewrites it whenever you add rows to the test cases.</p>
+
+  <p>Now the judge scores 0.71, and after twelve more examples 0.88, without touching the ranker beside it or the prompt in front of it.</p>
+
+  <p>Everything else follows from protecting that, because the parts around a step change on their own timetables. You change <strong>a step's prompt</strong> whenever new test data says it should do better, which can be every week. You change <strong>the model</strong> when a cheaper or better one comes out, every few months and never at a convenient time. You change <strong>the shape of the workflow</strong> when the product grows a step or a fallback, a few times a year. You change <strong>the way other programs call your agent</strong> almost never. Every change there is a change somebody else has to make in their code, on their schedule, and they did not ask for it.</p>
+
+  <p>Two things you can only change together, you will only ever change together. Say the model and the network interface both sit behind one framework's API. Trying the model that came out last week now means touching the interface ten other teams depend on, so you put it off, and the cheaper model never gets tried. Keeping the four apart is what stops that.</p>
+
+  <figure class="diagram">
+    <svg viewBox="0 0 620 292" role="img" aria-labelledby="fig-clock-title" style="max-width:600px">
+      <title id="fig-clock-title">Four parts of an agent, ordered by how often you change them. A step's prompt changes most often and is handled by DSPy. The model changes when a better one comes out and is handled by LiteLLM. The workflow shape changes when the product does and is handled by ADK. How other programs call the agent almost never changes and is handled by A2A.</title>
+      <defs>
+        <marker id="clock-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path class="d-arrowhead" d="M0,0 L10,5 L0,10 z"/>
+        </marker>
+      </defs>
+      <text class="d-sub" x="6" y="18">change often</text>
+      <line class="d-line" x1="30" y1="30" x2="30" y2="266" marker-end="url(#clock-arrow)"/>
+      <text class="d-sub" x="6" y="284">change rarely</text>
+
+      <rect class="d-box-accent" x="56" y="26" width="330" height="52" rx="5"/>
+      <text class="d-title" x="72" y="48">A step's prompt</text>
+      <text class="d-text" x="72" y="66">when new test data says it should</text>
+      <text class="d-port" x="470" y="58">DSPy</text>
+
+      <rect class="d-box" x="56" y="86" width="330" height="52" rx="5"/>
+      <text class="d-title" x="72" y="108">The model</text>
+      <text class="d-text" x="72" y="126">when a better one comes out</text>
+      <text class="d-port" x="470" y="118">LiteLLM</text>
+
+      <rect class="d-box" x="56" y="146" width="330" height="52" rx="5"/>
+      <text class="d-title" x="72" y="168">The workflow shape</text>
+      <text class="d-text" x="72" y="186">when the product grows a step</text>
+      <text class="d-port" x="470" y="178">ADK</text>
+
+      <rect class="d-box" x="56" y="206" width="330" height="52" rx="5"/>
+      <text class="d-title" x="72" y="228">How others call it</text>
+      <text class="d-text" x="72" y="246">almost never, by design</text>
+      <text class="d-port" x="470" y="238">A2A</text>
+
+      <rect class="d-frame" x="440" y="26" width="174" height="232" rx="5"/>
+      <text class="d-sub" x="527" y="18" text-anchor="middle">handled by</text>
+    </svg>
+    <figcaption>The four parts of an agent, ordered by how often you change them, and what handles each.</figcaption>
+  </figure>
+
+  <p>Four parts to keep apart, so you would expect four things to install. You need two.</p>
+
+  <p><strong>DSPy</strong> handles a step's prompt, and it reaches the model through <strong>LiteLLM</strong>, which it already depends on. <strong>Google ADK 2.0</strong> runs the workflow, and it already speaks <strong>A2A</strong>, so one function call publishes your agent over the protocol.</p>
+
+  <p>That is also the answer to why this is not just ADK. ADK covers two of the four rows well and would cover a third. The one it does not cover is the row that changes most often, and that is the row worth being fussy about.</p>
+
+  <p>The examples come from a hackathon submission that simulates user reviews and recommends products from a Nigerian catalogue, cut short of their supporting definitions. <a href="https://github.com/tosinamuda/review-recommender-agent">Full source</a>.</p>
+
+  <h2>The workflow: an orchestrator</h2>
+
+  <p>You can stitch the steps together with <code>async/await</code> and <code>asyncio.Queue</code>, and it will work right up until you need to test it, trace it, or hand it to someone else. Underneath, an orchestrator is a graph: each step is a node, and the arrows between them decide what runs next. Write that graph out explicitly, or describe a chain and let it be built for you.</p>
+
+  <p>The value is that the workflow exists as data rather than as control flow scattered through your code. What routes where, what branches, what runs at the same time: written down in one place, so you can draw it, test it, and replace any piece of it. Nodes report progress as they go, which is what lets a caller show "searching the catalogue" instead of a spinner.</p>
+
+  <h2>Where the two meet</h2>
+
+  <p>The join is smaller than it sounds. An ADK node decides <em>what happens next</em>. A DSPy module decides <em>what to say to the model</em>.</p>
+
+  <p>Here is the DSPy half, the shape of the step and what each field means:</p>
+
+  <pre><code>class RankCandidates(dspy.Signature):
+    """Order the candidate products for this persona and say why."""
+
+    user_persona: str = dspy.InputField()
+    candidates: list[Product] = dspy.InputField()
+
+    ranked_ids: list[str] = dspy.OutputField()
+    reasons: dict[str, str] = dspy.OutputField(desc="product id to one-line reason")
+
+ranker = dspy.ChainOfThought(RankCandidates)
+</code></pre>
+
+  <p>And here is the ADK half calling it:</p>
+
+  <pre><code>def rank_and_reason_node(node_input, ctx) -&gt; Event:
+    ranking = ranker(                       # ranker is a DSPy module
+        persona=node_input.user_persona,
+        candidates=ctx.state["candidate_set"],
+    )
+    return _event(output=ranking, stage="rank_and_reason")
+</code></pre>
+
+  <p>Three lines of routing around one line of thinking. That split is what makes both halves replaceable. ADK never learns how the ranking prompt is worded, so you can recompile that prompt against new test data and the graph does not notice. The ranker has no idea it sits in a graph. Move it, delete it, run it beside another: it still works and still scores the same.</p>
+
+  <p>This is also what makes the ranker measurable. The model call lives in a module with declared inputs and outputs, not inline in the node. You can run it against a hundred saved cases without starting the workflow at all.</p>
+
+  <h2>The two you do not choose</h2>
+
+  <p>An agent nobody can call is not finished, and the calling is more work than it sounds. A connection held open, partial results pushed down it, reassembly at the other end, and a decision about what happens when it drops. You write none of it, because ADK already speaks <strong>A2A</strong>, the agent-to-agent protocol. One function publishes the workflow over it, and anything that speaks the protocol can then call your agent: the official clients, another ADK agent, or a browser through the maintained JavaScript client. A frontend goes from nothing to showing live progress in an afternoon, none of it spent on transport code. Some systems have good reason to run their own streaming instead, and nothing stops them; the standard just means you do not have to decide that first.</p>
+
+  <p>The model is the other one. DSPy reaches it through <strong>LiteLLM</strong>, which it already depends on, so switching from OpenRouter to Anthropic to a local Ollama instance is one string in one file. That is the row you control least: you do not decide when a lab deprecates an endpoint or ships something twice as good for a third of the cost.</p>
+
+  <h2>The test</h2>
+
+  <p>Two libraries is more setup than one, and one framework with one tutorial gets you to a running demo faster. The setup buys an answer to one question.</p>
+
+  <p><strong>When the next model ships on a Tuesday, how much of your system do you touch?</strong></p>
+
+  <p>Here: one line of <code>.env</code>. When a step starts failing on a kind of input you did not anticipate, you add rows to that step's test cases and recompile that one step, and nothing else moves. When the product grows a branch, you edit the graph and the prompts are untouched. When someone wants to call your agent from a Go service, they already can, and you do nothing at all.</p>
+
+  <p>None of it costs an extra network hop. A DSPy call inside an ADK node is an ordinary function call in the same process. The only real network boundary is the one where something outside your process wanted to call you, and that boundary was always going to be there.</p>
+
+  <p>An all-in-one framework can do all four of those things. What it cannot do is let them happen on four different schedules, and it cannot tell you which of your steps got better last week. That is why I build them this way.</p>
+
+  <p><em>Code, eval results, and full deployment Ansible: <a href="https://github.com/tosinamuda/review-recommender-agent">github.com/tosinamuda/review-recommender-agent</a>.</em></p>
+
+</blog-post>

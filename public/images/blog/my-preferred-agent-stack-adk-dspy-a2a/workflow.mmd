@@ -1,0 +1,27 @@
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "fontFamily": "ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif",
+    "fontSize": "14px",
+    "primaryColor": "#F5F4EE",
+    "primaryTextColor": "#141414",
+    "primaryBorderColor": "#5B3FB8",
+    "lineColor": "#6b6b66",
+    "edgeLabelBackground": "#F5F4EE",
+    "tertiaryColor": "#F5F4EE",
+    "tertiaryTextColor": "#141414",
+    "tertiaryBorderColor": "#908d83",
+    "background": "transparent"
+  }
+}}%%
+flowchart TB
+    A([RecommendationRequest]) --> B[retrieve_candidate_items_node]
+    B --> C[judge_candidate_coverage_node]
+    C --> D{route_by_coverage}
+    D -->|sufficient / partial| E[<b>rank_and_reason_node</b><br/>DSPy ranker]
+    D -->|insufficient| F[<b>generate_contextual_recommendations_node</b><br/>DSPy generator]
+    E --> G([RecommendationResponse])
+    F --> G
+
+    classDef llm fill:#5B3FB8,stroke:#5B3FB8,color:#ffffff
+    class E,F llm

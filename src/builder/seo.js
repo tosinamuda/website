@@ -11,19 +11,30 @@ import { escapeHtml } from "./utils.js";
 const GA_MEASUREMENT_ID = "G-D8YJEFRG9M";
 
 /**
- * Render the Google Analytics gtag snippet. The `async` attribute keeps the
- * loader script off the critical path; the inline config block initialises
- * dataLayer before the loader resolves.
+ * Render the Google Analytics gtag snippet, guarded by hostname.
+ *
+ * The loader is appended only on the live host, so nothing is requested from
+ * Google anywhere else. An allowlist rather than a localhost denylist, because
+ * deploy previews on *.pages.dev inflate the reports just as badly and would
+ * slip past a list of local names.
  *
  * @returns {string}
  */
 export function renderAnalytics() {
-  return `<script async src="https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', '${GA_MEASUREMENT_ID}');
+  const host = new URL(site.url).hostname;
+  return `<script>
+      (function () {
+        var live = ${JSON.stringify([host, `www.${host}`])};
+        if (live.indexOf(location.hostname) === -1) return;
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function () { window.dataLayer.push(arguments); };
+        window.gtag('js', new Date());
+        window.gtag('config', '${GA_MEASUREMENT_ID}');
+        var loader = document.createElement('script');
+        loader.async = true;
+        loader.src = 'https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}';
+        document.head.appendChild(loader);
+      })();
     </script>`;
 }
 

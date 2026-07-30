@@ -20,8 +20,7 @@ const REQUIRED = [
   "dist/components/site-footer.js",
   "dist/components/blog-archive.js",
   "dist/components/blog-post.js",
-  "dist/components/source-note.js",
-  "dist/components/further-reading.js",
+  "dist/components/call-out.js",
   "dist/components/inec-collation.js",
   "dist/blog/inec-presidential-election-collation-architecture.html",
 ];

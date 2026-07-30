@@ -4,10 +4,56 @@
   body { background: white !important; color: black; }
   site-header, site-footer { display: none !important; }
   .back { display: none; }
+
+  /* The note header carries screen furniture: the draft marker, category tags,
+     reading time and the date. On paper the title leads. */
+  .note-page-meta { display: none; }
+
+  /* Page margin already provides the top space; the screen padding doubles it. */
+  .wrap { padding-top: 0; }
+
+  /* Site furniture that cannot work on paper: a related-notes list nobody can
+     click, and a comment widget that prints as an empty form. */
+  .related, .comments { display: none; }
+
   a { color: black; text-decoration: underline; }
-  a[href^="http"]::after {
-    content: " (" attr(href) ")";
-    font-size: 0.85em;
-    color: #555;
+  /* Every heading wraps its text in an anchor for deep links, so the rule
+     above would underline every heading in the document. */
+  .heading-link { text-decoration: none; color: inherit; }
+
+  /* Code lines are wider than a printed page and cannot scroll on paper, so
+     wrap them instead of letting the right-hand side fall off the sheet. */
+  pre, code {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    overflow: visible;
   }
+  /* On the block only. Bordering <code> boxes every wrapped line and every
+     inline span in the prose. */
+  pre { border: 1px solid #ccc; }
+  pre { break-inside: avoid; }
+
+  /* Auto layout gives the last column whatever is left, which on paper is
+     often nothing. Fixed layout divides the width before the text is measured. */
+  table { table-layout: fixed; width: 100%; break-inside: auto; }
+  td, th { overflow-wrap: anywhere; }
+  thead { display: table-header-group; }
+  tr { break-inside: avoid; }
+
+  /* Keep small diagrams whole. A table taller than a page must still be allowed
+     to break, or the browser drops the overflow instead of paginating it, so the
+     rows govern pagination and the figure only asks to stay together. */
+  figure, call-out { break-inside: avoid; }
+  .af-table tbody { break-inside: auto; }
+
+  /* A horizontal scroll container cannot scroll on paper, so whatever sits
+     past its edge is simply lost. Release the container and the min-width
+     that forces the table wider than the page. */
+  .af-scroll { overflow: visible; }
+  .af-table { min-width: 0; }
+  h2, h3 { break-after: avoid; }
+
+  /* A URL after every link doubles the length of a paragraph and breaks it
+     mid-sentence. The further-reading list still names each source. */
+  a[href]::after { content: none; }
 }
