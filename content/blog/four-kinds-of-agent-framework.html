@@ -87,7 +87,7 @@
 
   <pre><code>Team = Literal["billing", "technical", "account"]
 
-route_ticket = dspy.ChainOfThought("ticket -> team: Team")
+route_ticket = dspy.Predict("ticket -> team: Team")
 
 def routing_accuracy(example, prediction, trace=None):
     return prediction.team == example.team
