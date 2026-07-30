@@ -79,17 +79,23 @@
 
   <p>I use <em>generation programming</em> for one model-driven operation inside a larger program. Suppose a support system must assign each ticket to a team. The ticket goes in; one valid team name must come out.</p>
 
-  <pre><code>route_ticket = generation(
-    prompt="Choose a support team.",
-    input=SupportTicket,
-    output=SupportTeam,
-    requirements=[known_team],
-)
-evaluate(
-    route_ticket,
-    labelled_tickets,
+  <pre><code>class RouteTicket(dspy.Signature):
+    """Assign a ticket to the right team."""
+
+    ticket: str = dspy.InputField()
+    team: Literal["billing", "technical", "account"] = (
+        dspy.OutputField()
+    )
+
+route_ticket = dspy.ChainOfThought(RouteTicket)
+
+def routing_accuracy(example, prediction, trace=None):
+    return prediction.team == example.team
+
+score = dspy.Evaluate(
+    devset=labelled_tickets,
     metric=routing_accuracy,
-)</code></pre>
+)(route_ticket)</code></pre>
 
   <p>A generation programming tool makes that operation manageable. You control its prompt, input, output, examples, requirements, and quality measure. You can then test, optimise, or repair it. The implementation can make more than one model call or run a small agent loop. It still owns one defined job: routing the ticket.</p>
 
