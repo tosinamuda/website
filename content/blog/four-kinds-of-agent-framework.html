@@ -83,23 +83,21 @@
 
   <h2>Generation programming tools</h2>
 
-  <p>I use <em>generation programming</em> for one model-driven operation inside a larger program. Suppose a support system must assign each ticket to a team. The ticket goes in; one valid team name must come out.</p>
+  <p>I use <em>generation programming</em> for one model-driven operation inside a larger program. Suppose a support system must decide whether a ticket is urgent. The ticket goes in; one true or false answer must come out.</p>
 
-  <pre><code>Team = Literal["billing", "technical", "account"]
+  <pre><code>triage = dspy.Predict("ticket -> urgent: bool")
 
-route_ticket = dspy.Predict("ticket -> team: Team")
-
-def routing_accuracy(example, prediction, trace=None):
-    return prediction.team == example.team
+def triage_accuracy(example, prediction, trace=None):
+    return prediction.urgent == example.urgent
 
 score = dspy.Evaluate(
     devset=labelled_tickets,
-    metric=routing_accuracy,
-)(route_ticket)</code></pre>
+    metric=triage_accuracy,
+)(triage)</code></pre>
 
-  <p>A generation programming tool makes that operation manageable. You control its prompt, input, output, examples, requirements, and quality measure. You can then test, optimise, or repair it. The implementation can make more than one model call or run a small agent loop. It still owns one defined job: routing the ticket.</p>
+  <p>A generation programming tool makes that operation manageable. You control its prompt, input, output, examples, requirements, and quality measure. You can then test, optimise, or repair it. The implementation can make more than one model call or run a small agent loop. It still owns one defined job: judging urgency.</p>
 
-  <p>You decide when <code>route_ticket</code> runs and what happens to its answer. You also supply any domain tools, memory, session state, and context policy used by the wider application.</p>
+  <p>You decide when <code>triage</code> runs and what happens to its answer. You also supply any domain tools, memory, session state, and context policy used by the wider application.</p>
 
   <p>Choose this boundary when you can split the work into model-driven operations that you can test separately. Consider a document pipeline that always loads, extracts, and stores an invoice. Malformed output points to the extraction operation. Changing the workflow will not make that output valid.</p>
 
@@ -110,16 +108,16 @@ score = dspy.Evaluate(
   <p>An orchestration framework runs a sequence of steps or agents. It supplies the loop or graph. Depending on the framework, it also handles routing, shared state, retries, checkpoints, and approval.</p>
 
   <pre><code>@workflow
-def resolve_issue(issue):
-    team = route_ticket(issue)
+def resolve_ticket(ticket):
+    urgent = triage(ticket)
     patch = coding_agent(
-        issue,
-        team=team,
+        ticket,
+        urgent=urgent,
     )
     wait_for_approval(patch)
     return deploy(patch)</code></pre>
 
-  <p>You provide <code>route_ticket</code>, <code>coding_agent</code>, and <code>deploy</code>. The framework connects them to the run. You choose the models, tools, agents, control flow, and context policy. Some frameworks also supply memory or default tools.</p>
+  <p>You provide <code>triage</code>, <code>coding_agent</code>, and <code>deploy</code>. The framework connects them to the run. You choose the models, tools, agents, control flow, and context policy. Some frameworks also supply memory or default tools.</p>
 
   <p>Choose orchestration when coordination is the hard part. This includes multi-step runs, work that must survive interruption, and flows that mix fixed code with model decisions. A generation program or agent harness can become one callable step in that run.</p>
 
