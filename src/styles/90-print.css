@@ -40,15 +40,16 @@
   thead { display: table-header-group; }
   tr { break-inside: avoid; }
 
-  /* Keep small diagrams whole, but a table taller than a page must be allowed
-     to break, or the browser drops the overflow instead of paginating it. */
+  /* Keep small diagrams whole. A table taller than a page must still be allowed
+     to break, or the browser drops the overflow instead of paginating it, so the
+     rows govern pagination and the figure only asks to stay together. */
   figure, call-out { break-inside: avoid; }
-  .af-visual:has(table) { break-inside: auto; }
+  .af-table tbody { break-inside: auto; }
 
   /* A horizontal scroll container cannot scroll on paper, so whatever sits
      past its edge is simply lost. Release the container and the min-width
      that forces the table wider than the page. */
-  .af-visual { overflow: visible; }
+  .af-scroll { overflow: visible; }
   .af-table { min-width: 0; }
   h2, h3 { break-after: avoid; }
 

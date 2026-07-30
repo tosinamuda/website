@@ -16,39 +16,45 @@
   <p>These labels describe how you adopt a product in one system. A product can cross boundaries when you use it in different ways. The names in this essay are examples; the list is intentionally incomplete.</p>
 
   <figure class="af-visual">
-    <div class="af-boundary-map" role="table" aria-label="Ready-made functionality compared with retained responsibility">
-      <div class="af-boundary-row af-boundary-row--head" role="row">
-        <span role="columnheader">Option</span>
-        <span role="columnheader">Comes ready-made</span>
-        <span role="columnheader">What stays your responsibility</span>
-      </div>
-      <div class="af-boundary-row" role="row">
-        <strong role="rowheader">Build your own</strong>
-        <span role="cell" data-label="Comes ready-made">Only the model or client primitives you choose</span>
-        <span role="cell" data-label="What stays your responsibility">The loop, tools, memory, context, permissions, and operations</span>
-      </div>
-      <div class="af-boundary-row" role="row">
-        <strong role="rowheader">Generation programming</strong>
-        <span role="cell" data-label="Comes ready-made">A model-driven operation you can specify, evaluate, and improve</span>
-        <span role="cell" data-label="What stays your responsibility">When it runs, the wider workflow, tools, memory, and context</span>
-      </div>
-      <div class="af-boundary-row" role="row">
-        <strong role="rowheader">Orchestration</strong>
-        <span role="cell" data-label="Comes ready-made">Execution across steps: loop or graph, routing, state, and recovery</span>
-        <span role="cell" data-label="What stays your responsibility">The models, tools, agents, control flow, and context policy</span>
-      </div>
-      <div class="af-boundary-row" role="row">
-        <strong role="rowheader">Agent harness</strong>
-        <span role="cell" data-label="Comes ready-made">A working agent with a model connection, loop, tools, and sessions</span>
-        <span role="cell" data-label="What stays your responsibility">The task, permissions, skills, hooks, custom tools, and MCP servers</span>
-      </div>
-      <div class="af-boundary-row" role="row">
-        <strong role="rowheader">Platform</strong>
-        <span role="cell" data-label="Comes ready-made">Hosting, identity, security, policy enforcement, and observability</span>
-        <span role="cell" data-label="What stays your responsibility">Agent behaviour, business tools, policies, and lower-level components</span>
-      </div>
+    <figcaption class="af-caption">Each row moves a different responsibility out of your application code.</figcaption>
+    <div class="af-scroll" role="region" aria-label="What each option supplies and what stays yours" tabindex="0">
+    <table class="af-table">
+      <thead>
+        <tr>
+          <th scope="col">Option</th>
+          <th scope="col">Comes ready-made</th>
+          <th scope="col">What stays your responsibility</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">Build your own</th>
+          <td>Only the model or client primitives you choose</td>
+          <td>The loop, tools, memory, context, permissions, and operations</td>
+        </tr>
+        <tr>
+          <th scope="row">Generation programming</th>
+          <td>A model-driven operation you can specify, evaluate, and improve</td>
+          <td>When it runs, the wider workflow, tools, memory, and context</td>
+        </tr>
+        <tr>
+          <th scope="row">Orchestration</th>
+          <td>Execution across steps: loop or graph, routing, state, and recovery</td>
+          <td>The models, tools, agents, control flow, and context policy</td>
+        </tr>
+        <tr>
+          <th scope="row">Agent harness</th>
+          <td>A working agent with a model connection, loop, tools, and sessions</td>
+          <td>The task, permissions, skills, hooks, custom tools, and MCP servers</td>
+        </tr>
+        <tr>
+          <th scope="row">Platform</th>
+          <td>Hosting, identity, security, policy enforcement, and observability</td>
+          <td>Agent behaviour, business tools, policies, and lower-level components</td>
+        </tr>
+      </tbody>
+    </table>
     </div>
-    <p class="af-caption">Each row moves a different responsibility out of your application code.</p>
   </figure>
 
   <p>Features overlap, so a checklist will not classify the tool. A generation program can contain a small agent loop. An orchestrator can include memory or a default agent. A harness can coordinate subagents. Classify the part you ask the tool to own in your system.</p>
@@ -79,15 +85,10 @@
 
   <p>I use <em>generation programming</em> for one model-driven operation inside a larger program. Suppose a support system must assign each ticket to a team. The ticket goes in; one valid team name must come out.</p>
 
-  <pre><code>class RouteTicket(dspy.Signature):
-    """Assign a ticket to the right team."""
-
-    ticket: str = dspy.InputField()
-    team: Literal["billing", "technical", "account"] = (
-        dspy.OutputField()
-    )
-
-route_ticket = dspy.ChainOfThought(RouteTicket)
+  <pre><code>route_ticket = dspy.ChainOfThought(
+    "ticket -> team: "
+    "Literal['billing', 'technical', 'account']"
+)
 
 def routing_accuracy(example, prediction, trace=None):
     return prediction.team == example.team

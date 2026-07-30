@@ -2,77 +2,60 @@
 /* Agent framework landscape essay */
 .af-visual {
   margin: 36px 0;
+}
+/* Only the rows scroll. A caption inside the scroll container is as wide as the
+   table, so on a narrow screen the sentence describing the table runs off it. */
+.af-scroll {
   overflow-x: auto;
 }
-.af-caption {
+/* The caption reads before the rows, so the space belongs underneath it. The
+   element selector keeps this ahead of the site-wide `.prose figcaption` font. */
+.prose figcaption.af-caption {
   color: var(--ink-3);
   font-family: var(--body);
   font-size: 14px;
   font-style: italic;
   line-height: 1.4;
-  margin: 14px 0 0;
+  margin: 0 0 10px;
   text-align: center;
 }
-/* Ready-made functionality compared with retained control */
-.af-boundary-map {
-  border: 1px solid var(--rule);
+
+/* Comparison table */
+.af-table {
   background: var(--paper);
+  border: 1px solid var(--rule);
+  border-collapse: collapse;
+  font-family: var(--body);
+  font-size: 14px;
+  min-width: 620px;
+  width: 100%;
 }
-.af-boundary-row {
-  display: grid;
-  grid-template-columns: minmax(105px, 0.55fr) 1fr 1fr;
-}
-.af-boundary-row + .af-boundary-row { border-top: 1px solid var(--rule); }
-.af-boundary-row > * {
+.af-table th,
+.af-table td {
+  border-bottom: 1px solid var(--rule);
   border-right: 1px solid var(--rule);
-  padding: 12px;
+  line-height: 1.45;
+  padding: 11px 12px;
+  text-align: left;
+  vertical-align: top;
 }
-.af-boundary-row > :last-child { border-right: 0; }
-.af-boundary-row--head {
+.af-table th:last-child,
+.af-table td:last-child { border-right: 0; }
+.af-table thead th {
   background: var(--rule-2);
-  color: var(--ink-2);
+  color: var(--ink);
   font-family: var(--ui);
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
-.af-boundary-row strong {
-  color: var(--accent);
-  font-family: var(--display);
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1.35;
+.af-table tbody th {
+  background: var(--rule-2);
+  color: var(--ink);
+  font-size: 13.5px;
+  font-weight: 600;
 }
-.af-boundary-row span {
-  color: var(--ink-2);
-  font-size: 12.5px;
-  line-height: 1.45;
-}
-
-@media (max-width: 640px) {
-  .af-boundary-row--head { display: none; }
-  .af-boundary-row {
-    grid-template-columns: 1fr;
-  }
-  .af-boundary-row > * {
-    border-right: 0;
-    padding: 10px 12px;
-  }
-  .af-boundary-row strong {
-    background: var(--rule-2);
-    padding-bottom: 9px;
-    padding-top: 9px;
-  }
-  .af-boundary-row span::before {
-    color: var(--ink-3);
-    content: attr(data-label);
-    display: block;
-    font-family: var(--ui);
-    font-size: 9px;
-    letter-spacing: 0.1em;
-    margin-bottom: 3px;
-    text-transform: uppercase;
-  }
-    }
+.af-table tbody tr:last-child td,
+.af-table tbody tr:last-child th { border-bottom: 0; }
 }
