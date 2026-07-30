@@ -59,7 +59,7 @@
 
   <p>Features overlap, so a checklist will not classify the tool. A generation program can contain a small agent loop. An orchestrator can include memory or a default agent. A harness can coordinate subagents. Classify the part you ask the tool to own in your system.</p>
 
-  <p>The short Python sketches below show that boundary. The examples use generic interfaces.</p>
+  <p>The short Python sketches below show that boundary. The generation and orchestration examples use real libraries. The others use generic interfaces.</p>
 
   <h2>Building your own</h2>
 
@@ -107,17 +107,20 @@ score = dspy.Evaluate(
 
   <p>An orchestration framework runs a sequence of steps or agents. It supplies the loop or graph. Depending on the framework, it also handles routing, shared state, retries, checkpoints, and approval.</p>
 
-  <pre><code>@workflow
-def resolve_ticket(ticket):
-    urgent = triage(ticket)
-    patch = coding_agent(
-        ticket,
-        urgent=urgent,
-    )
-    wait_for_approval(patch)
-    return deploy(patch)</code></pre>
+  <pre><code>builder = StateGraph(Run)
+builder.add_node("triage", triage_step)
+builder.add_node("patch", coding_agent)
+builder.add_node("deploy", deploy)
+builder.add_edge(START, "triage")
+builder.add_edge("triage", "patch")
+builder.add_edge("patch", "deploy")
 
-  <p>You provide <code>triage</code>, <code>coding_agent</code>, and <code>deploy</code>. The framework connects them to the run. You choose the models, tools, agents, control flow, and context policy. Some frameworks also supply memory or default tools.</p>
+app = builder.compile(
+    checkpointer=InMemorySaver(),
+    interrupt_before=["deploy"],
+)</code></pre>
+
+  <p>You provide the three step functions, and <code>triage_step</code> wraps the program from the previous section. The framework connects the steps, carries state between them, saves a checkpoint at each one, and holds the run before deployment until a person approves. You choose the models, tools, agents, control flow, and context policy. Some frameworks also supply memory or default tools.</p>
 
   <p>Choose orchestration when coordination is the hard part. This includes multi-step runs, work that must survive interruption, and flows that mix fixed code with model decisions. A generation program or agent harness can become one callable step in that run.</p>
 
